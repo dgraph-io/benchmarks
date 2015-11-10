@@ -4,19 +4,20 @@ README
 The data is derived from Freebase Data Dumps:
 Google, Freebase Data Dumps, https://developers.google.com/freebase/data, Nov 10, 2015.
 
-**film-entities.txt.gz** contains film related entities, one entity per line (not RDF). Contains 4.6 million entities.
-**names.gz** contains `type.object.name` RDF entries for film related entities. Contains 4.1 million names (edges) in various languages.
-**rdf-films.gz** contains the RDF data for all the entities which have a name entry in `names.gz`. Currently contains ~17 million edges.
-**langnames.gz** contains names of primary languages.
+- **film-entities.txt.gz** contains film related entities, one entity per line (not RDF). Contains 4.6 million entities.
+- **names.gz** contains `type.object.name` RDF entries for film related entities. Contains 4.1 million names (edges) in various languages.
+- **entitylist.gz** contains film related entities occuring in subject field, with valid `type.object.name` entries, plus `film.performance` mediators. Used to generate *rdf-films.gz*. [~3.5 million]
+- **rdf-films.gz** contains the RDF data for all the entities which have a name entry in `names.gz`. Currently contains ~18 million edges.
+- **langnames.gz** contains names of primary languages. [2084 edges]
+- **countrynames.gz** contains names of countries. [12381 edges]
 ```
-zcat rdf-films.gz | wc -l
-23605299
+$ zcat rdf-films.gz | wc -l
+17910696
 ```
 
 Film data from Freebase is like so:
-film.film --{film.film.starring}--> [mediator] --{film.performance.actor}--> film.actor
-
 ```
+# film.film --{film.film.starring}--> [mediator] --{film.performance.actor}--> film.actor
 # Film --> Mediator
 $ zgrep "<film.film.starring>" rdf-films.gz | wc -l
 1397647
@@ -72,4 +73,17 @@ $ zgrep "<film.film.country>" rdf-films.gz | awk '{print $3}' | uniq | sort | un
 # Generated country names from names freebase rdf data.
 $ zcat countrynames.gz | awk '{print $1}' | sort | uniq | wc -l
 304
+
+# Content Rating --> Film
+$ zgrep "<film.content_rating.film>" rdf-films.gz | wc -l
+24266
+
+# Film -> Content Rating
+$ zgrep "<film.film.rating>" rdf-films.gz | wc -l
+24266
+```
+
+### Filter out data
+```
+zgrep -v "<kg\." rdf-films.gz | grep -v "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" | less
 ```
