@@ -9,8 +9,8 @@ Google, Freebase Data Dumps, https://developers.google.com/freebase/data, Nov 10
 **rdf-films.gz** contains the RDF data for all the entities which have a name entry in `names.gz`. Currently contains ~17 million edges.
 **langnames.gz** contains names of primary languages.
 ```
-zcat frdf-films.gz | wc -l
-16972467
+zcat rdf-films.gz | wc -l
+23605299
 ```
 
 Film data from Freebase is like so:
@@ -21,10 +21,11 @@ film.film --{film.film.starring}--> [mediator] --{film.performance.actor}--> fil
 $ zgrep "<film.film.starring>" rdf-films.gz | wc -l
 1397647
 
-# TODO: The following is an artifact of how data was filtered from freebase. Fix this.
+# DONE: The following is an artifact of how data was filtered from freebase. ~~Fix this.~~
+# Fixed!
 # Mediator --> Actor
 $ zgrep "<film.performance.actor>" rdf-films.gz | wc -l
-227
+1396420
 
 # Film --> Director
 $ zgrep "<film.film.directed_by>" rdf-films.gz | wc -l
