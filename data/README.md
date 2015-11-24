@@ -87,3 +87,8 @@ $ zgrep "<film.film.rating>" rdf-films.gz | wc -l
 ```
 zgrep -v "<kg\." rdf-films.gz | grep -v "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" | less
 ```
+
+### Generate 1M edges
+```
+$ zcat rdf-films.gz | grep "<film.film.directed_by>\|<film.director.film>\|<film.film.initial_release_date>\|<film.film.country>\|<film.film.primary_language>\|<film.film.rating>" | gzip > selective.gz
+```
