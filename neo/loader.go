@@ -127,7 +127,7 @@ func (s *state) getEntity(db *neoism.Database, xid string) *neoism.Node {
 		glog.WithFields(logrus.Fields{
 			"id":    e.Id(),
 			"_xid_": xid,
-		}).Info("Added new entity")
+		}).Debug("Added new entity")
 	}
 	return e
 }
