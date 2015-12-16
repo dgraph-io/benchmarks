@@ -143,7 +143,7 @@ func (s *state) handleNQuads(db *neoism.Database, wg *sync.WaitGroup) {
 		e1 := s.getEntity(db, nq.Subject)
 		if len(nq.ObjectId) > 0 {
 			e2 := s.getEntity(db, nq.ObjectId)
-			_, err := e2.Relate(nq.Predicate, e1.Id(), neoism.Props{})
+			_, err := e1.Relate(nq.Predicate, e2.Id(), neoism.Props{})
 			if err != nil {
 				glog.Fatal(err)
 			}
