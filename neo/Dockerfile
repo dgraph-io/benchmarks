@@ -36,4 +36,4 @@ EXPOSE 7474
 
 # docker tag -f aaaaaaaaa dgraph/neo4j:latest
 # docker push dgraph/neo4j
-# docker run -P -i -t -v /mnt/neo4j:/data dgraph/neo4j
+# docker run -p 7474:7474 -i -t -v /mnt/neo4j:/data dgraph/neo4j
