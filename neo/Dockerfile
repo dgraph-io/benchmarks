@@ -24,6 +24,7 @@ RUN cd /installs && \
 	tar -xzvf git-lfs-linux-amd64-1.1.0.tar.gz && \
 	cd /installs/git-lfs-1.1.0 && ./install.sh
 
+RUN echo v0.1
 RUN mkdir -p /go/src/github.com/dgraph-io && \
   cd /go/src/github.com/dgraph-io && git clone https://github.com/dgraph-io/benchmarks
 RUN cd /go/src/github.com/dgraph-io/benchmarks/neo && go get -v .
@@ -32,3 +33,7 @@ COPY neo4j.tar.gz /installs/neo4j.tar.gz
 RUN cd /installs && tar -xzvf neo4j.tar.gz
 COPY neo4j-server.properties /installs/neo4j-community-2.3.1/conf/neo4j-server.properties
 EXPOSE 7474
+
+# docker tag -f aaaaaaaaa dgraph/neo4j:latest
+# docker push dgraph/neo4j
+# docker run -P -i -t -v /mnt/neo4j:/data dgraph/neo4j
