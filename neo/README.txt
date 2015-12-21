@@ -58,3 +58,51 @@ INFO[0582] Counters                                      ignored=0 len_cnq=10000
 INFO[0583] Counters                                      ignored=0 len_cnq=10000 package=neoloader parsed=136044 pending=13000 processed=123044 read=146048
 INFO[0584] Counters                                      ignored=0 len_cnq=10000 package=neoloader parsed=136287 pending=13000 processed=123287 read=146291
 
+
+Loading up 4.1M name facts.
+INFO[101793] Counters                                      ignored=0 len_cnq=437 package=neoloader parsed=4171465 pending=3437 processed=4168028 read=4170465
+INFO[101794] Counters                                      ignored=0 len_cnq=398 package=neoloader parsed=4171465 pending=3398 processed=4168067 read=4170465
+INFO[101795] Counters                                      ignored=0 len_cnq=356 package=neoloader parsed=4171465 pending=3356 processed=4168109 read=4170465
+INFO[101796] Counters                                      ignored=0 len_cnq=323 package=neoloader parsed=4171465 pending=3323 processed=4168142 read=4170465
+INFO[101797] Counters                                      ignored=0 len_cnq=290 package=neoloader parsed=4171465 pending=3290 processed=4168175 read=4170465
+INFO[101798] Counters                                      ignored=0 len_cnq=257 package=neoloader parsed=4171465 pending=3257 processed=4168208 read=4170465
+INFO[101799] Counters                                      ignored=0 len_cnq=235 package=neoloader parsed=4171465 pending=3235 processed=4168230 read=4170465
+INFO[101800] Counters                                      ignored=0 len_cnq=201 package=neoloader parsed=4171465 pending=3201 processed=4168264 read=4170465
+INFO[101801] Counters                                      ignored=0 len_cnq=172 package=neoloader parsed=4171465 pending=3172 processed=4168293 read=4170465
+INFO[101802] Counters                                      ignored=0 len_cnq=136 package=neoloader parsed=4171465 pending=3136 processed=4168329 read=4170465
+INFO[101803] Counters                                      ignored=0 len_cnq=108 package=neoloader parsed=4171465 pending=3108 processed=4168357 read=4170465
+INFO[101804] Counters                                      ignored=0 len_cnq=72 package=neoloader parsed=4171465 pending=3072 processed=4168393 read=4170465
+INFO[101805] Counters                                      ignored=0 len_cnq=40 package=neoloader parsed=4171465 pending=3040 processed=4168425 read=4170465
+INFO[101806] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2993 processed=4168472 read=4170465
+INFO[101807] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2965 processed=4168500 read=4170465
+INFO[101808] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2939 processed=4168526 read=4170465
+INFO[101809] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2895 processed=4168570 read=4170465
+INFO[101810] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2848 processed=4168617 read=4170465
+INFO[101811] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2800 processed=4168665 read=4170465
+INFO[101812] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2764 processed=4168701 read=4170465
+INFO[101813] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2722 processed=4168743 read=4170465
+INFO[101814] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2683 processed=4168782 read=4170465
+INFO[101815] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2662 processed=4168803 read=4170465
+INFO[101816] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2619 processed=4168846 read=4170465
+INFO[101817] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2571 processed=4168894 read=4170465
+INFO[101818] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2528 processed=4168937 read=4170465
+INFO[101819] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2489 processed=4168976 read=4170465
+INFO[101820] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2402 processed=4169063 read=4170465
+INFO[101821] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2321 processed=4169144 read=4170465
+INFO[101822] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2228 processed=4169237 read=4170465
+INFO[101823] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=2123 processed=4169342 read=4170465
+INFO[101824] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=1956 processed=4169509 read=4170465
+INFO[101825] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=1835 processed=4169630 read=4170465
+INFO[101826] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=1696 processed=4169769 read=4170465
+INFO[101827] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=1571 processed=4169894 read=4170465
+INFO[101828] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=1447 processed=4170018 read=4170465
+INFO[101829] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=1307 processed=4170158 read=4170465
+INFO[101830] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=1119 processed=4170346 read=4170465
+INFO[101831] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=947 processed=4170518 read=4170465
+INFO[101832] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=783 processed=4170682 read=4170465
+INFO[101833] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=618 processed=4170847 read=4170465
+INFO[101834] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=448 processed=4171017 read=4170465
+INFO[101835] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=275 processed=4171190 read=4170465
+INFO[101836] Counters                                      ignored=0 len_cnq=0 package=neoloader parsed=4171465 pending=99 processed=4171366 read=4170465
+INFO[101836] RDFs parsed                                   count=4171465 package=neoloader
+

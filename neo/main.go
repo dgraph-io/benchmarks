@@ -33,15 +33,17 @@ var glog = logrus.WithField("package", "neoloader")
 var rdfGzips = flag.String("rdfgzips", "",
 	"Comma separated gzip files containing RDF data")
 var mod = flag.Uint64("mod", 1, "Only pick entities, where uid % mod == 0.")
+var threads = flag.Int("threads", 1, "Use these many threads.")
 
 func main() {
 	flag.Parse()
 
 	numCpus := runtime.NumCPU()
-	prevProcs := runtime.GOMAXPROCS(numCpus)
+	prevProcs := runtime.GOMAXPROCS(*threads)
 	glog.WithField("num_cpu", numCpus).
+		WithField("threads", *threads).
 		WithField("prev_maxprocs", prevProcs).
-		Info("Set max procs to num cpus")
+		Info("Set max procs to threads")
 
 	if len(*rdfGzips) == 0 {
 		glog.Fatal("No RDF GZIP files specified")
