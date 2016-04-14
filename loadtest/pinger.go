@@ -25,10 +25,9 @@ var (
 	serverAddr = flag.String("ip", ":8081", "IP addr of server")
 	avg        chan float64
 	glog       = x.Log("Pinger")
-	wg         sync.WaitGroup
 )
 
-func runUser() {
+func runUser(wg *sync.WaitGroup) {
 	var ti time.Duration
 	var query = `{
 		  me(_xid_: m.0f4vbz) {
@@ -47,12 +46,12 @@ func runUser() {
 		r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 		t0 := time.Now()
-		fmt.Println(i)
+		//		fmt.Println(i)
 		resp, _ := client.Do(r)
 		if resp.Status != "200 OK" {
 			glog.WithField("Err", resp.Status).Fatalf("Error in query")
 		}
-		fmt.Println("user", i)
+		//		fmt.Println("user", i)
 		t1 := time.Now()
 		ti += t1.Sub(t0)
 	}
@@ -65,16 +64,19 @@ func runUser() {
 func main() {
 	flag.Parse()
 	var totTime float64
+	var wg sync.WaitGroup
 	avg = make(chan float64, *numUser)
-	fmt.Println("user")
+	//	fmt.Println("user")
 
+	wg.Add(*numUser)
 	for i := 0; i < *numUser; i++ {
-		wg.Add(1)
-		fmt.Println("user")
-		go runUser()
+		fmt.Println("user", i)
+		go runUser(&wg)
 		fmt.Println("qw")
 	}
+	wg.Done()
 	wg.Wait()
+	close(avg)
 	for it := range avg {
 		totTime += it
 	}
