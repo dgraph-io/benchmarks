@@ -48,11 +48,11 @@ func runUser(wg *sync.WaitGroup) {
 		t0 := time.Now()
 		//		fmt.Println(i)
 		resp, _ := client.Do(r)
+		t1 := time.Now()
 		if resp.Status != "200 OK" {
 			glog.WithField("Err", resp.Status).Fatalf("Error in query")
 		}
 		//		fmt.Println("user", i)
-		t1 := time.Now()
 		ti += t1.Sub(t0)
 	}
 	avg <- ti.Seconds()
