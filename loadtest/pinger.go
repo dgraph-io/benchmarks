@@ -55,7 +55,6 @@ func runUser(wg *sync.WaitGroup) {
 		t1 := time.Now()
 		ti += t1.Sub(t0)
 	}
-	fmt.Println(ti.Seconds())
 	avg <- ti.Seconds()
 	fmt.Println("Done")
 	wg.Done()
@@ -66,20 +65,17 @@ func main() {
 	var totTime float64
 	var wg sync.WaitGroup
 	avg = make(chan float64, *numUser)
-	//	fmt.Println("user")
 
 	wg.Add(*numUser)
 	for i := 0; i < *numUser; i++ {
 		fmt.Println("user", i)
 		go runUser(&wg)
-		fmt.Println("qw")
 	}
-	wg.Done()
 	wg.Wait()
 	close(avg)
 	for it := range avg {
 		totTime += it
 	}
 
-	fmt.Println(totTime / float64(*numUser*(*numReq)))
+	fmt.Println("Average time : ", totTime/float64(*numUser*(*numReq)))
 }
