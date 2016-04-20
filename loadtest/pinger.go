@@ -3,16 +3,17 @@
 //	./pinger --ip http://dgraph.io/query --numuser 3
 //
 //
-//
 
 package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 
@@ -24,11 +25,15 @@ var (
 	numReq     = flag.Int("numreq", 10, "number of request per user")
 	serverAddr = flag.String("ip", ":8081", "IP addr of server")
 	avg        chan float64
+	jsonP      chan float64
+	serverP    chan float64
+	parsingP   chan float64
+	totalP     chan float64
 	glog       = x.Log("Pinger")
 )
 
 func runUser(wg *sync.WaitGroup) {
-	var ti time.Duration
+	var ti, proT, parT, jsonT, totT time.Duration
 	var query = `{
 		  me(_xid_: m.0f4vbz) {
 			    type.object.name.en
@@ -39,32 +44,67 @@ func runUser(wg *sync.WaitGroup) {
 			    }
 		  }
 		}`
-	client := &http.Client{}
+
+	client := &http.Client{Transport: &http.Transport{
+		MaxIdleConnsPerHost: 100,
+	}}
+	var dat map[string]interface{}
+	var latency map[string]interface{}
 	for i := 0; i < *numReq; i++ {
 		r, _ := http.NewRequest("POST", *serverAddr, bytes.NewBufferString(query))
-		r.Header.Add("Content-Length", strconv.Itoa(len(query)))
-		r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 		t0 := time.Now()
-		//		fmt.Println(i)
-		resp, _ := client.Do(r)
+		//fmt.Println(i)
+		resp, err := client.Do(r)
 		t1 := time.Now()
-		if resp.Status != "200 OK" {
+		if err != nil {
 			glog.WithField("Err", resp.Status).Fatalf("Error in query")
+		} else {
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatalf("Couldn't parse response body. %+v", err)
+			}
+			resp.Body.Close()
+			err = json.Unmarshal(body, &dat)
+			if err != nil {
+				glog.Fatalf("Error in reply")
+			}
+			//fmt.Println(dat["server_latency"])
+			ti += t1.Sub(t0)
+			// json:1.144568ms parsing:4.031346ms processing:3.726298ms total:8.904975ms
+			temp := dat["server_latency"]
+			latency = temp.(map[string]interface{})
+
+			pro, _ := time.ParseDuration(latency["processing"].(string))
+			proT += pro
+			js, _ := time.ParseDuration(latency["json"].(string))
+			jsonT += js
+			par, _ := time.ParseDuration(latency["parsing"].(string))
+			parT += par
+			tot, _ := time.ParseDuration(latency["total"].(string))
+			totT += tot
 		}
 		//		fmt.Println("user", i)
-		ti += t1.Sub(t0)
 	}
 	avg <- ti.Seconds()
+	serverP <- proT.Seconds()
+	jsonP <- jsonT.Seconds()
+	parsingP <- parT.Seconds()
+	totalP <- totT.Seconds()
+
 	fmt.Println("Done")
 	wg.Done()
 }
 
 func main() {
 	flag.Parse()
-	var totTime float64
+	var totTime, serTi, jsonTi, parTi, totTi float64
 	var wg sync.WaitGroup
 	avg = make(chan float64, *numUser)
+	serverP = make(chan float64, *numUser)
+	totalP = make(chan float64, *numUser)
+	parsingP = make(chan float64, *numUser)
+	jsonP = make(chan float64, *numUser)
 
 	wg.Add(*numUser)
 	for i := 0; i < *numUser; i++ {
@@ -73,9 +113,31 @@ func main() {
 	}
 	wg.Wait()
 	close(avg)
+	close(serverP)
+	close(parsingP)
+	close(jsonP)
+	close(totalP)
+
 	for it := range avg {
 		totTime += it
 	}
+	for it := range serverP {
+		serTi += it
+	}
+	for it := range parsingP {
+		parTi += it
+	}
+	for it := range jsonP {
+		jsonTi += it
+	}
+	for it := range totalP {
+		totTi += it
+	}
 
-	fmt.Println("Average time : ", totTime/float64(*numUser*(*numReq)))
+	fmt.Println("Average time : ", totTime, totTime/float64(*numUser*(*numReq)))
+	fmt.Println("Total time : ", totTi, totTi/float64(*numUser*(*numReq)))
+	fmt.Println("Json time : ", jsonTi, jsonTi/float64(*numUser*(*numReq)))
+	fmt.Println("Processing  time : ", serTi, serTi/float64(*numUser*(*numReq)))
+	fmt.Println("Parsing time : ", parTi, parTi/float64(*numUser*(*numReq)))
+
 }
