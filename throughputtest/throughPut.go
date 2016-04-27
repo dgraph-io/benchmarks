@@ -119,7 +119,6 @@ func runUser(wg *sync.WaitGroup) {
 	parsingP <- parT.Seconds()
 	totalP <- totT.Seconds()
 
-	fmt.Println("Done")
 	wg.Done()
 }
 
@@ -146,18 +145,33 @@ func main() {
 		directors = append(directors, scanner.Text())
 	}
 
-	countC = make(chan int, *numUser)
-	serverP = make(chan float64, *numUser)
-	totalP = make(chan float64, *numUser)
-	parsingP = make(chan float64, *numUser)
-	jsonP = make(chan float64, *numUser)
+	countC = make(chan int, 3*(*numUser))
+	serverP = make(chan float64, 3*(*numUser))
+	totalP = make(chan float64, 3*(*numUser))
+	parsingP = make(chan float64, 3*(*numUser))
+	jsonP = make(chan float64, 3*(*numUser))
 
 	wg.Add(*numUser)
+	fmt.Println("First run")
 	for i := 0; i < *numUser; i++ {
-		fmt.Println("user", i)
 		go runUser(&wg)
 	}
 	wg.Wait()
+	time.Sleep(5 * time.Second)
+	wg.Add(*numUser)
+	fmt.Println("Second run")
+	for i := 0; i < *numUser; i++ {
+		go runUser(&wg)
+	}
+	wg.Wait()
+	time.Sleep(5 * time.Second)
+	wg.Add(*numUser)
+	fmt.Println("Third run")
+	for i := 0; i < *numUser; i++ {
+		go runUser(&wg)
+	}
+	wg.Wait()
+
 	close(countC)
 	close(serverP)
 	close(parsingP)
@@ -180,7 +194,7 @@ func main() {
 		totTi += it
 	}
 
-	fmt.Println("Throughput (num request per second) : ", float64(totCount)/(*numSec))
+	fmt.Println("Throughput (num request per second) : ", float64(totCount)/(3*(*numSec)))
 	fmt.Println("Total number of queries : ", totCount)
 	fmt.Println("Total time (Seconds) : ", totTi, totTi/float64(totCount))
 	fmt.Println("Json time (Seconds): ", jsonTi, jsonTi/float64(totCount))
