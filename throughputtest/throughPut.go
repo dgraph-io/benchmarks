@@ -1,9 +1,3 @@
-//	Sample use :
-//
-//	./pinger --ip http://dgraph.io/query --numuser 3
-//
-//
-
 package main
 
 import (
@@ -14,9 +8,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -33,7 +29,7 @@ var (
 	serverP           chan float64
 	parsingP          chan float64
 	totalP            chan float64
-	minC, maxC        chan float64
+	latC              chan float64
 	glog              = x.Log("Pinger")
 	actors, directors []string
 	serverList        []string
@@ -63,11 +59,9 @@ var qd2 = `) {
 		}`
 
 func runUser(wg *sync.WaitGroup) {
-	var proT, parT, min, max, jsonT, totT time.Duration
+	var proT, parT, jsonT, totT time.Duration
 	var count int
 
-	min = 1000000.0
-	max = -1.0
 	client := &http.Client{Transport: &http.Transport{
 		MaxIdleConnsPerHost: 100,
 	}}
@@ -114,35 +108,28 @@ func runUser(wg *sync.WaitGroup) {
 			jsonT += js
 			par, _ := time.ParseDuration(latency["parsing"].(string))
 			parT += par
+
 			tot, _ := time.ParseDuration(latency["total"].(string))
 			totT += tot
 
-			if min > pro {
-				min = pro
-			}
-
-			if max < pro {
-				max = pro
-			}
+			latC <- tot.Seconds()
 		}
 	}
 	countC <- count
-	serverP <- proT.Seconds()
-	jsonP <- jsonT.Seconds()
-	parsingP <- parT.Seconds()
-	totalP <- totT.Seconds()
-	minC <- min.Seconds()
-	maxC <- max.Seconds()
+	/*	serverP <- proT.Seconds()
+		jsonP <- jsonT.Seconds()
+		parsingP <- parT.Seconds()
+	*/totalP <- totT.Seconds()
 
 	wg.Done()
 }
 
 func main() {
 	flag.Parse()
-	var minCI, maxCI, serTi, jsonTi, parTi, totTi float64
+	var meanLat, sdLat, serTi, jsonTi, parTi, totTi float64
 	var totCount int
 	var wg sync.WaitGroup
-
+	var allLat []float64
 	serverList = strings.Split(*serverAddr, ",")
 	actorfile, err := os.Open("listofactors")
 	directorfile, err1 := os.Open("listofdirectors")
@@ -166,39 +153,30 @@ func main() {
 	totalP = make(chan float64, 5*(*numUser))
 	parsingP = make(chan float64, 5*(*numUser))
 	jsonP = make(chan float64, 5*(*numUser))
-	minC = make(chan float64, 5*(*numUser))
-	maxC = make(chan float64, 5*(*numUser))
+	latC = make(chan float64, 100000)
 
+	go func() {
+		for t := range latC {
+			allLat = append(allLat, t)
+		}
+	}()
 	wg.Add(*numUser)
 	fmt.Println("First run")
 	for i := 0; i < *numUser; i++ {
 		go runUser(&wg)
 	}
+
 	wg.Wait()
-	time.Sleep(5 * time.Second)
+	time.Sleep(1 * time.Second)
 	wg.Add(*numUser)
 	fmt.Println("Second run")
 	for i := 0; i < *numUser; i++ {
 		go runUser(&wg)
 	}
 	wg.Wait()
-	time.Sleep(5 * time.Second)
+	time.Sleep(1 * time.Second)
 	wg.Add(*numUser)
 	fmt.Println("Third run")
-	for i := 0; i < *numUser; i++ {
-		go runUser(&wg)
-	}
-	wg.Wait()
-	time.Sleep(5 * time.Second)
-	wg.Add(*numUser)
-	fmt.Println("Fourth run")
-	for i := 0; i < *numUser; i++ {
-		go runUser(&wg)
-	}
-	wg.Wait()
-	time.Sleep(5 * time.Second)
-	wg.Add(*numUser)
-	fmt.Println("Fifth run")
 	for i := 0; i < *numUser; i++ {
 		go runUser(&wg)
 	}
@@ -209,9 +187,8 @@ func main() {
 	close(parsingP)
 	close(jsonP)
 	close(totalP)
-	close(minC)
-	close(maxC)
-
+	close(latC)
+	fmt.Println("DONE!")
 	for it := range countC {
 		totCount += it
 	}
@@ -227,19 +204,24 @@ func main() {
 	for it := range totalP {
 		totTi += it
 	}
-	for it := range maxC {
-		maxCI += it
-	}
-	for it := range minC {
-		minCI += it
-	}
 
-	fmt.Println("Throughput (num request per second) : ", float64(totCount)/(5*(*numSec)))
+	meanLat = serTi / float64(totCount)
+	for _, it := range allLat {
+		sdLat += math.Pow((it - meanLat), 2)
+	}
+	sort.Float64s(allLat)
+	sdLat = math.Sqrt(sdLat / float64(len(allLat)-1))
+
+	fmt.Println("\n NumUser ****** ", *numUser)
+	fmt.Println("Throughput (num request per second) : ", float64(totCount)/(3*(*numSec)))
 	fmt.Println("Total number of queries : ", totCount)
-	fmt.Println("Total time (Seconds) : ", totTi, totTi/float64(totCount))
-	fmt.Println("Json time (Seconds): ", jsonTi, jsonTi/float64(totCount))
-	fmt.Println("Processing  time (Seconds): ", serTi, serTi/float64(totCount))
-	fmt.Println("Parsing time (Seconds): ", parTi, parTi/float64(totCount))
-	fmt.Println("Max (Seconds): ", parTi, maxCI/float64(5*(*numUser)))
-	fmt.Println("Min (Seconds): ", parTi, minCI/float64(5*(*numUser)))
+	fmt.Println("Avg time (Seconds) : ", 1000*totTi/float64(totCount))
+	/*
+		fmt.Println("Json time (Seconds): ", jsonTi, jsonTi/float64(totCount))
+		fmt.Println("Processing  time (Seconds): ", serTi, serTi/float64(totCount))
+		fmt.Println("Parsing time (Seconds): ", parTi, parTi/float64(totCount))
+	*/
+	fmt.Println("95 percentile latency : ", 1000*allLat[int(len(allLat)/2)], 1000*allLat[int(95*len(allLat)/100)])
+	fmt.Println("Min, Max : ", 1000*allLat[0], 1000*allLat[len(allLat)-1])
+	//fmt.Println("SD : ", meanLat-sdLat*1.96, meanLat+sdLat*1.96)
 }
