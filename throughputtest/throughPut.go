@@ -36,7 +36,7 @@ var (
 )
 
 var qa1 = `{
-		  me(_xid_:`
+		  debug(_xid_:`
 var qa2 = `) {
 			    type.object.name.en
 			    film.actor.film {
@@ -47,7 +47,7 @@ var qa2 = `) {
 		  }
 		}`
 var qd1 = `{
-			  me(_xid_:`
+			  debug(_xid_:`
 var qd2 = `) {
 					    type.object.name.en
 					    film.director.film  {
