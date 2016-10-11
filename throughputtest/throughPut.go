@@ -16,21 +16,18 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/dgraph-io/dgraph/x"
 )
 
 var (
 	numUser           = flag.Int("numuser", 1, "number of users hitting simultaneously")
 	numSec            = flag.Float64("numsec", 10, "number of request per user")
-	serverAddr        = flag.String("ip", ":8081", "IP addr of server")
+	serverAddr        = flag.String("ip", ":8080", "IP addr of server")
 	countC            chan int
 	jsonP             chan float64
 	serverP           chan float64
 	parsingP          chan float64
 	totalP            chan float64
 	latC              chan float64
-	glog              = x.Log("Pinger")
 	actors, directors []string
 	serverList        []string
 )
@@ -87,7 +84,7 @@ func runUser(wg *sync.WaitGroup) {
 		count++
 
 		if err != nil {
-			glog.WithField("Err", resp.Status).Fatalf("Error in query")
+			log.Fatal(err)
 		} else {
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
@@ -96,7 +93,7 @@ func runUser(wg *sync.WaitGroup) {
 			resp.Body.Close()
 			err = json.Unmarshal(body, &dat)
 			if err != nil {
-				glog.WithError(err).Fatalf("Error in reply")
+				log.Fatal(err)
 			}
 
 			temp := dat["server_latency"]
@@ -116,10 +113,7 @@ func runUser(wg *sync.WaitGroup) {
 		}
 	}
 	countC <- count
-	/*	serverP <- proT.Seconds()
-		jsonP <- jsonT.Seconds()
-		parsingP <- parT.Seconds()
-	*/totalP <- totT.Seconds()
+	totalP <- totT.Seconds()
 
 	wg.Done()
 }
@@ -212,16 +206,12 @@ func main() {
 	sort.Float64s(allLat)
 	sdLat = math.Sqrt(sdLat / float64(len(allLat)-1))
 
-	fmt.Println("\n NumUser ****** ", *numUser)
+	fmt.Println("------------------------------------------------------------------------")
+	fmt.Println("\n NumUser :", *numUser)
 	fmt.Println("Throughput (num request per second) : ", float64(totCount)/(3*(*numSec)))
 	fmt.Println("Total number of queries : ", totCount)
-	fmt.Println("Avg time (Seconds) : ", 1000*totTi/float64(totCount))
-	/*
-		fmt.Println("Json time (Seconds): ", jsonTi, jsonTi/float64(totCount))
-		fmt.Println("Processing  time (Seconds): ", serTi, serTi/float64(totCount))
-		fmt.Println("Parsing time (Seconds): ", parTi, parTi/float64(totCount))
-	*/
+	fmt.Println("Avg time (ms) : ", 1000*totTi/float64(totCount))
 	fmt.Println("95 percentile latency : ", 1000*allLat[int(len(allLat)/2)], 1000*allLat[int(95*len(allLat)/100)])
 	fmt.Println("Min, Max : ", 1000*allLat[0], 1000*allLat[len(allLat)-1])
-	//fmt.Println("SD : ", meanLat-sdLat*1.96, meanLat+sdLat*1.96)
+	fmt.Println("------------------------------------------------------------------------")
 }
