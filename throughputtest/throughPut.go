@@ -21,7 +21,7 @@ import (
 var (
 	numUser           = flag.Int("numuser", 1, "number of users hitting simultaneously")
 	numSec            = flag.Float64("numsec", 10, "number of request per user")
-	serverAddr        = flag.String("ip", ":8080", "IP addr of server")
+	serverAddr        = flag.String("ip", ":10001", "IP addr of server")
 	countC            chan int
 	jsonP             chan float64
 	serverP           chan float64
