@@ -7,6 +7,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"flag"
@@ -24,18 +25,14 @@ import (
 )
 
 var (
-	file       = flag.String("rdf", "", "Location of rdf file to load")
-	dgraph     = flag.String("dgraph", "http://127.0.0.1:8080/query", "Dgraph server address")
-	concurrent = flag.Int("concurrent", 1000, "Number of concurrent requests to make to Dgraph")
-	numRdf     = flag.Int("mutations", 100, "Number of RDF N-Quads to send as part of a mutation.")
+	file       = flag.String("r", "", "Location of rdf file to load")
+	dgraph     = flag.String("d", "http://127.0.0.1:8080/query", "Dgraph server address")
+	concurrent = flag.Int("c", 1000, "Number of concurrent requests to make to Dgraph")
+	numRdf     = flag.Int("m", 100, "Number of RDF N-Quads to send as part of a mutation.")
 )
 
 func body(rdf string) string {
-	return `mutation {
-  set {
-  	` + rdf + `
-      }
-  }`
+	return fmt.Sprintf("mutation { set { %s } }", rdf)
 }
 
 type response struct {
@@ -50,7 +47,7 @@ func makeRequest(mutation chan string, c *uint64, wg *sync.WaitGroup) {
 	var counter uint64
 	for m := range mutation {
 		counter = atomic.AddUint64(c, 1)
-		if counter%10000 == 0 {
+		if counter%100 == 0 {
 			fmt.Printf("Request: %v\n", counter)
 		}
 		req, err := http.NewRequest("POST", *dgraph, strings.NewReader(body(m)))
@@ -68,26 +65,6 @@ func makeRequest(mutation chan string, c *uint64, wg *sync.WaitGroup) {
 	wg.Done()
 }
 
-func buildMutation(rdf chan string, m chan string, rdfCount *uint64, wg *sync.WaitGroup) {
-	set := ""
-	count := 0
-	for r := range rdf {
-		atomic.AddUint64(rdfCount, 1)
-		count++
-		set += r + "\n"
-		if count == *numRdf {
-			m <- set
-			set = ""
-			count = 0
-		}
-
-	}
-	if set != "" {
-		m <- set
-	}
-	wg.Done()
-}
-
 func main() {
 	flag.Parse()
 	f, err := os.Open(*file)
@@ -96,17 +73,8 @@ func main() {
 	gr, err := gzip.NewReader(f)
 	x.Check(err)
 
-	hc = http.Client{Timeout: 5 * time.Minute}
-
-	rdf := make(chan string, 1000)
-	mutation := make(chan string, 100)
-
-	var rdfCount uint64 = 0
-	var wgm sync.WaitGroup
-	for i := 0; i < 10; i++ {
-		wgm.Add(1)
-		go buildMutation(rdf, mutation, &rdfCount, &wgm)
-	}
+	hc = http.Client{Timeout: time.Minute}
+	mutation := make(chan string, 3*(*concurrent))
 
 	var count uint64 = 0
 	var wg sync.WaitGroup
@@ -115,16 +83,28 @@ func main() {
 		go makeRequest(mutation, &count, &wg)
 	}
 
+	var buf bytes.Buffer
 	scanner := bufio.NewScanner(gr)
+	num := 0
+	var rdfCount uint64 = 0
 	for scanner.Scan() {
-		// Lets send the rdf's to the channel.
-		rdf <- scanner.Text()
+		buf.WriteString(scanner.Text())
+		buf.WriteRune('\n')
+
+		if num >= *numRdf {
+			mutation <- buf.String()
+			buf.Reset()
+			num = 0
+		}
+		rdfCount++
+		num++
 	}
 	x.Check(scanner.Err())
-	close(rdf)
-
-	wgm.Wait()
+	if buf.Len() > 0 {
+		mutation <- buf.String()
+	}
 	close(mutation)
+
 	wg.Wait()
 	fmt.Println("Number of RDF's parsed: ", rdfCount)
 	fmt.Println("Number of mutations run: ", count)
