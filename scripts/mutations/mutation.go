@@ -49,7 +49,9 @@ func makeRequest(ch chan string, c *uint64, wg *sync.WaitGroup) {
 	var counter uint64
 	for m := range ch {
 		counter = atomic.AddUint64(c, 1)
-		fmt.Printf("Request: %v\n", counter)
+		if counter%10000 == 0 {
+			fmt.Printf("Request: %v\n", counter)
+		}
 		req, err := http.NewRequest("POST", *dgraph, strings.NewReader(m))
 		x.Check(err)
 		res, err := hc.Do(req)
