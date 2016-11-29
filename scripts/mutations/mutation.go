@@ -26,13 +26,14 @@ import (
 var (
 	file       = flag.String("rdf", "", "Location of rdf file to load")
 	dgraph     = flag.String("dgraph", "http://127.0.0.1:8080/query", "Dgraph server address")
-	concurrent = flag.Int("concurrent", 10, "Number of concurrent requests to make to Dgraph")
+	concurrent = flag.Int("concurrent", 1000, "Number of concurrent requests to make to Dgraph")
+	numRdf     = flag.Int("mutations", 100, "Number of RDF N-Quads to send as part of a mutation.")
 )
 
 func body(rdf string) string {
 	return `mutation {
   set {
-	` + rdf + `
+  	` + rdf + `
       }
   }`
 }
@@ -45,14 +46,14 @@ type response struct {
 var hc http.Client
 var r response
 
-func makeRequest(ch chan string, c *uint64, wg *sync.WaitGroup) {
+func makeRequest(mutation chan string, c *uint64, wg *sync.WaitGroup) {
 	var counter uint64
-	for m := range ch {
+	for m := range mutation {
 		counter = atomic.AddUint64(c, 1)
 		if counter%10000 == 0 {
 			fmt.Printf("Request: %v\n", counter)
 		}
-		req, err := http.NewRequest("POST", *dgraph, strings.NewReader(m))
+		req, err := http.NewRequest("POST", *dgraph, strings.NewReader(body(m)))
 		x.Check(err)
 		res, err := hc.Do(req)
 		x.Check(err)
@@ -67,6 +68,26 @@ func makeRequest(ch chan string, c *uint64, wg *sync.WaitGroup) {
 	wg.Done()
 }
 
+func buildMutation(rdf chan string, m chan string, rdfCount *uint64, wg *sync.WaitGroup) {
+	set := ""
+	count := 0
+	for r := range rdf {
+		atomic.AddUint64(rdfCount, 1)
+		count++
+		set += r + "\n"
+		if count == *numRdf {
+			m <- set
+			set = ""
+			count = 0
+		}
+
+	}
+	if set != "" {
+		m <- set
+	}
+	wg.Done()
+}
+
 func main() {
 	flag.Parse()
 	f, err := os.Open(*file)
@@ -76,21 +97,35 @@ func main() {
 	x.Check(err)
 
 	hc = http.Client{Timeout: 5 * time.Minute}
-	ch := make(chan string, 1000)
+
+	rdf := make(chan string, 1000)
+	mutation := make(chan string, 100)
+
+	var rdfCount uint64 = 0
+	var wgm sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wgm.Add(1)
+		go buildMutation(rdf, mutation, &rdfCount, &wgm)
+	}
+
 	var count uint64 = 0
 	var wg sync.WaitGroup
 	for i := 0; i < *concurrent; i++ {
 		wg.Add(1)
-		go makeRequest(ch, &count, &wg)
+		go makeRequest(mutation, &count, &wg)
 	}
 
 	scanner := bufio.NewScanner(gr)
 	for scanner.Scan() {
-		m := body(scanner.Text())
-		ch <- m
+		// Lets send the rdf's to the channel.
+		rdf <- scanner.Text()
 	}
 	x.Check(scanner.Err())
-	close(ch)
+	close(rdf)
+
+	wgm.Wait()
+	close(mutation)
 	wg.Wait()
-	fmt.Println("Final count of mutations run: ", count)
+	fmt.Println("Number of RDF's parsed: ", rdfCount)
+	fmt.Println("Number of mutations run: ", count)
 }
