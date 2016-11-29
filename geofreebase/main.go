@@ -87,7 +87,7 @@ func main() {
 		err := dec.Decode(&f)
 		fmt.Println(f.Properties["NAME_LONG"])
 		gg, err := geojson.Marshal(f.Geometry)
-		ggg := strings.Replace(string(gg), "\"", "\\'", -1)
+		ggg := strings.Replace(string(gg), "\"", "'", -1)
 		country, ok := f.Properties["NAME_LONG"].(string)
 		if ok {
 			countryToGeo[country] = ggg
