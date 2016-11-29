@@ -120,7 +120,7 @@ func main() {
 			fmt.Println(country)
 			if geoD, ok := countryToGeo[country]; ok {
 				count1++
-				out.WriteString(fmt.Sprintf("%s <loc> \"%s\" .\n", items[0], geoD))
+				out.WriteString(fmt.Sprintf("%s <loc> \"%s\"<geo:geojson> .\n", items[0], geoD))
 			} else {
 				count2++
 			}
