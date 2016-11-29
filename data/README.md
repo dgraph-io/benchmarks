@@ -92,3 +92,13 @@ zgrep -v "<kg\." rdf-films.gz | grep -v "http://www.w3.org/1999/02/22-rdf-syntax
 ```
 $ zcat rdf-films.gz | grep "<film.film.directed_by>\|<film.director.film>\|<film.film.initial_release_date>\|<film.film.country>\|<film.film.primary_language>\|<film.film.rating>" | gzip > selective.gz
 ```
+
+### How I generated selective.gz [goldendata.gz]
+```
+$ zcat rdf-films.gz| grep "<film.film.directed_by>\|<film.director.film>" | gzip > selective.gz
+$ zcat rdf-films.gz| grep "<film.film.initial_release_date>" | gzip >> selective.gz
+$ zcat selective.gz| grep "film.director.film\|film.film.directed_by\|film.film.initial_release_date" | awk '{print $1}' | uniq | gzip > selectiveentities.gz
+$ zcat names.gz| grep "@en\|@ja\|@zh" | gzip > selectivenames.gz
+$ ./finder --entities ../data/selectiveentities.gz --rdf ../data/selectivenames.gz --output names.gz
+$ zcat ../finder/names.gz| gzip >> selective.gz
+```
