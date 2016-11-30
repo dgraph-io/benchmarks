@@ -22,7 +22,7 @@ cp -f $SRC/schema.txt ./
 
 dgraphloader -debugmode -schema schema.txt -p p -debugmode -rdfgzips goldendata.gz
 
-dgraph -p p -port 8236 &
+dgraph -p p -port 8236 -schema schema.txt &
 
 echo "Wait for dgraph to start up"
 sleep 5
