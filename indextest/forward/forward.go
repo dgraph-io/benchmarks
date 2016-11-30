@@ -146,14 +146,15 @@ func doGood() {
 			continue
 		}
 		tokens := strings.Split(strings.ToLower(name), " ")
-		found = false
+		var found1, found2 bool
 		for _, t := range tokens {
 			if t == "the" {
-				found = true
-				break
+				found1 = true
+			} else if t == "a" {
+				found2 = true
 			}
 		}
-		if found {
+		if found1 && found2 {
 			numHits++
 		}
 	}

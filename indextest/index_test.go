@@ -61,6 +61,11 @@ func testHelper(t *testing.T, prefix string) {
 	require.JSONEq(t, string(expectedJS), string(js))
 }
 
-func TestBasic(t *testing.T) {
-	testHelper(t, "data/basic")
+func TestAll(t *testing.T) {
+	for _, s := range []string{"basic", "allof_the", "allof_the_a"} {
+		t.Run(s, func(t *testing.T) {
+			testHelper(t, "data/"+s)
+		})
+	}
+
 }

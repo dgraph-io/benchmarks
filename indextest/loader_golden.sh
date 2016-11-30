@@ -37,7 +37,9 @@ curl localhost:8236/query -XPOST -d '{
    }
   }
  }
-}' 2> /dev/null | python -m json.tool | grep object.name | wc -l > /tmp/out.txt
+}' 2> /dev/null | python -m json.tool > data/allof.out
+
+| grep object.name | wc -l > /tmp/out.txt
 
 # This value has been verified for the golden set. See ../forward folder.
 result=`cat /tmp/out.txt`
@@ -58,6 +60,31 @@ curl localhost:8236/query -XPOST -d '{
   }
  }
 }' 2> /dev/null | python -m json.tool | grep object.name | wc -l > /tmp/out.txt
+
+curl localhost:8236/query -XPOST -d '{
+ debug(_uid_: 15161013152876854722) {
+  film.director.film {
+   film.film.directed_by {
+    film.director.film @filter(allof("type.object.name.en", "the a")) {
+     type.object.name.en
+    }
+   }
+  }
+ }
+}' 2> /dev/null | python -m json.tool | grep object.name
+
+
+curl localhost:8236/query -XPOST -d '{
+ debug(_uid_: 15161013152876854722) {
+  film.director.film {
+   film.film.directed_by {
+    film.director.film @filter(allof("type.object.name.en", "the") && allof("type.object.name.en", "a")) {
+     type.object.name.en
+    }
+   }
+  }
+ }
+}' 2> /dev/null | python -m json.tool | grep object.name
 
 # This value has been verified for the golden set. See ../forward folder.
 result=`cat /tmp/out.txt`
