@@ -53,8 +53,11 @@ func makeRequest(mutation chan string, c *uint64, wg *sync.WaitGroup) {
 		}
 		req, err := http.NewRequest("POST", *dgraph, strings.NewReader(body(m)))
 		x.Check(err)
+	RETRY:
 		res, err := hc.Do(req)
-		x.Check(err)
+		if err != nil {
+			goto RETRY
+		}
 
 		body, err := ioutil.ReadAll(res.Body)
 		x.Check(err)
