@@ -58,6 +58,9 @@ with open('/tmp/a.txt') as f:
   print sum(a)
 # The answer is 4383 and they match up.
 
+
+curl localhost:8236/query -XPOST -d @data/tmp.in 2> /dev/null | python -m json.tool
+
 killall dgraph
 
 popd &> /dev/null
