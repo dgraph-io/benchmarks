@@ -28,7 +28,7 @@ import (
 var (
 	file       = flag.String("r", "", "Location of rdf file to load")
 	dgraph     = flag.String("d", "http://127.0.0.1:8080/query", "Dgraph server address")
-	concurrent = flag.Int("c", 1000, "Number of concurrent requests to make to Dgraph")
+	concurrent = flag.Int("c", 500, "Number of concurrent requests to make to Dgraph")
 	numRdf     = flag.Int("m", 100, "Number of RDF N-Quads to send as part of a mutation.")
 )
 
@@ -51,11 +51,13 @@ func makeRequest(mutation chan string, c *uint64, wg *sync.WaitGroup) {
 		if counter%100 == 0 {
 			fmt.Printf("Request: %v\n", counter)
 		}
+	RETRY:
 		req, err := http.NewRequest("POST", *dgraph, strings.NewReader(body(m)))
 		x.Check(err)
-	RETRY:
 		res, err := hc.Do(req)
 		if err != nil {
+			fmt.Printf("Retrying req: %d. Error: %v\n", counter, err)
+			time.Sleep(5 * time.Millisecond)
 			goto RETRY
 		}
 
