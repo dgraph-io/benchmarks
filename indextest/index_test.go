@@ -58,7 +58,8 @@ func testHelper(t *testing.T, prefix string) {
 }
 
 func TestAll(t *testing.T) {
-	for _, s := range []string{"basic", "allof_the", "allof_the_a", "allof_the_count"} {
+	for _, s := range []string{"basic", "allof_the", "allof_the_a",
+		"allof_the_count", "anyof_the_a", "allof_the_first"} {
 		t.Run(s, func(t *testing.T) {
 			testHelper(t, "data/"+s)
 		})

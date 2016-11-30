@@ -2,11 +2,15 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
+	"unicode"
 
 	farm "github.com/dgryski/go-farm"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/dgraph-io/dgraph/x"
 )
@@ -27,6 +31,23 @@ func bracketed(s string) bool {
 
 func removeFirstLast(s string) string {
 	return s[1 : len(s)-1]
+}
+
+// normalize does unicode normalization.
+func normalize(in []byte) ([]byte, error) {
+	// We need a new transformer for each input as it cannot be reused.
+	filter := func(r rune) bool {
+		return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks (to be removed)
+	}
+	transformer := transform.Chain(norm.NFD, transform.RemoveFunc(filter), norm.NFC)
+	out, _, err := transform.Bytes(transformer, in)
+	out = bytes.Map(func(r rune) rune {
+		if unicode.IsPunct(r) { // Replace punctuations with spaces.
+			return ' '
+		}
+		return unicode.ToLower(r) // Convert to lower case.
+	}, out)
+	return out, err
 }
 
 // uniqueUIDs return the unique UIDs in the values of map m. It also returns
@@ -145,7 +166,12 @@ func doGood() {
 		if !found {
 			continue
 		}
-		tokens := strings.Split(strings.ToLower(name), " ")
+
+		tmp, err := normalize([]byte(name))
+		x.Check(err)
+		name = string(tmp)
+		tokens := strings.Split(name, " ")
+
 		var found1, found2 bool
 		for _, t := range tokens {
 			if t == "the" {
@@ -154,7 +180,7 @@ func doGood() {
 				found2 = true
 			}
 		}
-		if found1 && found2 {
+		if found1 || found2 {
 			numHits++
 		}
 	}
