@@ -30,11 +30,9 @@ func testHelper(t *testing.T, prefix string) {
 
 	// Checking expected output.
 	require.NoError(t, json.Unmarshal(expectedOutput, &r))
-	_, found := r["server_latency"]
+	_, found := r["me"]
 	require.True(t, found)
-	_, found = r["debug"]
-	require.True(t, found)
-	expectedJS, err := json.Marshal(r["debug"])
+	expectedJS, err := json.Marshal(r["me"])
 	require.NoError(t, err)
 
 	// Post the query.
@@ -50,19 +48,17 @@ func testHelper(t *testing.T, prefix string) {
 
 	// Check the response.
 	require.NoError(t, json.Unmarshal(body, &r))
-	_, found = r["server_latency"]
-	require.True(t, found)
-	_, found = r["debug"]
+	_, found = r["me"]
 	require.True(t, found)
 
-	js, err := json.Marshal(r["debug"])
+	js, err := json.Marshal(r["me"])
 	require.NoError(t, err)
 
 	require.JSONEq(t, string(expectedJS), string(js))
 }
 
 func TestAll(t *testing.T) {
-	for _, s := range []string{"basic", "allof_the", "allof_the_a"} {
+	for _, s := range []string{"basic", "allof_the", "allof_the_a", "allof_the_count"} {
 		t.Run(s, func(t *testing.T) {
 			testHelper(t, "data/"+s)
 		})

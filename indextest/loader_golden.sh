@@ -27,72 +27,20 @@ dgraph -p p -port 8236 -schema schema.txt &
 echo "Wait for dgraph to start up"
 sleep 5
 
-curl localhost:8236/query -XPOST -d '{
- debug(_uid_: 15161013152876854722) {
-  film.director.film {
-   film.film.directed_by {
-    film.director.film @filter(allof("type.object.name.en", "the")) {
-     type.object.name.en
-    }
-   }
-  }
- }
-}' 2> /dev/null | python -m json.tool > data/allof.out
+curl localhost:8236/query -XPOST -d @data/basic.in 2> /dev/null | python -m json.tool > data/basic.out
 
-| grep object.name | wc -l > /tmp/out.txt
+curl localhost:8236/query -XPOST -d @data/allof_the.in 2> /dev/null | python -m json.tool > data/allof_the.out
 
-# This value has been verified for the golden set. See ../forward folder.
-result=`cat /tmp/out.txt`
-if [ $result != "25431" ]; then
-	echo "Wrong number of results"
-	killall dgraph
-	exit 1
-fi
+curl localhost:8236/query -XPOST -d @data/allof_the_a.in 2> /dev/null | python -m json.tool > data/allof_the_a.out
 
-curl localhost:8236/query -XPOST -d '{
- debug(_uid_: 15161013152876854722) {
-  film.director.film {
-   film.film.directed_by {
-    film.director.film {
-     type.object.name.en
-    }
-   }
-  }
- }
-}' 2> /dev/null | python -m json.tool | grep object.name | wc -l > /tmp/out.txt
+curl localhost:8236/query -XPOST -d @data/allof_the_count.in 2> /dev/null | python -m json.tool > data/allof_the_count.out
 
-curl localhost:8236/query -XPOST -d '{
- debug(_uid_: 15161013152876854722) {
-  film.director.film {
-   film.film.directed_by {
-    film.director.film @filter(allof("type.object.name.en", "the a")) {
-     type.object.name.en
-    }
-   }
-  }
- }
-}' 2> /dev/null | python -m json.tool | grep object.name
-
-
-curl localhost:8236/query -XPOST -d '{
- debug(_uid_: 15161013152876854722) {
-  film.director.film {
-   film.film.directed_by {
-    film.director.film @filter(allof("type.object.name.en", "the") && allof("type.object.name.en", "a")) {
-     type.object.name.en
-    }
-   }
-  }
- }
-}' 2> /dev/null | python -m json.tool | grep object.name
-
-# This value has been verified for the golden set. See ../forward folder.
-result=`cat /tmp/out.txt`
-if [ $result != "138676" ]; then
-	echo "Wrong number of results"
-	killall dgraph
-	exit 1
-fi
+# You can get number of objects by:
+#  cat data/basic.out | grep object | wc -l
+# Verified number of objects:
+# basic: 138676
+# allof_the: 25431
+# allof_the_a: 367
 
 killall dgraph
 
