@@ -79,7 +79,26 @@ cat data/${X}.out | grep release | wc -l
 # Next we try the sorting.
 X=releasedate_sort
 curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
+cat data/${X}.out | grep release | wc -l  # Count is 137858.
 # Eyeballed the results. They look sorted.
+
+# Next we try the sorting.
+X=releasedate_sort_count
+curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
+
+# Next we try the sorting.
+X=releasedate_sort_first_offset
+curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
+cat data/${X}.out | grep release | wc -l  # 2315
+
+
+with open('data/releasedate_sort_count.out') as f:
+	a = f.read().splitlines()
+a = [s for s in a if 'count' in s]
+b = [int(s.strip().split(':')[1].replace('"', '').strip()) for s in a]
+c = [min([max([s - 10, 0]), 5]) for s in b]
+print sum(b)  # Should be 138676
+print sum(c)  # Should be 2315
 
 killall dgraph
 
