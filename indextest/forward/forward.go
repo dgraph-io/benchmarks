@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	//	"log"
 	"os"
 	"strings"
 	"unicode"
@@ -128,8 +129,15 @@ func main() {
 			m[srcUID] = append(m[srcUID], destUID)
 		} else {
 			numValues++
-			value = removeFirstLast(value)
-			if pred == "type.object.name" {
+
+			// Check for "@".
+			pos := strings.LastIndex(value, "@")
+			if pos >= 0 {
+				pred = pred + "." + value[pos+1:]
+				value = removeFirstLast(value[:pos])
+			}
+
+			if pred == "type.object.name.en" {
 				numNames++
 				gNames[srcUID] = value
 			} else if pred == "film.film.initial_release_date" {
@@ -152,7 +160,8 @@ func main() {
 	x.AssertTrue(numReleaseDates > 0)
 
 	//	doFilterString()
-	doSortRelease()
+	//	doSortRelease()
+	doGen()
 }
 
 func doFilterString() {
@@ -204,4 +213,27 @@ func doSortRelease() {
 	}
 
 	fmt.Printf("With dates: %d\n", numHits)
+}
+
+func doGen() {
+	var numHits int
+	for _, name := range gNames {
+		tmp, err := normalize([]byte(name))
+		x.Check(err)
+		name = string(tmp)
+		tokens := strings.Split(name, " ")
+
+		var found1, found2 bool
+		for _, t := range tokens {
+			if t == "good" {
+				found1 = true
+			} else if t == "bad" {
+				found2 = true
+			}
+		}
+		if found1 || found2 {
+			numHits++
+		}
+	}
+	fmt.Printf("num gen hits %d\n", numHits)
 }

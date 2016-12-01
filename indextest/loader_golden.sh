@@ -28,6 +28,7 @@ dgraph -p p -port 8236 -schema schema.txt &
 echo "Wait for dgraph to start up"
 sleep 5
 
+############################### Filter using allof, anyof
 X=basic
 curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
 # Verify that count is 138676 with Go script.
@@ -70,7 +71,7 @@ print sum(c)  # Should be 4383
 
 
 
-
+############################### Sort by release dates
 X=releasedate
 curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
 cat data/${X}.out | grep release | wc -l
@@ -82,14 +83,15 @@ curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.
 cat data/${X}.out | grep release | wc -l  # Count is 137858.
 # Eyeballed the results. They look sorted.
 
-# Next we try the sorting.
+# Get counts.
 X=releasedate_sort_count
 curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
 
-# Next we try the sorting.
+# Apply pagination.
 X=releasedate_sort_first_offset
 curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
 cat data/${X}.out | grep release | wc -l  # 2315
+
 
 
 with open('data/releasedate_sort_count.out') as f:
@@ -97,8 +99,20 @@ with open('data/releasedate_sort_count.out') as f:
 a = [s for s in a if 'count' in s]
 b = [int(s.strip().split(':')[1].replace('"', '').strip()) for s in a]
 c = [min([max([s - 10, 0]), 5]) for s in b]
-print sum(b)  # Should be 138676
+print sum(b)
 print sum(c)  # Should be 2315
+
+
+
+############################### Generator by anyof
+
+# Get counts.
+X=gen_anyof_good_bad
+curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
+cat data/${X}.out | grep object | wc -l 
+# 1103
+# This is verified in forward.go.
+
 
 killall dgraph
 

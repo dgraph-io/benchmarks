@@ -67,7 +67,8 @@ func TestFilterStrings(t *testing.T) {
 }
 
 func TestSortReleaseDates(t *testing.T) {
-	for _, s := range []string{"releasedate", "releasedate_sort"} {
+	for _, s := range []string{"releasedate", "releasedate_sort",
+		"releasedate_sort_count", "releasedate_sort_first_offset"} {
 		t.Run(s, func(t *testing.T) {
 			testHelper(t, "data/"+s)
 		})
