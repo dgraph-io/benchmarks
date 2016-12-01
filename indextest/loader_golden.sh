@@ -50,19 +50,26 @@ cat data/${X}.out | grep object | wc -l
 
 X=allof_the_count
 curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
-# Check that the counts add up to 25431.
-cat data/${X}.out | grep count | paste -sd+ | bc
+# For simplicity, just check in python.
 
 X=allof_the_first
 curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
-cat data/${X}.out | grep object | wc -l
-# To check this, we use allof_the_count and sum min(count, 10). Use Python.
-cat data/allof_the_count.out | grep count | cut -f2 -d: > /tmp/a.txt
-with open('/tmp/a.txt') as f:
-  a = f.read().splitlines()
-  a = [min(int(x), 10) for x in a]
-  print sum(a)
-# The answer is 4383 and they match up.
+cat data/${X}.out | grep object | wc -l  # 4383
+
+
+
+with open('data/allof_the_count.out') as f:
+	a = f.read().splitlines()
+a = [s for s in a if 'count' in s]
+b = [int(s.strip().split(':')[1].replace('"', '').strip()) for s in a]
+c = [min([s, 10]) for s in b]
+print sum(b)  # Should be 25431
+print sum(c)  # Should be 4383
+
+
+
+
+
 
 X=releasedate
 curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
@@ -70,9 +77,9 @@ cat data/${X}.out | grep release | wc -l
 # Check that the answer is 137858. We found this from Go script.
 
 # Next we try the sorting.
-X=releasedate
+X=releasedate_sort
 curl localhost:8236/query -XPOST -d @data/${X}.in 2> /dev/null | python -m json.tool > data/${X}.out
-cat data/${X}.out | grep release | wc -l
+# Eyeballed the results. They look sorted.
 
 killall dgraph
 

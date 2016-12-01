@@ -57,12 +57,19 @@ func testHelper(t *testing.T, prefix string) {
 	require.JSONEq(t, string(expectedJS), string(js))
 }
 
-func TestAll(t *testing.T) {
+func TestFilterStrings(t *testing.T) {
 	for _, s := range []string{"basic", "allof_the", "allof_the_a",
 		"allof_the_count", "anyof_the_a", "allof_the_first"} {
 		t.Run(s, func(t *testing.T) {
 			testHelper(t, "data/"+s)
 		})
 	}
+}
 
+func TestSortReleaseDates(t *testing.T) {
+	for _, s := range []string{"releasedate", "releasedate_sort"} {
+		t.Run(s, func(t *testing.T) {
+			testHelper(t, "data/"+s)
+		})
+	}
 }
