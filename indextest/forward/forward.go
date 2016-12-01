@@ -151,10 +151,11 @@ func main() {
 	x.AssertTrue(numNames > 0)
 	x.AssertTrue(numReleaseDates > 0)
 
-	doGood()
+	//	doFilterString()
+	doSortRelease()
 }
 
-func doGood() {
+func doFilterString() {
 	r := expand([]uint64{15161013152876854722}, "film.director.film")
 	r = expand(r, "film.film.directed_by")
 	r = expand(r, "film.director.film")
@@ -185,4 +186,22 @@ func doGood() {
 		}
 	}
 	fmt.Printf("With filter: %d\n", numHits)
+}
+
+func doSortRelease() {
+	r := expand([]uint64{15161013152876854722}, "film.director.film")
+	r = expand(r, "film.film.directed_by")
+	r = expand(r, "film.director.film")
+	fmt.Printf("Number of films: %d\n", len(r))
+
+	var numHits int
+	for _, u := range r {
+		_, found := gReleaseDates[u]
+		if !found {
+			continue
+		}
+		numHits++
+	}
+
+	fmt.Printf("With dates: %d\n", numHits)
 }
