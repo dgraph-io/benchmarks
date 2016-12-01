@@ -1,0 +1,4 @@
+scalar (
+	type.object.name.en: string @index
+	film.film.initial_release_date: date @index
+)
