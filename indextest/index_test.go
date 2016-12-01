@@ -74,3 +74,11 @@ func TestSortReleaseDates(t *testing.T) {
 		})
 	}
 }
+
+func TestGenerator(t *testing.T) {
+	for _, s := range []string{"gen_anyof_good_bad"} {
+		t.Run(s, func(t *testing.T) {
+			testHelper(t, "data/"+s)
+		})
+	}
+}
