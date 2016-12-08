@@ -78,7 +78,7 @@ func (b ByR) Swap(i int, j int) {
 	b[i], b[j] = b[j], b[i]
 }
 
-func getReader(fname string) (*os.File, io.Reader) {
+func getReader(fname string) (*os.File, *bufio.Reader) {
 	f, err := os.Open(fname)
 	if err != nil {
 		glog.WithError(err).Fatal("Unable to open file")
@@ -89,7 +89,7 @@ func getReader(fname string) (*os.File, io.Reader) {
 		glog.WithError(err).Fatal("Unable to open file")
 	}
 
-	return f, r
+	return f, bufio.NewReader(r)
 }
 
 func convert(n rdf.NQuad) R {
@@ -141,8 +141,7 @@ func main() {
 	flag.Parse()
 	logrus.SetLevel(logrus.DebugLevel)
 	var srcl, dstl []R
-	f, r := getReader(*src)
-	bufReader := bufio.NewReader(r)
+	f, bufReader := getReader(*src)
 	var err error
 
 	srcCount := 0
@@ -164,8 +163,7 @@ func main() {
 	x.Check(f.Close())
 	fmt.Println("Source done")
 
-	f, r = getReader(*dst)
-	bufReader = bufio.NewReader(r)
+	f, bufReader = getReader(*dst)
 	dstCount := 0
 	for {
 		err = x.ReadLine(bufReader, &strBuf)
