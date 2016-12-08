@@ -6,7 +6,9 @@ import (
 	"compress/gzip"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"sort"
 
@@ -76,7 +78,7 @@ func (b ByR) Swap(i int, j int) {
 	b[i], b[j] = b[j], b[i]
 }
 
-func getScanner(fname string) (*os.File, *bufio.Scanner) {
+func getReader(fname string) (*os.File, io.Reader) {
 	f, err := os.Open(fname)
 	if err != nil {
 		glog.WithError(err).Fatal("Unable to open file")
@@ -87,7 +89,7 @@ func getScanner(fname string) (*os.File, *bufio.Scanner) {
 		glog.WithError(err).Fatal("Unable to open file")
 	}
 
-	return f, bufio.NewScanner(r)
+	return f, r
 }
 
 func convert(n rdf.NQuad) R {
@@ -138,30 +140,47 @@ func compare(srcl, dstl []R) {
 func main() {
 	flag.Parse()
 	logrus.SetLevel(logrus.DebugLevel)
-
 	var srcl, dstl []R
-	f, scanner := getScanner(*src)
+	f, r := getReader(*src)
+	bufReader := bufio.NewReader(r)
+	var err error
 
 	srcCount := 0
-	for scanner.Scan() {
+	var strBuf bytes.Buffer
+	for {
+		err = x.ReadLine(bufReader, &strBuf)
+		if err != nil {
+			break
+		}
 		srcCount++
-		rnq, err := rdf.Parse(scanner.Text())
-		x.Checkf(err, "Unable to parse line: [%v]", scanner.Text())
+		rnq, err := rdf.Parse(strBuf.String())
+		x.Checkf(err, "Unable to parse line: [%v]", strBuf.String())
 		srcl = append(srcl, convert(rnq))
 	}
-	x.Check(scanner.Err())
+	if err != nil && err != io.EOF {
+		err := x.Errorf("Error while reading file: %v", err)
+		log.Fatalf("%+v", err)
+	}
 	x.Check(f.Close())
 	fmt.Println("Source done")
 
-	f, scanner = getScanner(*dst)
+	f, r = getReader(*dst)
+	bufReader = bufio.NewReader(r)
 	dstCount := 0
-	for scanner.Scan() {
+	for {
+		err = x.ReadLine(bufReader, &strBuf)
+		if err != nil {
+			break
+		}
 		dstCount++
-		rnq, err := rdf.Parse(scanner.Text())
-		x.Checkf(err, "Unable to parse line: [%v]", scanner.Text())
+		rnq, err := rdf.Parse(strBuf.String())
+		x.Checkf(err, "Unable to parse line: [%v]", strBuf.String())
 		dstl = append(dstl, convert(rnq))
 	}
-	x.Check(scanner.Err())
+	if err != nil && err != io.EOF {
+		err := x.Errorf("Error while reading file: %v", err)
+		log.Fatalf("%+v", err)
+	}
 	x.Check(f.Close())
 
 	fmt.Printf("Src: [%d] Dst: [%d]\n", srcCount, dstCount)
