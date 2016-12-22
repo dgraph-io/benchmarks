@@ -13,6 +13,7 @@ import (
 	"sort"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/dgraph-io/dgraph/query/graph"
 	"github.com/dgraph-io/dgraph/rdf"
 	"github.com/dgraph-io/dgraph/x"
 )
@@ -92,7 +93,7 @@ func getReader(fname string) (*os.File, *bufio.Reader) {
 	return f, bufio.NewReader(r)
 }
 
-func convert(n rdf.NQuad) R {
+func convert(n graph.NQuad) R {
 	r := R{}
 	var err error
 	r.os = n.Subject
@@ -105,7 +106,7 @@ func convert(n rdf.NQuad) R {
 		x.Checkf(err, "Object: %v", n.ObjectId)
 		r.oo = n.ObjectId
 	}
-	r.v = string(n.ObjectValue)
+	r.v = n.ObjectValue.GetStrVal()
 	return r
 }
 
