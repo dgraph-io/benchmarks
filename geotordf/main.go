@@ -95,14 +95,15 @@ func main() {
 		geoS := strings.Replace(string(geo), "\"", "'", 6)
 		x.Check(err)
 		uid := farm.Fingerprint32([]byte(f.ID))
-		x.Check2(buf.WriteString(fmt.Sprintf("<_uid_:%d> <loc> \"%s\"^^<geo:geojson> .\n", uid, geoS)))
+		x.Check2(buf.WriteString(fmt.Sprintf("<_uid_:%#x> <loc> \"%s\"^^<geo:geojson> .\n", uid, geoS)))
 		for k, v := range f.Properties {
 			va, ok := v.(string)
 			if !ok {
 				continue
 			}
 			va = strings.Replace(va, "\"", "'", -1)
-			x.Check2(buf.WriteString(fmt.Sprintf("<_uid_:%d> <%s> \"%s\" .\n", uid, k, va)))
+			pred := strings.Replace(strings.Trim(k, "@#"), ":", ".", -1)
+			x.Check2(buf.WriteString(fmt.Sprintf("<_uid_:%#x> <%s> \"%s\" .\n", uid, pred, va)))
 		}
 		if buf.Len() > 40000 {
 			gw.Write(buf.Bytes())
