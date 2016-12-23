@@ -1,0 +1,7 @@
+scalar (
+	type.object.name.en: string @index
+	film.film.initial_release_date: date @index
+	film.director.film: uid @reverse
+	film.film.genre: uid @reverse
+	film.film.rating: uid @reverse
+)
