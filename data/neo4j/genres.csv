@@ -1,0 +1,595 @@
+genreId:ID(Genre),name
+m.010bt5pz,British Cinema
+m.010ktfjf,/m/04rlf
+m.010r9v0p,Action
+m.0113k739,Estonian animation
+m.011869tv,Fantasy
+m.0118gzs3,Parody film
+m.01199x0y,Mystery film
+m.0119mbcs,Crime film
+m.0119r056,Science fiction film
+m.011c3pwp,Fiction
+m.011l6gdv,Drama
+m.011p3p5q,Fantasy
+m.011ys5,Farce
+m.0127jb,Magic realism
+m.012l9kh5,Police Comedy
+m.012lzc,Self-help
+m.012r3k9w,Non-fiction
+m.012vwt0n,Dokumentarfilm
+m.01311grm,inspirational film
+m.014dsx,Travel
+m.014g0t,Supermarionation
+m.014lxl,Paranormal
+m.0157xl,Tutorial
+m.01585b,Slasher
+m.015md7,Hagiography
+m.015w9s,Television film
+m.015www,Documentation
+m.0163cl,Bedroom farce
+m.016c68,Adult
+m.016vh2,Caper story
+m.016wny,Newsreel
+m.017fp,Biography
+m.017g5,B-boying
+m.017rf8,Techno-thriller
+m.018ng8,Television advertisement
+m.018sjn,Revenge
+m.018td,Blaxploitation film
+m.019_rr,Lifestyle
+m.01bbmd6,Horor
+m.01bsxb,Collage
+m.01chg,Bollywood
+m.01drsx,Disaster Film
+m.01dvw4,Social guidance film
+m.01f9r0,Docudrama
+m.01fc50,Anti-war movement
+m.01fwzy,Educational entertainment
+m.01g6gs,Black-and-white
+m.01g6r,BDSM
+m.01gcd9,Direct-to-video
+m.01hl84,Cinéma vérité
+m.01hmnh,Fantasy
+m.01hp22,Artistic gymnastics
+m.01htzx,Action
+m.01hw54,Feature film
+m.01hwc6,Absurdism
+m.01j1n2,Coming of age
+m.01j28z,Rockumentary
+m.01j6zc,Foreign legion
+m.01jddz,Concert
+m.01jfsb,Thriller
+m.01jk9n,Pornographic film
+m.01jzxy,Art history
+m.01klnp,3D film
+m.01lmb_,Sword and Sandal film
+m.01lp8,Christianity
+m.01lrrt,Melodrama
+m.01nfk7,Outlaw
+m.01pwbn,True crime
+m.01pxgq,Romance
+m.01pxyy,Hardcore pornography
+m.01q03,Cult film
+m.01qpc,Cyberpunk
+m.01r7_1,Technicolor
+m.01rbb,Crime
+m.01rvlb,Science fantasy
+m.01rywy,Damsel in distress
+m.01sgl,Cycling
+m.01t_vv,Comedy-drama
+m.01tz3c,Anthology
+m.01vq3,Christmas
+m.01w613,Variety show
+m.01xpr_s,Movies About Gladiators
+m.01xpvb7,Airplanes and airports
+m.01xpyjx,Erotic Science Fiction
+m.01xtwm,Czechoslovak New Wave
+m.01yldk,Softcore pornography
+m.01z02hx,Sports films
+m.01z77k,Miniseries
+m.01zhp,Computer Animation
+m.01zxzp,Psychological horror
+m.0215n,Cartoon
+m.0219x_,Indie film
+m.021dfr,Youth
+m.021pxw,Werewolf fiction
+m.0220p9g,Musical comedy
+m.022wy7,New Queer Cinema
+m.023cfr,Television pilot
+m.023dwm,Motion capture
+m.023pxm,Reboot
+m.0253g1,Epic Western
+m.0258ts,Sepia tone
+m.026ny,Dystopia
+m.026sy87,Home movies
+m.026v1nw,Hip hop film
+m.026zf_v,Northern
+m.0279xh5,Future noir
+m.02822,Drama
+m.0289_nj,Arab cinema
+m.028v3,Detective fiction
+m.029z51,French New Wave
+m.02b5_l,Teen film
+m.02cqmh,Tollywood
+m.02crcx,Chick flick
+m.02djzlc,Religious Film
+m.02fcct,Clay animation
+m.02fgmn,Police procedural
+m.02gk5,Dogme 95
+m.02h8pkk,Family Drama
+m.02hgvd,Real Robot
+m.02hmvc,Short Film
+m.02jfc,Education
+m.02js9,Erotica
+m.02kdv5l,Action Film
+m.02l2pp,Romance
+m.02l7c8,Romance Film
+m.02m2p,Extraterrestrial life
+m.02m4t,Existentialism
+m.02n4kr,Mystery
+m.02n4lw,Arts and Culture
+m.02nbtpt,College life
+m.02p0szs,Historical fiction
+m.02pfsdf,Z movie
+m.02prgwj,Biker Film
+m.02psyd2,Zombie
+m.02qfv5d,Political thriller
+m.02qj3n0,Commedia all'italiana
+m.02qqtlj,Samurai cinema
+m.02qrqx4,Rape and revenge film
+m.02qvnvs,Swashbuckler film
+m.02qyzxg,Mumblecore
+m.02r1yf1,Web documentary
+m.02r_bl0,Masala film
+m.02rcm2r,Sponsored film
+m.02rd8h3,Goat gland film
+m.02rjkzy,Acid Western
+m.02rn3v7,Marathi cinema
+m.02vk56l,Teleplay
+m.02vn3k,Splatter film
+m.02vxm6v,Mecha anime and manga
+m.02w5z_8,Triller
+m.02w_9px,Reality film
+m.02wtdkf,Musical Drama
+m.02wtdps,Crime Thriller
+m.02xh1,Film noir
+m.02xh8t,Exploitation film
+m.02xhswz,Christmas special
+m.02xlf,Fiction
+m.02z0t_,Tokusatsu
+m.02z7f3,Metalcore
+m.032tl,Fashion
+m.033qh3,Underground film
+m.036vg6,Wrestling
+m.0399b7,Buddy cop film
+m.03bt31n,Latino
+m.03bt33s,International
+m.03btsm8,Action/Adventure
+m.03bty4x,Spirituality
+m.03bx3n,Current affairs
+m.03bxz7,Biographical film
+m.03by_s1,Travel documentary
+m.03cf5sl,Mockbuster
+m.03fpg,Game show
+m.03g3w,History
+m.03gjpn8,Ninja movie
+m.03gkl,Holiday
+m.03gq4d1,Vampire film
+m.03h4nhm,Eurospy film
+m.03hn0,Historical drama
+m.03hybg,Southern Gothic
+m.03j0dp,Neo-noir
+m.03jp56q,Archives and records
+m.03jp5g4,Libraries and librarians
+m.03jp5gt,Museums and art galleries
+m.03jp5h0,Archaeology
+m.03k9fj,Adventure Film
+m.03lty,Heavy metal
+m.03lz5d9,Murder-mystery
+m.03mqtr,Political drama
+m.03ngg,Human sexuality
+m.03nhxh,Social commentary
+m.03npn,Horror
+m.03p5xs,Comedy of manners
+m.03p67,Hentai
+m.03pmy7,Jidaigeki
+m.03q4nz,World cinema
+m.03rzvv,Romantic fantasy
+m.03v6qx,Stoner film
+m.03wc755,Docufiction
+m.03wgv6_,Ethnographic film
+m.03y05gp,Ethnofiction
+m.03ywrp,Male bonding
+m.0410tth,Motorsport
+m.04_1lw2,Bhojpuri cinema
+m.041y2,Journalism
+m.04228s,Road movie
+m.0424mc,Experimental film
+m.046632s,Environment
+m.047f3yl,Edupunk
+m.04b_bv,Silent comedy
+m.04btyz,Heist film
+m.04cb4x,Revisionist Western
+m.04dn71w,Dance film
+m.04dnp5,Mondo film
+m.04f1b4z,Animated documentary
+m.04_fff,Compilation film
+m.04fy52,Kitchen sink realism
+m.04g7x,Linguistics
+m.04gm78f,Medical fiction
+m.04hdjd,Incest pornography
+m.04k2v3,Pink film
+m.04p5fxn,Christian film
+m.04pbhw,Superhero movie
+m.04q6sch,Horror comedy
+m.04rlf,Music
+m.04t2t,Martial Arts Film
+m.04t36,Backstage Musical
+m.04tk13,Kafkaesque
+m.04tkhfk,Gay Themed
+m.04vyqqd,Tribute
+m.04wlgf,Spiritual film
+m.04xvh5,Costume drama
+m.04xvlr,Historical period drama
+m.04y5g,Media studies
+m.04zgj2,Educational film
+m.050z5g,Chivalric romance
+m.0520lz,Roadshow theatrical release
+m.053jr1,Ostern
+m.0541p,Multimedia
+m.05542,Mecha
+m.0556j8,Buddy film
+m.0557q,Musical theatre
+m.0572q3,Bruceploitation
+m.0594kx,Conspiracy fiction
+m.05b8xy,War effort
+m.05bdtfl,Period Horror
+m.05bg8cj,Roadshow/Carny
+m.05bh16v,Trial drama
+m.05bh5rs,Backstage
+m.05bt6j,Pop rock
+m.05c3mp2,Prison film
+m.05c4g7,Psycho-biddy
+m.05ddtww,Television Film
+m.05dp1b,Japanese horror
+m.05h0n,Nature
+m.05jhg,News
+m.05kk98,Flash animation
+m.05lls,Opera
+m.05mrx8,Political satire
+m.05nd42_,Anti-McCarthyist
+m.05p553,Comedy
+m.05qt0,Politics
+m.05r6jc,Women in prison film
+m.05r6t,Punk rock
+m.05spfln,Patriotic film
+m.05spv5t,Talkie
+m.05svk,Point of view shot
+m.05swd,Propaganda film
+m.05szrsv,Christian film industry
+m.05tnmt,Giallo
+m.05ws7,Police
+m.05z2lgd,Hobbies and interests
+m.0604r_,Fictional film
+m.060__y,Film adaptation
+m.063x7vt,Best of compilation
+m.066s2,Political fiction
+m.068twy,Fan film
+m.069x_s,Gay pornography
+m.06b0n3,Sexploitation film
+m.06bf7q,Public information film
+m.06bvp,Religion
+m.06cvj,Romantic comedy
+m.06h5zv,Lost film
+m.06l3bl,Epic film
+m.06lbpz,Social problem film
+m.06lyyg,Rubble film
+m.06mq7,Science
+m.06n90,Science Fiction
+m.06nbt,Satire
+m.06ntj,Sports
+m.06ppq,Silent film
+m.06pqf08,Therimin music
+m.06qln,Stop motion
+m.06qm3,Screwball comedy
+m.06rktq,Psycho film
+m.06_vsc,British New Wave
+m.06vxwl5,Natural horror film
+m.06w2n3t,Female buddy film
+m.06wkf,Spy fiction
+m.06www,Steampunk
+m.06xg9h,Films with live action and animation
+m.06ymb,Statutory rape
+m.0707q,Short story
+m.070yc,Space opera
+m.073_6,Surrealism
+m.0740gt,Korean drama
+m.0751y,Shōjo manga
+m.075fzd,Social issues
+m.075qx_b,C-Movie
+m.0762kh,Semidocumentary
+m.076d4,Snuff film
+m.0771_,Spaghetti Western
+m.07f9sb,No Wave Cinema
+m.07ftpb,Beach party film
+m.07gdq6,Surf film
+m.07glmh,Nudie film
+m.07hy87,Paracinema
+m.07jq_,Terrorism
+m.07k67c,Anti-war film
+m.07nc2,Closeted
+m.07qht4,Teen drama
+m.07qkc,Transsexualism
+m.07s2s,Time travel
+m.07s8gcr,Television documentary
+m.07xmvk,Medieval fantasy
+m.07y0lv,Science fiction Western
+m.0807rj,Zapata Western
+m.082cb,War
+m.082gq,War film
+m.08322,Wuxia
+m.084r0,World history
+m.085cxx,Amateur film
+m.086220,Structural film
+m.089m7,Zombie
+m.08kh3l,Star vehicle
+m.08m69v,Nunsploitation
+m.08scwl,Cannibal film
+m.08t59x,Nazi exploitation
+m.08ty54,Puppetoon
+m.08w0_f,Albinism in popular culture
+m.0949yv,Serial film
+m.094ddt,Doomsday film
+m.095bb,Animated cartoon
+m.0960nh,Yakuza film
+m.096h3,Nuclear warfare
+m.09blyk,Psychological thriller
+m.09c4j_,Teen pornography
+m.09dhj,Family
+m.09g__2,Webisode
+m.09ggcsk,Found footage
+m.09glv8x,Film à clef
+m.09kqc,Humour
+m.09lmb,Reality television
+m.09ny0f,East Asian cinema
+m.09q17,Slapstick
+m.09s1f,Business
+m.09swn,Operetta
+m.09tvt3,School story
+m.09yb9h,Montage
+m.09zvmj,Space Western
+m.0b5_s_,Prison escape
+m.0b7z1vt,Road-Horror
+m.0bbc17,Gross out
+m.0bbcs1d,Docmentary
+m.0bc42t_,Gay Interest
+m.0bfryx5,Adevnture
+m.0bh7f0v,Gujarati cinema
+m.0bkbm,Spy film
+m.0bps_n,Singing cowboy
+m.0bt0c,Future history
+m.0bwgnb,Christmas movie
+m.0bx6ch9,Political Documetary
+m.0bxdv5,Race film
+m.0bxg3,Fairy tale
+m.0c031k6,Live action
+m.0c261k,Viral video
+m.0c3351,Suspense
+m.0c5hv,Evil clown
+m.0clz1b,Slice of life
+m.0cq22_5,Tearjerkers
+m.0cq22bh,Rock & Pop
+m.0cq22c8,Special Interest
+m.0cq22cn,Social & Cultural Documentaries
+m.0cq22c_,Biographical Documentaries
+m.0cq22ds,Film & Television History
+m.0cq22f9,Action Thriller
+m.0cq22gk,TV Documentaries
+m.0cq22j3,Kids' TV
+m.0cq22jn,Ages 5-7
+m.0cq22kd,Science and Nature Documentaries
+m.0cq22nj,Jazz & Easy Listening
+m.0cq22q5,Supernatural Horror
+m.0cq22s9,Ages 2-4
+m.0cq22sr,Travel & Adventure Documentaries
+m.0cq22tt,Family Comedies
+m.0cq22z7,Sci-Fi Horror
+m.0cq230n,Showbiz Dramas
+m.0cq232n,Teen Screams
+m.0cq232t,Alien Sci-Fi
+m.0cq237g,African-American Comedies
+m.0cq238z,Anime Sci-Fi
+m.0cq23cb,Outdoor & Mountain Sports
+m.0cq23f0,Sci-Fi Adventure
+m.0cq23gm,Ages 0-2
+m.0cq23k5,Theatrical Performances
+m.0cq23x6,Language Instruction
+m.0cshrf,Political cinema
+m.0cvwrj,Mythic fiction
+m.0d04tq,Training film
+m.0d2rhq,Concert film
+m.0d5l4q,Southeast Asian cinema
+m.0d5rrs,South Asian cinema
+m.0d63kt,Gay
+m.0d6n1,Ballet
+m.0dgdwzk,Sermons
+m.0djjxz,Korean horror
+m.0dm00,Sketch comedy
+m.0dz8b,Sword and sorcery
+m.0f07b5,Abstract animation
+m.0f0jjz,Pornography
+m.0f9v4l,Mafia comedy
+m.0fb1ns,Color motion picture film
+m.0fdjb,Supernatural
+m.0fp53_,Pornochanchada
+m.0fs6x5,Latin American cinema
+m.0ftnl_,Jukebox musical
+m.0fztc6,Tamil cinema
+m.0g092b,Monster movie
+m.0g5t1yt,Mistery
+m.0g65_,Adventure game
+m.0g72wq,Poliziotteschi
+m.0g9psvk,Demonic child
+m.0g9yrf1,Romantic thriller
+m.0g9zb16,Coming-of-age story
+m.0gf28,Parody
+m.0glj9q,Erotic thriller
+m.0gp2pf,Mashup
+m.0gs6m,Legal drama
+m.0gsy18,Part-talkie
+m.0gsy3b,Sex comedy
+m.0gvt9s,Zombie comedy
+m.0gw5m8b,Independent Dramas
+m.0gw5m91,Romantic Movies
+m.0gw5m9l,Indian Movies
+m.0gw5n2f,Japanese Movies
+m.0gw5qqq,Chinese Movies
+m.0gw5tj3,Zombie Movies
+m.0gw5w78,Gangster Film
+m.0gxblw4,Filipino Movies
+m.0gywfyd,Social film
+m.0h1l_48,Revisionist Fairy Tale
+m.0h6mx8,Bisexual pornography
+m.0h7ggh,Transforming robots
+m.0h814rb,Informational
+m.0h9fd,Kaiju
+m.0h9qh,Monster
+m.0hc1z,Post-Apocalyptic fiction
+m.0hcr,Animation
+m.0hfjk,Western
+m.0hh_j8m,Mythological Fantasy
+m.0hj3l_y,Action Comedy
+m.0hj3m_1,Cooking & Food
+m.0hj3m_6,Costume Adventure
+m.0hj3m_c,Costume Horror
+m.0hj3m_k,Courtroom Comedy
+m.0hj3m_q,Creature Film
+m.0hj3msd,Adventure Comedy
+m.0hj3msq,Adventure Travel
+m.0hj3msw,Health & Fitness
+m.0hj3mt0,Alien Film
+m.0hj3mt5,Alternative Health
+m.0hj3mtc,Ambiance
+m.0hj3mtj,Animal Picture
+m.0hj3mtv,Animated Musical
+m.0hj3mv4,Architecture & Design
+m.0hj3mv9,Armchair Travel
+m.0hj3mvm,B-Western
+m.0hj3mw3,Beach Film
+m.0hj3mw8,Beauty & Fashion
+m.0hj3mwm,Biological Sciences
+m.0hj3mwy,Bloopers & Candid Camera
+m.0hj3mx2,British Empire Film
+m.0hj3mx7,Business
+m.0hj3mxd,Careers
+m.0hj3mxk,Cavalry Film
+m.0hj3mxr,Chase Movie
+m.0hj3m_x,Crime Comedy
+m.0hj3mxx,Childhood Drama
+m.0hj3myc,Children's Fantasy
+m.0hj3myj,Children's Issues
+m.0hj3myq,Children's/Family
+m.0hj3mz0,Combat Films
+m.0hj3mz5,Comedy of Errors
+m.0hj3mzb,Comedy Thriller
+m.0hj3mzj,Comedy Western
+m.0hj3mzv,Computers
+m.0hj3n01,Crime Drama
+m.0hj3n07,Culture & Society
+m.0hj3n0d,Diet & Nutrition
+m.0hj3n0k,Domestic Comedy
+m.0hj3n0q,Early Black Cinema
+m.0hj3n0w,Ensemble Film
+m.0hj3n11,Environmental Science
+m.0hj3n16,Erotic Drama
+m.0hj3n1c,Escape Film
+m.0hj3n1j,Essay Film
+m.0hj3n1p,Eurowestern
+m.0hj3n1x,Extreme Sports
+m.0hj3n26,Family-Oriented Adventure
+m.0hj3n2k,Fantasy Adventure
+m.0hj3n2s,Fantasy Comedy
+m.0hj3n2_,Fantasy Drama
+m.0hj3n34,Feminist Film
+m.0hj3n3h,Film
+m.0hj3n3n,Film-Opera
+m.0hj3n3v,Filmed Play
+m.0hj3n40,Finance & Investing
+m.0hj3n4b,Gender Issues
+m.0hj3n4h,Glamorized Spy Film
+m.0hj3n4p,Gothic Film
+m.0hj3n4v,Graphic & Applied Arts
+m.0hj3n5l,Haunted House Film
+m.0hj3n5y,Heaven-Can-Wait Fantasies
+m.0hj3n62,Heavenly Comedy
+m.0hj3n67,Heavenly Drama
+m.0hj3n6f,Historical Epic
+m.0hj3n6r,Holiday Film
+m.0hj3n7m,Hybrid Western
+m.0hj3n7s,Illnesses & Disabilities
+m.0hj3n7y,Indian Western
+m.0hj3n84,Inspirational Drama
+m.0hj3n89,Instrumental Music
+m.0hj3n8h,Interpersonal Relationships
+m.0hj3n8q,Inventions & Innovations
+m.0hj3n8w,Jazz & Modern Dance
+m.0hj3n96,Jungle Film
+m.0hj3n9c,Juvenile Delinquency Film
+m.0hj3n9k,Language & Literature
+m.0hj3n9r,Law & Crime
+m.0hj3n9y,Leisure Arts
+m.0hj3nb7,Literary Studies
+m.0hj3nbd,Marriage & Commitment
+m.0hj3nbk,Marriage Drama
+m.0hj3nby,Media Satire
+m.0hj3nyp,Workplace Comedy
+m.0h_m,Adventure
+m.0hn10,LGBT
+m.0hn1t9r,Sex Horror
+m.0hqxf,Family
+m.0hz_qc4,Gay & Lesbian Films
+m.0j1d98v,Japanese
+m.0j3fjjs,Commedia sexy all'italiana
+m.0j5nm,Whodunit
+m.0jb0t,Yuri
+m.0jb4p32,Zombie Film
+m.0jbk,Animal
+m.0jdm8,Remake
+m.0jdz_,Coming out
+m.0jmwg,Hardcore punk
+m.0jrv_,Thrash metal
+m.0jt1wjg,Operetta film
+m.0jtdp,Documentary film
+m.0jxw5,Equestrianism
+m.0jxy,Anime
+m.0k345,Avant-garde
+m.0k3bwfj,Domaci
+m.0kfgpw9,Psychological Drama
+m.0kpq_x,Gulf War
+m.0kv3d9,Assamese cinema
+m.0l13q,Alien invasion
+m.0l4h_,Mockumentary
+m.0lf45,Camp
+m.0lsxr,Crime Fiction
+m.0ltv,Auto racing
+m.0m1xv,Talk show
+m.0mdxd,Music video
+m.0mz2,Alternate history
+m.0n6m8vw,Malayalam Cinema
+m.0n6n298,Bengali Cinema
+m.0n991lr,Sci-Fi
+m.0n9xl94,Educational & Guidance
+m.0nbdmj8,Anthology film
+m.0ncq9gy,Romantic Drama
+m.0pr6f,Children's television series
+m.0pybl,Expressionism
+m.0q00t,Stand-up comedy
+m.0q9mp,Tragicomedy
+m.0qdzd,B movie
+m.0rqdr02,Kannada
+m.0_v5x7p,Fantasy
+m.0vgkd,Black comedy
+m.0vplw4l,Film-poem
+m.0wbjz7p,Vigilante film
+m.0wxqq_0,Mafia
+m.0xhtw,Hard rock
