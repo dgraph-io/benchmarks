@@ -94,6 +94,7 @@ TRY:
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		atomic.AddUint64(&s.rdfs, uint64(len(r.req)))
 		atomic.AddUint64(&s.mutations, 1)
 
@@ -167,12 +168,18 @@ func main() {
 		} else {
 			// Merge will check if a node with this xid as property exists, else create it. In either case it will
 			// add another property with the predicate.
-			r.req = append(r.req, fmt.Sprintf("MERGE (n { xid: {xid} }) ON CREATE SET n.`%s` = {val} ON MATCH SET n.`%s` = {val}", pred))
+			r.req = append(r.req, fmt.Sprintf("MERGE (n { xid: {xid} }) ON CREATE SET n.`%s` = {val} ON MATCH SET n.`%s` = {val}", pred, pred))
 			r.params = append(r.params, map[string]interface{}{"xid": rnq.Subject, "val": getStrVal(rnq)})
 		}
 		count++
 		if int(count)%(*size) == 0 {
-			reqCh <- r
+			rc := request{
+				req:    make([]string, len(r.req)),
+				params: make([]map[string]interface{}, len(r.params)),
+			}
+			copy(rc.params, r.params)
+			copy(rc.req, r.req)
+			reqCh <- rc
 			r.req = r.req[:0]
 			r.params = r.params[:0]
 		}
