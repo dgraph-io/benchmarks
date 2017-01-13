@@ -38,9 +38,9 @@ import (
 )
 
 var (
-	src        = flag.String("src", "", "Gzipped RDF data file.")
-	concurrent = flag.Int("c", 500, "No of concurrent requests to perform.")
-	size       = flag.Int("size", 1000, "No of mutations to send per request.")
+	src        = flag.String("r", "", "Gzipped RDF data file.")
+	concurrent = flag.Int("c", 20, "No of concurrent requests to perform.")
+	size       = flag.Int("m", 200, "No of mutations to send per request.")
 )
 
 func getReader(fname string) (*os.File, *bufio.Reader) {
@@ -149,6 +149,7 @@ func main() {
 		go makeRequests(driver, &wg, reqCh)
 	}
 
+	fmt.Printf("\nProcessing %s\n", *src)
 	f, bufReader := getReader(*src)
 
 	var strBuf bytes.Buffer

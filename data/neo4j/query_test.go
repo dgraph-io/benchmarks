@@ -66,14 +66,14 @@ func BenchmarkNeo4jSimpleQuery(b *testing.B) {
 	}
 }
 
-func BenchmarkDgraphFilterAndSortQuery(b *testing.B) {
+func BenchmarkDgraphGetStarted1(b *testing.B) {
 	hc := &http.Client{}
 	query := `{
 	     director(allof("type.object.name.en", "steven spielberg")) {
-		     type.object.name.en
-		    film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1984-08")) {
-		         type.object.name.en
-		       film.film.initial_release_date
+		    type.object.name.en
+		    film.director.film (orderdesc: film.film.initial_release_date) {
+		        type.object.name.en
+				film.film.initial_release_date
 	      }
   }
 }
@@ -93,8 +93,114 @@ func BenchmarkDgraphFilterAndSortQuery(b *testing.B) {
 	}
 }
 
-func BenchmarkNeo4jFilterAndSortQuery(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name="Steven Spielberg" AND f.release_date >= "1984-08" WITH d,f ORDER BY f.release_date ASC RETURN d, f`
+func BenchmarkNeo4jGetStarted1(b *testing.B) {
+	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" WITH d,f ORDER BY f.release_date DESC RETURN d, f`
+	driver := bolt.NewDriver()
+	conn, err := driver.OpenNeo("bolt://localhost:7687")
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer conn.Close()
+
+	b.StopTimer()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		stmt, err := conn.PrepareNeo(query)
+		if err != nil {
+			b.Fatal(err)
+		}
+		b.StartTimer()
+		_, err = stmt.QueryNeo(nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+		b.StopTimer()
+		stmt.Close()
+	}
+}
+
+func BenchmarkDgraphGetStarted2(b *testing.B) {
+	hc := &http.Client{}
+	query := `{
+	    director(allof("type.object.name.en", "steven spielberg")) {
+			type.object.name.en
+		    film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1984-08")) {
+				type.object.name.en
+				film.film.initial_release_date
+	    }
+  }
+}
+`
+	b.StopTimer()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
+
+		b.StartTimer()
+		_, err = hc.Do(r)
+		b.StopTimer()
+
+		if err != nil {
+			b.Fatal("Error in query", err)
+		}
+	}
+}
+
+func BenchmarkNeo4jGetStarted2(b *testing.B) {
+	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984-08" WITH d,f ORDER BY f.release_date ASC RETURN d, f`
+	driver := bolt.NewDriver()
+	conn, err := driver.OpenNeo("bolt://localhost:7687")
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer conn.Close()
+
+	b.StopTimer()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		stmt, err := conn.PrepareNeo(query)
+		if err != nil {
+			b.Fatal(err)
+		}
+		b.StartTimer()
+		_, err = stmt.QueryNeo(nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+		b.StopTimer()
+		stmt.Close()
+	}
+}
+
+func BenchmarkDgraphGetStarted3(b *testing.B) {
+	hc := &http.Client{}
+	query := `{
+  director(allof("type.object.name.en", "steven spielberg")) {
+    type.object.name.en
+    film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1990") && leq("film.film.initial_release_date", "2000")) {
+      type.object.name.en
+      film.film.initial_release_date
+    }
+  }
+}
+`
+	b.StopTimer()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
+
+		b.StartTimer()
+		_, err = hc.Do(r)
+		b.StopTimer()
+
+		if err != nil {
+			b.Fatal("Error in query", err)
+		}
+	}
+}
+
+func BenchmarkNeo4jGetStarted3(b *testing.B) {
+	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984" AND f.release_date <= "2000" WITH d,f ORDER BY f.release_date ASC RETURN d, f`
 	driver := bolt.NewDriver()
 	conn, err := driver.OpenNeo("bolt://localhost:7687")
 	if err != nil {
