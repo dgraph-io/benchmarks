@@ -63,20 +63,14 @@ func benchmarkNeo4jSerialQuery(b *testing.B, query string) {
 	}
 	defer conn.Close()
 
-	b.StopTimer()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		stmt, err := conn.PrepareNeo(query)
-		if err != nil {
-			b.Fatal(err)
-		}
 		b.StartTimer()
-		_, err = stmt.QueryNeo(nil)
+		_, _, _, err := conn.QueryNeoAll(query, nil)
 		if err != nil {
 			b.Fatal(err)
 		}
 		b.StopTimer()
-		stmt.Close()
 	}
 }
 
@@ -91,15 +85,10 @@ func benchmarkNeo4jParallelQuery(b *testing.B, query string) {
 			}
 			defer conn.Close()
 
-			stmt, err := conn.PrepareNeo(query)
+			_, _, _, err = conn.QueryNeoAll(query, nil)
 			if err != nil {
 				b.Fatal(err)
 			}
-			_, err = stmt.QueryNeo(nil)
-			if err != nil {
-				b.Fatal(err)
-			}
-			stmt.Close()
 		}
 	})
 }
@@ -294,10 +283,8 @@ func BenchmarkDgraphSimpleQueryAndMutation(b *testing.B) {
 		ObjectValue: &graph.Value{&graph.Value_StrVal{"Terminal"}},
 	}, client.SET)
 
-	b.StopTimer()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-
 		b.StartTimer()
 		_, err := c.Run(context.Background(), req.Request())
 		b.StopTimer()
@@ -319,32 +306,16 @@ func BenchmarkNeo4jSimpleQueryAndMutation(b *testing.B) {
 	}
 	defer conn.Close()
 
-	b.StopTimer()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		stmt, err := conn.PrepareNeo(query)
+		_, _, _, err = conn.QueryNeoAll(query, nil)
 		if err != nil {
 			b.Fatal(err)
 		}
-		b.StartTimer()
-		_, err = stmt.QueryNeo(nil)
+		_, err = conn.ExecNeo(mutation, params)
 		if err != nil {
 			b.Fatal(err)
 		}
-		b.StopTimer()
-		stmt.Close()
-		stmt2, err := conn.PrepareNeo(mutation)
-		if err != nil {
-			b.Fatal(err)
-		}
-
-		b.StartTimer()
-		_, err = stmt2.ExecNeo(params)
-		if err != nil {
-			b.Fatal(err)
-		}
-		b.StopTimer()
-		stmt2.Close()
 	}
 }
 
@@ -378,7 +349,6 @@ func BenchmarkDgraphSimpleQueryAndMutationParallel(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-
 			_, err := c.Run(context.Background(), req.Request())
 			if err != nil {
 				b.Fatal("Error in query", err)
@@ -401,26 +371,14 @@ func BenchmarkNeo4jSimpleQueryAndMutationParallel(b *testing.B) {
 			}
 			defer conn.Close()
 
-			stmt, err := conn.PrepareNeo(query)
-
+			_, _, _, err = conn.QueryNeoAll(query, nil)
 			if err != nil {
 				b.Fatal(err)
 			}
-			_, err = stmt.QueryNeo(nil)
+			_, err = conn.ExecNeo(mutation, params)
 			if err != nil {
 				b.Fatal(err)
 			}
-			stmt.Close()
-			stmt2, err := conn.PrepareNeo(mutation)
-			if err != nil {
-				b.Fatal(err)
-			}
-
-			_, err = stmt2.ExecNeo(params)
-			if err != nil {
-				b.Fatal(err)
-			}
-			stmt2.Close()
 		}
 	})
 }
