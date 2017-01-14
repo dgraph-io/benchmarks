@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"google.golang.org/grpc"
@@ -11,7 +12,59 @@ import (
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 )
 
-func benchmarkDgraphSerialQuery(b *testing.B, query string) {
+func BenchmarkDgraphQuery(b *testing.B) {
+	queries := []struct {
+		name  string
+		query string
+	}{
+		{
+			"Simple", `{
+					me(_xid_: m.06pj8) {
+						type.object.name.en
+						film.director.film  {
+						film.film.genre {
+							type.object.name.en
+						}
+						type.object.name.en
+						film.film.initial_release_date
+						}
+					}
+				}`,
+		},
+		{
+			"GetStarted1", `{
+				director(allof("type.object.name.en", "steven spielberg")) {
+					type.object.name.en
+					film.director.film (orderdesc: film.film.initial_release_date) {
+						type.object.name.en
+						film.film.initial_release_date
+					}
+				}
+			}`,
+		},
+		{
+			"GetStarted2", `{
+				director(allof("type.object.name.en", "steven spielberg")) {
+						type.object.name.en
+						film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1984-08")) {
+							type.object.name.en
+							film.film.initial_release_date
+						}
+					}
+				}`,
+		}, {
+			"GetStarted3", `{
+					director(allof("type.object.name.en", "steven spielberg")) {
+						type.object.name.en
+						film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1990") && leq("film.film.initial_release_date", "2000")) {
+							type.object.name.en
+							film.film.initial_release_date
+						}
+					}
+				}`,
+		},
+	}
+
 	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
 	if err != nil {
 		b.Fatal("DialTCPConnection")
@@ -19,43 +72,48 @@ func benchmarkDgraphSerialQuery(b *testing.B, query string) {
 	defer conn.Close()
 
 	c := graph.NewDgraphClient(conn)
-	b.StopTimer()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		b.StartTimer()
-		_, err := c.Run(context.Background(), &graph.Request{Query: query})
-		if err != nil {
-			b.Fatalf("Error in getting response from server, %s", err)
-		}
-		b.StopTimer()
+	for _, q := range queries {
+		b.Run(q.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				b.StartTimer()
+				_, err := c.Run(context.Background(), &graph.Request{Query: q.query})
+				if err != nil {
+					b.Fatalf("Error in getting response from server, %s", err)
+				}
+				b.StopTimer()
 
-		if err != nil {
-			b.Fatal("Error in query", err)
-		}
-	}
-}
-
-func benchmarkDgraphParallelQuery(b *testing.B, query string) {
-	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
-	if err != nil {
-		b.Fatal("DialTCPConnection")
-	}
-	defer conn.Close()
-
-	c := graph.NewDgraphClient(conn)
-
-	b.ResetTimer()
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			_, err := c.Run(context.Background(), &graph.Request{Query: query})
-			if err != nil {
-				b.Fatal("Error in query", err)
+				if err != nil {
+					b.Fatal("Error in query", err)
+				}
 			}
-		}
-	})
+		})
+	}
+
+	for _, q := range queries {
+		b.Run(fmt.Sprintf("%v-parallel", q.name), func(b *testing.B) {
+			b.RunParallel(func(pb *testing.PB) {
+				for pb.Next() {
+					_, err := c.Run(context.Background(), &graph.Request{Query: q.query})
+					if err != nil {
+						b.Fatal("Error in query", err)
+					}
+				}
+			})
+		})
+	}
 }
 
-func benchmarkNeo4jSerialQuery(b *testing.B, query string) {
+func BenchmarkNeoQuery(b *testing.B) {
+	queries := []struct {
+		name  string
+		query string
+	}{
+		{"Simple", `MATCH (d: Director) - [r:FILMS] -> (f:Film) - [r2:GENRE] -> (g:Genre) WHERE d.directorId="m.06pj8" RETURN d, f, g`},
+		{"GetStarted1", `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" WITH d,f ORDER BY f.release_date DESC RETURN d, f`},
+		{"GetStarted2", `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984-08" WITH d,f ORDER BY f.release_date ASC RETURN d, f`},
+		{"GetStarted3", `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984" AND f.release_date <= "2000" WITH d,f ORDER BY f.release_date ASC RETURN d, f`},
+	}
+
 	driver := bolt.NewDriver()
 	conn, err := driver.OpenNeo("bolt://localhost:7687")
 	if err != nil {
@@ -63,196 +121,37 @@ func benchmarkNeo4jSerialQuery(b *testing.B, query string) {
 	}
 	defer conn.Close()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		b.StartTimer()
-		_, _, _, err := conn.QueryNeoAll(query, nil)
-		if err != nil {
-			b.Fatal(err)
-		}
-		b.StopTimer()
+	for _, q := range queries {
+		b.Run(q.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				b.StartTimer()
+				_, _, _, err := conn.QueryNeoAll(q.query, nil)
+				if err != nil {
+					b.Fatal(err)
+				}
+				b.StopTimer()
+			}
+		})
 	}
-}
 
-func benchmarkNeo4jParallelQuery(b *testing.B, query string) {
-	driver := bolt.NewDriver()
-	b.ResetTimer()
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			conn, err := driver.OpenNeo("bolt://localhost:7687")
-			if err != nil {
-				b.Fatal(err)
-			}
-			defer conn.Close()
+	for _, q := range queries {
+		b.Run(fmt.Sprintf("%v-parallel", q.name), func(b *testing.B) {
+			b.RunParallel(func(pb *testing.PB) {
+				for pb.Next() {
+					conn, err := driver.OpenNeo("bolt://localhost:7687")
+					if err != nil {
+						b.Fatal(err)
+					}
+					defer conn.Close()
 
-			_, _, _, err = conn.QueryNeoAll(query, nil)
-			if err != nil {
-				b.Fatal(err)
-			}
-		}
-	})
-}
-
-func BenchmarkDgraphSimpleQuery(b *testing.B) {
-	query := `
-				{
-					me(_xid_: m.06pj8) {
-						type.object.name.en
-						film.director.film  {
-						film.film.genre {
-							type.object.name.en
-						}
-						type.object.name.en
-						film.film.initial_release_date
-						}
+					_, _, _, err = conn.QueryNeoAll(q.query, nil)
+					if err != nil {
+						b.Fatal(err)
 					}
 				}
-		`
-	benchmarkDgraphSerialQuery(b, query)
-}
-
-func BenchmarkNeo4jSimpleQuery(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) - [r2:GENRE] -> (g:Genre) WHERE d.directorId="m.06pj8" RETURN d, f, g`
-	benchmarkNeo4jSerialQuery(b, query)
-}
-
-func BenchmarkDgraphSimpleQueryParallel(b *testing.B) {
-	query := `
-				{
-					me(_xid_: m.06pj8) {
-						type.object.name.en
-						film.director.film  {
-						film.film.genre {
-							type.object.name.en
-						}
-						type.object.name.en
-						film.film.initial_release_date
-						}
-					}
-				}
-		`
-
-	benchmarkDgraphParallelQuery(b, query)
-}
-
-func BenchmarkNeo4jSimpleQueryParallel(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) - [r2:GENRE] -> (g:Genre) WHERE d.directorId="m.06pj8" RETURN d, f, g`
-	benchmarkNeo4jParallelQuery(b, query)
-}
-
-func BenchmarkDgraphGetStarted1(b *testing.B) {
-	query := `{
-	     director(allof("type.object.name.en", "steven spielberg")) {
-		    type.object.name.en
-		    film.director.film (orderdesc: film.film.initial_release_date) {
-		        type.object.name.en
-				film.film.initial_release_date
-	      }
-  }
-}
-`
-	benchmarkDgraphSerialQuery(b, query)
-}
-
-func BenchmarkNeo4jGetStarted1(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" WITH d,f ORDER BY f.release_date DESC RETURN d, f`
-	benchmarkNeo4jSerialQuery(b, query)
-}
-
-func BenchmarkDgraphGetStarted1Parallel(b *testing.B) {
-	query := `{
-	     director(allof("type.object.name.en", "steven spielberg")) {
-		    type.object.name.en
-		    film.director.film (orderdesc: film.film.initial_release_date) {
-		        type.object.name.en
-				film.film.initial_release_date
-	      }
-  }
-}
-		`
-
-	benchmarkDgraphParallelQuery(b, query)
-}
-
-func BenchmarkNeo4jGetStarted1Parallel(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" WITH d,f ORDER BY f.release_date DESC RETURN d, f`
-	benchmarkNeo4jParallelQuery(b, query)
-}
-
-func BenchmarkDgraphGetStarted2(b *testing.B) {
-	query := `{
-	    director(allof("type.object.name.en", "steven spielberg")) {
-			type.object.name.en
-		    film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1984-08")) {
-				type.object.name.en
-				film.film.initial_release_date
-	    }
-  }
-}
-`
-	benchmarkDgraphSerialQuery(b, query)
-}
-
-func BenchmarkNeo4jGetStarted2(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984-08" WITH d,f ORDER BY f.release_date ASC RETURN d, f`
-	benchmarkNeo4jSerialQuery(b, query)
-}
-
-func BenchmarkDgraphGetStarted2Parallel(b *testing.B) {
-	query := `{
-	    director(allof("type.object.name.en", "steven spielberg")) {
-			type.object.name.en
-		    film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1984-08")) {
-				type.object.name.en
-				film.film.initial_release_date
-	    }
-  }
-}`
-
-	benchmarkDgraphParallelQuery(b, query)
-}
-
-func BenchmarkNeo4jGetStarted2Parallel(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984-08" WITH d,f ORDER BY f.release_date ASC RETURN d, f`
-	benchmarkNeo4jParallelQuery(b, query)
-}
-
-func BenchmarkDgraphGetStarted3(b *testing.B) {
-	query := `{
-  director(allof("type.object.name.en", "steven spielberg")) {
-    type.object.name.en
-    film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1990") && leq("film.film.initial_release_date", "2000")) {
-      type.object.name.en
-      film.film.initial_release_date
-    }
-  }
-}
-`
-	benchmarkDgraphSerialQuery(b, query)
-}
-
-func BenchmarkNeo4jGetStarted3(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984" AND f.release_date <= "2000" WITH d,f ORDER BY f.release_date ASC RETURN d, f`
-	benchmarkNeo4jSerialQuery(b, query)
-}
-
-func BenchmarkDgraphGetStarted3Parallel(b *testing.B) {
-	query := `{
-  director(allof("type.object.name.en", "steven spielberg")) {
-    type.object.name.en
-    film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1990") && leq("film.film.initial_release_date", "2000")) {
-      type.object.name.en
-      film.film.initial_release_date
-    }
-  }
-}`
-
-	benchmarkDgraphParallelQuery(b, query)
-}
-
-func BenchmarkNeo4jGetStarted3Parallel(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984" AND f.release_date <= "2000" WITH d,f ORDER BY f.release_date ASC RETURN d, f`
-	benchmarkNeo4jParallelQuery(b, query)
+			})
+		})
+	}
 }
 
 func BenchmarkDgraphSimpleQueryAndMutation(b *testing.B) {
