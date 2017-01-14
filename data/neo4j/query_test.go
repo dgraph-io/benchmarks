@@ -1,15 +1,25 @@
 package main
 
 import (
-	"bytes"
-	"net/http"
+	"context"
+	"fmt"
 	"testing"
 
+	"google.golang.org/grpc"
+
+	"github.com/dgraph-io/dgraph/client"
+	"github.com/dgraph-io/dgraph/query/graph"
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 )
 
 func BenchmarkDgraphSimpleQuery(b *testing.B) {
-	hc := &http.Client{}
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
 	query := `
 				{
 					me(_xid_: m.06pj8) {
@@ -28,10 +38,11 @@ func BenchmarkDgraphSimpleQuery(b *testing.B) {
 	b.StopTimer()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
-
 		b.StartTimer()
-		_, err = hc.Do(r)
+		_, err := c.Run(context.Background(), &graph.Request{Query: query})
+		if err != nil {
+			b.Fatalf("Error in getting response from server, %s", err)
+		}
 		b.StopTimer()
 
 		if err != nil {
@@ -67,7 +78,13 @@ func BenchmarkNeo4jSimpleQuery(b *testing.B) {
 }
 
 func BenchmarkDgraphSimpleQueryParallel(b *testing.B) {
-	hc := &http.Client{}
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
 	query := `
 				{
 					me(_xid_: m.06pj8) {
@@ -86,10 +103,7 @@ func BenchmarkDgraphSimpleQueryParallel(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
-
-			_, err = hc.Do(r)
-
+			_, err := c.Run(context.Background(), &graph.Request{Query: query})
 			if err != nil {
 				b.Fatal("Error in query", err)
 			}
@@ -123,8 +137,15 @@ func BenchmarkNeo4jSimpleQueryParallel(b *testing.B) {
 }
 
 func BenchmarkDgraphSimpleQueryAndMutation(b *testing.B) {
-	hc := &http.Client{}
-	query := `	{
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
+	req := client.Req{}
+	req.SetQuery(`	{
 					me(_xid_: m.06pj8) {
 						type.object.name.en
 						film.director.film  {
@@ -136,24 +157,19 @@ func BenchmarkDgraphSimpleQueryAndMutation(b *testing.B) {
 						}
 					}
 				}
-    `
-
-	mutation := `
-		mutation {
-			set {
-				<m.0322yj> <type.object.name.en> "Terminal" .
-			}
-		}`
+    `)
+	req.AddMutation(graph.NQuad{
+		Subject:     "m.0322yj",
+		Predicate:   "type.object.name.en",
+		ObjectValue: &graph.Value{&graph.Value_StrVal{"Terminal"}},
+	}, client.SET)
 
 	b.StopTimer()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
-		r2, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(mutation))
 
 		b.StartTimer()
-		_, err = hc.Do(r)
-		_, err = hc.Do(r2)
+		_, err := c.Run(context.Background(), req.Request())
 		b.StopTimer()
 
 		if err != nil {
@@ -203,8 +219,14 @@ func BenchmarkNeo4jSimpleQueryAndMutation(b *testing.B) {
 }
 
 func BenchmarkDgraphSimpleQueryAndMutationParallel(b *testing.B) {
-	hc := &http.Client{}
-	query := `	{
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+	c := graph.NewDgraphClient(conn)
+	req := client.Req{}
+	req.SetQuery(`	{
 					me(_xid_: m.06pj8) {
 						type.object.name.en
 						film.director.film  {
@@ -216,23 +238,18 @@ func BenchmarkDgraphSimpleQueryAndMutationParallel(b *testing.B) {
 						}
 					}
 				}
-    `
-	mutation := `
-		mutation {
-			set {
-				<m.0322yj> <type.object.name.en> "Terminal" .
-			}
-		}`
+    `)
+	req.AddMutation(graph.NQuad{
+		Subject:     "m.0322yj",
+		Predicate:   "type.object.name.en",
+		ObjectValue: &graph.Value{&graph.Value_StrVal{"Terminal"}},
+	}, client.SET)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
-			r2, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(mutation))
 
-			_, err = hc.Do(r)
-			_, err = hc.Do(r2)
-
+			_, err := c.Run(context.Background(), req.Request())
 			if err != nil {
 				b.Fatal("Error in query", err)
 			}
@@ -279,8 +296,15 @@ func BenchmarkNeo4jSimpleQueryAndMutationParallel(b *testing.B) {
 }
 
 func BenchmarkDgraphGetStarted1(b *testing.B) {
-	hc := &http.Client{}
-	query := `{
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
+	req := client.Req{}
+	req.SetQuery(`{
 	     director(allof("type.object.name.en", "steven spielberg")) {
 		    type.object.name.en
 		    film.director.film (orderdesc: film.film.initial_release_date) {
@@ -289,14 +313,14 @@ func BenchmarkDgraphGetStarted1(b *testing.B) {
 	      }
   }
 }
-`
+`)
+
 	b.StopTimer()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
-
 		b.StartTimer()
-		_, err = hc.Do(r)
+		resp, err := c.Run(context.Background(), req.Request())
+		fmt.Println(resp)
 		b.StopTimer()
 
 		if err != nil {
@@ -332,7 +356,13 @@ func BenchmarkNeo4jGetStarted1(b *testing.B) {
 }
 
 func BenchmarkDgraphGetStarted1Parallel(b *testing.B) {
-	hc := &http.Client{}
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
 	query := `{
 	     director(allof("type.object.name.en", "steven spielberg")) {
 		    type.object.name.en
@@ -347,13 +377,11 @@ func BenchmarkDgraphGetStarted1Parallel(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
-
-			_, err = hc.Do(r)
-
+			resp, err := c.Run(context.Background(), &graph.Request{Query: query})
 			if err != nil {
 				b.Fatal("Error in query", err)
 			}
+			fmt.Println(resp)
 		}
 	})
 }
@@ -384,7 +412,13 @@ func BenchmarkNeo4jGetStarted1Parallel(b *testing.B) {
 }
 
 func BenchmarkDgraphGetStarted2(b *testing.B) {
-	hc := &http.Client{}
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
 	query := `{
 	    director(allof("type.object.name.en", "steven spielberg")) {
 			type.object.name.en
@@ -398,10 +432,10 @@ func BenchmarkDgraphGetStarted2(b *testing.B) {
 	b.StopTimer()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
 
 		b.StartTimer()
-		_, err = hc.Do(r)
+		resp, err := c.Run(context.Background(), &graph.Request{Query: query})
+		fmt.Println(resp)
 		b.StopTimer()
 
 		if err != nil {
@@ -437,7 +471,13 @@ func BenchmarkNeo4jGetStarted2(b *testing.B) {
 }
 
 func BenchmarkDgraphGetStarted2Parallel(b *testing.B) {
-	hc := &http.Client{}
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
 	query := `{
 	    director(allof("type.object.name.en", "steven spielberg")) {
 			type.object.name.en
@@ -451,10 +491,7 @@ func BenchmarkDgraphGetStarted2Parallel(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
-
-			_, err = hc.Do(r)
-
+			_, err := c.Run(context.Background(), &graph.Request{Query: query})
 			if err != nil {
 				b.Fatal("Error in query", err)
 			}
@@ -488,7 +525,13 @@ func BenchmarkNeo4jGetStarted2Parallel(b *testing.B) {
 }
 
 func BenchmarkDgraphGetStarted3(b *testing.B) {
-	hc := &http.Client{}
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
 	query := `{
   director(allof("type.object.name.en", "steven spielberg")) {
     type.object.name.en
@@ -502,10 +545,8 @@ func BenchmarkDgraphGetStarted3(b *testing.B) {
 	b.StopTimer()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
-
 		b.StartTimer()
-		_, err = hc.Do(r)
+		_, err := c.Run(context.Background(), &graph.Request{Query: query})
 		b.StopTimer()
 
 		if err != nil {
@@ -541,7 +582,13 @@ func BenchmarkNeo4jGetStarted3(b *testing.B) {
 }
 
 func BenchmarkDgraphGetStarted3Parallel(b *testing.B) {
-	hc := &http.Client{}
+	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+	if err != nil {
+		b.Fatal("DialTCPConnection")
+	}
+	defer conn.Close()
+
+	c := graph.NewDgraphClient(conn)
 	query := `{
   director(allof("type.object.name.en", "steven spielberg")) {
     type.object.name.en
@@ -555,10 +602,7 @@ func BenchmarkDgraphGetStarted3Parallel(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			r, err := http.NewRequest("POST", "http://127.0.0.1:8080/query", bytes.NewBufferString(query))
-
-			_, err = hc.Do(r)
-
+			_, err := c.Run(context.Background(), &graph.Request{Query: query})
 			if err != nil {
 				b.Fatal("Error in query", err)
 			}
