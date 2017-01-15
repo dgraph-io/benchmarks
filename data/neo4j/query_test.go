@@ -19,14 +19,14 @@ func BenchmarkDgraphQuery(b *testing.B) {
 	}{
 		{
 			"Simple", `{
-					me(_xid_: m.06pj8) {
+					me(id: m.06pj8) {
 						type.object.name.en
 						film.director.film  {
-						film.film.genre {
+							film.film.genre {
+								type.object.name.en
+							}
 							type.object.name.en
-						}
-						type.object.name.en
-						film.film.initial_release_date
+							film.film.initial_release_date
 						}
 					}
 				}`,
@@ -35,7 +35,7 @@ func BenchmarkDgraphQuery(b *testing.B) {
 			"GetStarted1", `{
 				director(allof("type.object.name.en", "steven spielberg")) {
 					type.object.name.en
-					film.director.film (orderdesc: film.film.initial_release_date) {
+					film.director.film (order: film.film.initial_release_date) {
 						type.object.name.en
 						film.film.initial_release_date
 					}
@@ -93,7 +93,7 @@ func BenchmarkDgraphQuery(b *testing.B) {
 		b.Run(fmt.Sprintf("%v-parallel", q.name), func(b *testing.B) {
 			b.RunParallel(func(pb *testing.PB) {
 				for pb.Next() {
-					_, err := c.Run(context.Background(), &graph.Request{Query: q.query})
+					_, err = c.Run(context.Background(), &graph.Request{Query: q.query})
 					if err != nil {
 						b.Fatal("Error in query", err)
 					}
@@ -109,7 +109,7 @@ func BenchmarkNeoQuery(b *testing.B) {
 		query string
 	}{
 		{"Simple", `MATCH (d: Director) - [r:FILMS] -> (f:Film) - [r2:GENRE] -> (g:Genre) WHERE d.directorId="m.06pj8" RETURN d, f, g`},
-		{"GetStarted1", `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" WITH d,f ORDER BY f.release_date DESC RETURN d, f`},
+		{"GetStarted1", `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" WITH d,f ORDER BY f.release_date ASC RETURN d, f`},
 		{"GetStarted2", `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984-08" WITH d,f ORDER BY f.release_date ASC RETURN d, f`},
 		{"GetStarted3", `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984" AND f.release_date <= "2000" WITH d,f ORDER BY f.release_date ASC RETURN d, f`},
 	}
@@ -164,7 +164,7 @@ func BenchmarkDgraphSimpleQueryAndMutation(b *testing.B) {
 	c := graph.NewDgraphClient(conn)
 	req := client.Req{}
 	req.SetQuery(`	{
-					me(_xid_: m.06pj8) {
+					me(id: m.06pj8) {
 						type.object.name.en
 						film.director.film  {
 						film.film.genre {
@@ -227,7 +227,7 @@ func BenchmarkDgraphSimpleQueryAndMutationParallel(b *testing.B) {
 	c := graph.NewDgraphClient(conn)
 	req := client.Req{}
 	req.SetQuery(`	{
-					me(_xid_: m.06pj8) {
+					me(id: m.06pj8) {
 						type.object.name.en
 						film.director.film  {
 						film.film.genre {
