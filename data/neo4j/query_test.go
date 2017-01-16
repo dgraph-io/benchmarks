@@ -65,25 +65,21 @@ func BenchmarkDgraphQuery(b *testing.B) {
 		},
 	}
 
-	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
-	if err != nil {
-		b.Fatal("DialTCPConnection")
-	}
-	defer conn.Close()
-
-	c := graph.NewDgraphClient(conn)
 	for _, q := range queries {
 		b.Run(q.name, func(b *testing.B) {
+
+			conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+			if err != nil {
+				b.Fatal("DialTCPConnection")
+			}
+			defer conn.Close()
+			c := graph.NewDgraphClient(conn)
+			b.ResetTimer()
+
 			for i := 0; i < b.N; i++ {
-				b.StartTimer()
 				_, err := c.Run(context.Background(), &graph.Request{Query: q.query})
 				if err != nil {
 					b.Fatalf("Error in getting response from server, %s", err)
-				}
-				b.StopTimer()
-
-				if err != nil {
-					b.Fatal("Error in query", err)
 				}
 			}
 		})
@@ -91,7 +87,16 @@ func BenchmarkDgraphQuery(b *testing.B) {
 
 	for _, q := range queries {
 		b.Run(fmt.Sprintf("%v-parallel", q.name), func(b *testing.B) {
+
 			b.RunParallel(func(pb *testing.PB) {
+				conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+				if err != nil {
+					b.Fatal("DialTCPConnection")
+				}
+				defer conn.Close()
+				c := graph.NewDgraphClient(conn)
+				b.ResetTimer()
+
 				for pb.Next() {
 					_, err = c.Run(context.Background(), &graph.Request{Query: q.query})
 					if err != nil {
@@ -114,22 +119,21 @@ func BenchmarkNeoQuery(b *testing.B) {
 		{"GetStarted3", `MATCH (d: Director) - [r:FILMS] -> (f:Film) WHERE d.name CONTAINS "Steven Spielberg" AND f.release_date >= "1984" AND f.release_date <= "2000" WITH d,f ORDER BY f.release_date ASC RETURN d, f`},
 	}
 
-	driver := bolt.NewDriver()
-	conn, err := driver.OpenNeo("bolt://localhost:7687")
-	if err != nil {
-		b.Fatal(err)
-	}
-	defer conn.Close()
-
 	for _, q := range queries {
 		b.Run(q.name, func(b *testing.B) {
+			driver := bolt.NewDriver()
+			conn, err := driver.OpenNeo("bolt://localhost:7687")
+			if err != nil {
+				b.Fatal(err)
+			}
+			defer conn.Close()
+			b.ResetTimer()
+
 			for i := 0; i < b.N; i++ {
-				b.StartTimer()
 				_, _, _, err := conn.QueryNeoAll(q.query, nil)
 				if err != nil {
 					b.Fatal(err)
 				}
-				b.StopTimer()
 			}
 		})
 	}
@@ -137,13 +141,14 @@ func BenchmarkNeoQuery(b *testing.B) {
 	for _, q := range queries {
 		b.Run(fmt.Sprintf("%v-parallel", q.name), func(b *testing.B) {
 			b.RunParallel(func(pb *testing.PB) {
-				for pb.Next() {
-					conn, err := driver.OpenNeo("bolt://localhost:7687")
-					if err != nil {
-						b.Fatal(err)
-					}
-					defer conn.Close()
+				conn, err := driver.OpenNeo("bolt://localhost:7687")
+				if err != nil {
+					b.Fatal(err)
+				}
+				defer conn.Close()
+				b.ResetTimer()
 
+				for pb.Next() {
 					_, _, _, err = conn.QueryNeoAll(q.query, nil)
 					if err != nil {
 						b.Fatal(err)
@@ -184,10 +189,7 @@ func BenchmarkDgraphSimpleQueryAndMutation(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		b.StartTimer()
 		_, err := c.Run(context.Background(), req.Request())
-		b.StopTimer()
-
 		if err != nil {
 			b.Fatal("Error in query", err)
 		}
