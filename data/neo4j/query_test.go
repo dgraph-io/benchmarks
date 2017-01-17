@@ -72,7 +72,6 @@ func BenchmarkDgraphQuery(b *testing.B) {
 			if err != nil {
 				b.Fatal("DialTCPConnection")
 			}
-			defer conn.Close()
 			c := graph.NewDgraphClient(conn)
 			b.ResetTimer()
 
@@ -124,7 +123,6 @@ func BenchmarkNeoQuery(b *testing.B) {
 			if err != nil {
 				b.Fatal(err)
 			}
-			defer conn.Close()
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
@@ -143,7 +141,6 @@ func BenchmarkNeoQuery(b *testing.B) {
 				if err != nil {
 					b.Fatal(err)
 				}
-				defer conn.Close()
 				b.ResetTimer()
 
 				for pb.Next() {
@@ -183,7 +180,6 @@ func BenchmarkDgraphQueryAndMutation(b *testing.B) {
 		if err != nil {
 			b.Fatal("DialTCPConnection")
 		}
-		defer conn.Close()
 		c := graph.NewDgraphClient(conn)
 		b.ResetTimer()
 
@@ -225,7 +221,6 @@ func BenchmarkNeo4jQueryAndMutation(b *testing.B) {
 		if err != nil {
 			b.Fatal(err)
 		}
-		defer conn.Close()
 		b.ResetTimer()
 
 		for i := 0; i < b.N; i++ {
@@ -246,7 +241,6 @@ func BenchmarkNeo4jQueryAndMutation(b *testing.B) {
 			if err != nil {
 				b.Fatal(err)
 			}
-			defer conn.Close()
 			b.ResetTimer()
 
 			for pb.Next() {
