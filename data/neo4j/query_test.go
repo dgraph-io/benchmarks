@@ -3,7 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"math/rand"
+	"os"
+	"strconv"
 	"testing"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -12,7 +17,29 @@ import (
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 )
 
-func BenchmarkDgraphQuery(b *testing.B) {
+func getDgraphConn(ch chan *grpc.ClientConn) *grpc.ClientConn {
+	select {
+	case c := <-ch:
+		return c
+	default:
+		log.Fatal("Ran out of connections in the channel")
+	}
+	return nil
+}
+
+func putDgraphConn(ch chan *grpc.ClientConn, c *grpc.ClientConn) {
+	select {
+	case ch <- c:
+	default:
+		log.Fatal("Not enough capacity, can't put it in")
+	}
+}
+
+func getVal() *graph.Value {
+	return &graph.Value{&graph.Value_StrVal{strconv.Itoa(rand.Int())}}
+}
+
+func BenchmarkDgraph(b *testing.B) {
 	queries := []struct {
 		name  string
 		query string
@@ -65,47 +92,123 @@ func BenchmarkDgraphQuery(b *testing.B) {
 		},
 	}
 
-	for _, q := range queries {
-		b.Run(q.name, func(b *testing.B) {
+	poolSize := 8
+	connCh := make(chan *grpc.ClientConn, poolSize)
+	for i := 0; i < poolSize; i++ {
+		conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
+		if err != nil {
+			b.Fatal(err)
+		}
+		putDgraphConn(connCh, conn)
+	}
+	var err error
 
-			conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
-			if err != nil {
-				b.Fatal("DialTCPConnection")
-			}
+	for _, q := range queries {
+		b.Run(fmt.Sprintf("%v-Query", q.name), func(b *testing.B) {
+			conn := getDgraphConn(connCh)
 			c := graph.NewDgraphClient(conn)
+			req := client.Req{}
+			req.SetQuery(q.query)
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
-				_, err := c.Run(context.Background(), &graph.Request{Query: q.query})
+				_, err = c.Run(context.Background(), req.Request())
 				if err != nil {
 					b.Fatalf("Error in getting response from server, %s", err)
 				}
 			}
+			b.StopTimer()
+			putDgraphConn(connCh, conn)
 		})
 	}
 
 	for _, q := range queries {
-		b.Run(fmt.Sprintf("%v-parallel", q.name), func(b *testing.B) {
-
+		b.Run(fmt.Sprintf("%v-Query-parallel", q.name), func(b *testing.B) {
 			b.RunParallel(func(pb *testing.PB) {
-				conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
-				if err != nil {
-					b.Fatal("DialTCPConnection")
-				}
+				conn := getDgraphConn(connCh)
 				c := graph.NewDgraphClient(conn)
-				b.ResetTimer()
+				req := client.Req{}
+				req.SetQuery(q.query)
 				for pb.Next() {
-					_, err = c.Run(context.Background(), &graph.Request{Query: q.query})
+					_, err = c.Run(context.Background(), req.Request())
 					if err != nil {
 						b.Fatal("Error in query", err)
 					}
 				}
+				putDgraphConn(connCh, conn)
+			})
+		})
+	}
+
+	// NQuad mutation which is sent as part of the request.
+	nq := graph.NQuad{
+		Subject:   "m.0h_b6x1",
+		Predicate: "type.object.name.en",
+	}
+
+	for _, q := range queries {
+		b.Run(fmt.Sprintf("%v-QueryAndMutation", q.name), func(b *testing.B) {
+
+			conn := getDgraphConn(connCh)
+			c := graph.NewDgraphClient(conn)
+			req := client.Req{}
+			req.SetQuery(q.query)
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				nq.ObjectValue = getVal()
+				req.AddMutation(nq, client.SET)
+				_, err := c.Run(context.Background(), req.Request())
+				if err != nil {
+					b.Fatalf("Error in getting response from server, %s", err)
+				}
+			}
+			b.StopTimer()
+			putDgraphConn(connCh, conn)
+		})
+	}
+
+	for _, q := range queries {
+		b.Run(fmt.Sprintf("%v-QueryAndMutation-parallel", q.name), func(b *testing.B) {
+
+			b.RunParallel(func(pb *testing.PB) {
+				conn := getDgraphConn(connCh)
+				c := graph.NewDgraphClient(conn)
+				req := client.Req{}
+				req.SetQuery(q.query)
+				for pb.Next() {
+					nq.ObjectValue = getVal()
+					req.AddMutation(nq, client.SET)
+					_, err = c.Run(context.Background(), req.Request())
+					if err != nil {
+						b.Fatal("Error in query", err)
+					}
+				}
+				putDgraphConn(connCh, conn)
 			})
 		})
 	}
 }
 
-func BenchmarkNeoQuery(b *testing.B) {
+func getNeoConn(ch chan bolt.Conn) bolt.Conn {
+	select {
+	case c := <-ch:
+		return c
+	default:
+		log.Fatal("Ran out of connections in the channel")
+	}
+	return nil
+}
+
+func putNeoConn(ch chan bolt.Conn, c bolt.Conn) {
+	select {
+	case ch <- c:
+	default:
+		log.Fatal("Not enough capacity, can't put it in")
+	}
+}
+
+func BenchmarkNeo(b *testing.B) {
 	queries := []struct {
 		name  string
 		query string
@@ -117,142 +220,91 @@ func BenchmarkNeoQuery(b *testing.B) {
 	}
 
 	driver := bolt.NewDriver()
+	poolSize := 8
+	connCh := make(chan bolt.Conn, poolSize)
+	for i := 0; i < poolSize; i++ {
+		conn, err := driver.OpenNeo("bolt://localhost:7687")
+		if err != nil {
+			b.Fatal(err)
+		}
+		putNeoConn(connCh, conn)
+	}
+	mutation := `MATCH (n:Film { filmId: {id} }) SET n.name = {name}`
+	params := map[string]interface{}{"id": "m.0h_b6x1", "name": "Terminal"}
+	var err error
+
 	for _, q := range queries {
-		b.Run(q.name, func(b *testing.B) {
-			conn, err := driver.OpenNeo("bolt://localhost:7687")
-			if err != nil {
-				b.Fatal(err)
-			}
+		b.Run(fmt.Sprintf("%v-Query", q.name), func(b *testing.B) {
+			conn := getNeoConn(connCh)
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
-				_, _, _, err := conn.QueryNeoAll(q.query, nil)
+				_, _, _, err = conn.QueryNeoAll(q.query, nil)
 				if err != nil {
 					b.Fatal(err)
 				}
 			}
+			putNeoConn(connCh, conn)
 		})
 	}
 
 	for _, q := range queries {
-		b.Run(fmt.Sprintf("%v-parallel", q.name), func(b *testing.B) {
+		b.Run(fmt.Sprintf("%v-Query-parallel", q.name), func(b *testing.B) {
 			b.RunParallel(func(pb *testing.PB) {
-				conn, err := driver.OpenNeo("bolt://localhost:7687")
-				if err != nil {
-					b.Fatal(err)
-				}
-				b.ResetTimer()
-
+				conn := getNeoConn(connCh)
 				for pb.Next() {
 					_, _, _, err = conn.QueryNeoAll(q.query, nil)
 					if err != nil {
 						b.Fatal(err)
 					}
 				}
+				putNeoConn(connCh, conn)
 			})
 		})
 	}
-}
 
-func BenchmarkDgraphQueryAndMutation(b *testing.B) {
-	req := client.Req{}
-	req.SetQuery(`	{
-					me(id: m.06pj8) {
-						type.object.name.en
-						film.director.film  {
-						film.film.genre {
-							type.object.name.en
-						}
-						type.object.name.en
-						film.film.initial_release_date
-						}
-					}
-				}
-    `)
-	req.AddMutation(graph.NQuad{
-		Subject:     "m.0322yj",
-		Predicate:   "type.object.name.en",
-		ObjectValue: &graph.Value{&graph.Value_StrVal{"Terminal"}},
-	}, client.SET)
-
-	b.Run("QueryAndMutation", func(b *testing.B) {
-		conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
-		if err != nil {
-			b.Fatal("DialTCPConnection")
-		}
-		c := graph.NewDgraphClient(conn)
-		b.ResetTimer()
-
-		for i := 0; i < b.N; i++ {
-			_, err := c.Run(context.Background(), req.Request())
-			if err != nil {
-				b.Fatalf("Error in getting response from server, %s", err)
-			}
-		}
-	})
-
-	b.Run("QueryAndMutation-parallel", func(b *testing.B) {
-		b.RunParallel(func(pb *testing.PB) {
-			conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
-			if err != nil {
-				b.Fatal("DialTCPConnection")
-			}
-			c := graph.NewDgraphClient(conn)
+	for _, q := range queries {
+		b.Run(fmt.Sprintf("%v-QueryAndMutation", q.name), func(b *testing.B) {
+			conn := getNeoConn(connCh)
 			b.ResetTimer()
 
-			for pb.Next() {
-				_, err = c.Run(context.Background(), req.Request())
-				if err != nil {
-					b.Fatal("Error in query", err)
-				}
-			}
-		})
-	})
-}
-
-func BenchmarkNeo4jQueryAndMutation(b *testing.B) {
-	query := `MATCH (d: Director) - [r:FILMS] -> (f:Film) - [r2:GENRE] -> (g:Genre) WHERE d.directorId="m.06pj8" RETURN d, f, g`
-	mutation := `MATCH (n:Director { directorId: {id} }) SET n.name = {name}`
-	params := map[string]interface{}{"id": "m.0322yj", "name": "Terminal"}
-	driver := bolt.NewDriver()
-
-	b.Run("QueryAndMutation", func(b *testing.B) {
-		conn, err := driver.OpenNeo("bolt://localhost:7687")
-		if err != nil {
-			b.Fatal(err)
-		}
-		b.ResetTimer()
-
-		for i := 0; i < b.N; i++ {
-			_, _, _, err = conn.QueryNeoAll(query, nil)
-			if err != nil {
-				b.Fatal(err)
-			}
-			_, err = conn.ExecNeo(mutation, params)
-			if err != nil {
-				b.Fatal(err)
-			}
-		}
-	})
-
-	b.Run("QueryAndMutation-parallel", func(b *testing.B) {
-		b.RunParallel(func(pb *testing.PB) {
-			conn, err := driver.OpenNeo("bolt://localhost:7687")
-			if err != nil {
-				b.Fatal(err)
-			}
-			b.ResetTimer()
-
-			for pb.Next() {
-				_, _, _, err = conn.QueryNeoAll(query, nil)
+			for i := 0; i < b.N; i++ {
+				_, _, _, err = conn.QueryNeoAll(q.query, nil)
 				if err != nil {
 					b.Fatal(err)
 				}
+				params["name"] = strconv.Itoa(rand.Int())
 				_, err = conn.ExecNeo(mutation, params)
 				if err != nil {
 					b.Fatal(err)
 				}
 			}
+			putNeoConn(connCh, conn)
 		})
-	})
+	}
+
+	for _, q := range queries {
+		b.Run(fmt.Sprintf("%v-QueryAndMutation-parallel", q.name), func(b *testing.B) {
+			b.RunParallel(func(pb *testing.PB) {
+				conn := getNeoConn(connCh)
+				for pb.Next() {
+					_, _, _, err = conn.QueryNeoAll(q.query, nil)
+					if err != nil {
+						b.Fatal(err)
+					}
+					params["name"] = strconv.Itoa(rand.Int())
+					_, err = conn.ExecNeo(mutation, params)
+					if err != nil {
+						b.Fatal(err)
+					}
+				}
+				putNeoConn(connCh, conn)
+			})
+		})
+	}
+}
+
+func TestMain(m *testing.M) {
+	rand.Seed(time.Now().UnixNano())
+	os.Exit(m.Run())
 }
