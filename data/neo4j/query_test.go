@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"testing"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -116,6 +117,7 @@ func BenchmarkDgraph(b *testing.B) {
 					b.Fatalf("Error in getting response from server, %s", err)
 				}
 			}
+			b.StopTimer()
 			putDgraphConn(connCh, conn)
 		})
 	}
@@ -161,6 +163,7 @@ func BenchmarkDgraph(b *testing.B) {
 					b.Fatalf("Error in getting response from server, %s", err)
 				}
 			}
+			b.StopTimer()
 			putDgraphConn(connCh, conn)
 		})
 	}
@@ -302,6 +305,6 @@ func BenchmarkNeo(b *testing.B) {
 }
 
 func TestMain(m *testing.M) {
-	rand.Seed(42)
+	rand.Seed(time.Now().UnixNano())
 	os.Exit(m.Run())
 }
