@@ -119,6 +119,7 @@ func BenchmarkDgraph(b *testing.B) {
 			}
 			b.StopTimer()
 			putDgraphConn(connCh, conn)
+			time.Sleep(time.Second)
 		})
 	}
 
@@ -137,6 +138,7 @@ func BenchmarkDgraph(b *testing.B) {
 				}
 				putDgraphConn(connCh, conn)
 			})
+			time.Sleep(time.Second)
 		})
 	}
 
@@ -165,6 +167,7 @@ func BenchmarkDgraph(b *testing.B) {
 			}
 			b.StopTimer()
 			putDgraphConn(connCh, conn)
+			time.Sleep(time.Second)
 		})
 	}
 
@@ -186,6 +189,7 @@ func BenchmarkDgraph(b *testing.B) {
 				}
 				putDgraphConn(connCh, conn)
 			})
+			time.Sleep(time.Second)
 		})
 	}
 }
@@ -230,7 +234,6 @@ func BenchmarkNeo(b *testing.B) {
 		putNeoConn(connCh, conn)
 	}
 	mutation := `MATCH (n:Film { filmId: {id} }) SET n.name = {name}`
-	params := map[string]interface{}{"id": "m.0h_b6x1", "name": "Terminal"}
 	var err error
 
 	for _, q := range queries {
@@ -246,6 +249,7 @@ func BenchmarkNeo(b *testing.B) {
 			}
 			b.StopTimer()
 			putNeoConn(connCh, conn)
+			time.Sleep(time.Second)
 		})
 	}
 
@@ -261,12 +265,14 @@ func BenchmarkNeo(b *testing.B) {
 				}
 				putNeoConn(connCh, conn)
 			})
+			time.Sleep(time.Second)
 		})
 	}
 
 	for _, q := range queries {
 		b.Run(fmt.Sprintf("%v-QueryAndMutation", q.name), func(b *testing.B) {
 			conn := getNeoConn(connCh)
+			params := map[string]interface{}{"id": "m.0h_b6x1", "name": "Terminal"}
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
@@ -282,6 +288,7 @@ func BenchmarkNeo(b *testing.B) {
 			}
 			b.StopTimer()
 			putNeoConn(connCh, conn)
+			time.Sleep(time.Second)
 		})
 	}
 
@@ -289,6 +296,7 @@ func BenchmarkNeo(b *testing.B) {
 		b.Run(fmt.Sprintf("%v-QueryAndMutation-parallel", q.name), func(b *testing.B) {
 			b.RunParallel(func(pb *testing.PB) {
 				conn := getNeoConn(connCh)
+				params := map[string]interface{}{"id": "m.0h_b6x1", "name": "Terminal"}
 				for pb.Next() {
 					_, _, _, err = conn.QueryNeoAll(q.query, nil)
 					if err != nil {
@@ -302,6 +310,7 @@ func BenchmarkNeo(b *testing.B) {
 				}
 				putNeoConn(connCh, conn)
 			})
+			time.Sleep(time.Second)
 		})
 	}
 }
