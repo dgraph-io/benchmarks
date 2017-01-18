@@ -3,6 +3,7 @@ scalar (
 	film.film.genre: uid @reverse
 	film.film.initial_release_date: date @index
 	film.film.rating: uid @reverse
+	film.film.country: uid @reverse
 	loc: geo @index
 	type.object.name.en: string @index
 	type.object.name.hi: string @index
