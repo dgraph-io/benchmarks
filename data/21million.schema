@@ -6,6 +6,4 @@ scalar (
 	film.film.country: uid @reverse
 	loc: geo @index
 	type.object.name.en: string @index
-	type.object.name.hi: string @index
-	type.object.name.ta: string @index
 )
