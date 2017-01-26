@@ -1,9 +1,9 @@
 scalar (
-	film.director.film: uid @reverse
-	film.film.genre: uid @reverse
-	film.film.initial_release_date: date @index
-	film.film.rating: uid @reverse
-	film.film.country: uid @reverse
+	director.film: uid @reverse
+	genre: uid @reverse
+	initial_release_date: date @index
+	rating: uid @reverse
+	country: uid @reverse
 	loc: geo @index
-	type.object.name.en: string @index
+	name.en: string @index
 )
