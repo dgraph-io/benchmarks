@@ -1,0 +1,6 @@
+scalar (
+  name: string @index
+  release_date: date @index
+  revenue: float
+  running_time: int
+)
