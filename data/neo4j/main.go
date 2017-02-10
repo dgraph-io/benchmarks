@@ -63,13 +63,17 @@ func getStrVal(rnq graph.NQuad) string {
 		return rnq.ObjectValue.GetStrVal()
 	case 5:
 		src := types.Val{types.DateID, rnq.ObjectValue.GetDateVal()}
-		dst := types.Val{types.StringID, ""}
-		types.Convert(src, &dst)
+		dst, err := types.Convert(src, types.StringID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		return dst.Value.(string)
 	case 6:
 		src := types.Val{types.DateTimeID, rnq.ObjectValue.GetDatetimeVal()}
-		dst := types.Val{types.StringID, ""}
-		types.Convert(src, &dst)
+		dst, err := types.Convert(src, types.StringID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		return dst.Value.(string)
 	}
 	log.Fatal("Types should be one of the above.")
