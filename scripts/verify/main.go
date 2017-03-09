@@ -97,12 +97,12 @@ func convert(n graph.NQuad) R {
 	r := R{}
 	var err error
 	r.os = n.Subject
-	r.s, err = rdf.GetUid(n.Subject)
+	r.s = rdf.GetUid(n.Subject)
 	x.Checkf(err, "Subject: %v", n.Subject)
 	r.p = n.Predicate
 
 	if len(n.ObjectId) > 0 {
-		r.o, err = rdf.GetUid(n.ObjectId)
+		r.o = rdf.GetUid(n.ObjectId)
 		x.Checkf(err, "Object: %v", n.ObjectId)
 		r.oo = n.ObjectId
 	}
