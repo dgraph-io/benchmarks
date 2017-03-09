@@ -5,5 +5,5 @@ scalar (
 	rating: uid @reverse
 	country: uid @reverse
 	loc: geo @index
-	name.en: string @index
+	name: string @index
 )
