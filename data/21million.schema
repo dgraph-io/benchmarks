@@ -1,9 +1,7 @@
-scalar (
-	director.film: uid @reverse
-	genre: uid @reverse
-	initial_release_date: date @index
-	rating: uid @reverse
-	country: uid @reverse
-	loc: geo @index
-	name: string @index
-)
+director.film: uid @reverse
+genre: uid @reverse
+initial_release_date: date @index
+rating: uid @reverse
+country: uid @reverse
+loc: geo @index
+name: string @index
