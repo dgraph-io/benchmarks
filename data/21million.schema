@@ -4,4 +4,4 @@ initial_release_date: date @index
 rating: uid @reverse
 country: uid @reverse
 loc: geo @index
-name: string @index
+name: string @index(exact, fulltext, term)
