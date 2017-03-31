@@ -1,0 +1,76 @@
+- Top 10 Steven Spielberg movies?
+
+{
+	var(func:allofterms(name, "steven spielberg")) {
+		name@en
+		films as director.film {
+			p as count(starring)
+			q as count(genre)
+			r as count(country)
+			score as sumvar(p, q, r)
+		}
+	}
+
+	TopMovies(id: var(films), orderdesc: var(score), first: 10){
+		name@en
+		var(score)
+	}
+}
+
+- Who played Harry Potter?
+
+{
+  HP(func: allofterms(name, "Harry Potter")) @cascade {
+    name@en
+    starring{
+        performance.character @filter(allofterms(name, "harry")) {
+          name@en
+        }
+        performance.actor {
+            name@en
+         }
+    }
+  }
+}
+
+- How are Spielberg and Matt Deamon related?
+
+{
+  A as shortest(from: 0x3b0de646eaf32b75, to: 0x36692145960cfceb) {
+    director.film
+    starring
+    performance.actor
+  }
+    
+  names(id: var(A)) {
+    name@en
+  }
+}
+
+- Random actor details of a top genre
+
+{
+	recurse(func: gt(count(~genre), 50000)){
+		name@en
+		~genre (first:10) @filter(gt(count(starring), 100))
+		starring (first: 3)
+		performance.actor
+	}
+}
+
+- Brad Pitt in Los Angeles?
+
+{
+  PittInLA(func: allofterms(name, "los angeles")) @cascade  {
+    name@en
+  	location.featured_in_films {
+      name@en
+      starring {
+        performance.actor @filter(allofterms(name, "brad pitt")) {
+          name@en
+        }
+      }
+    }
+  }
+}
+
