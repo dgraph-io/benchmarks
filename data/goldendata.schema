@@ -1,4 +1,2 @@
-scalar (
-	name.en: string @index
-	initial_release_date: date @index
-)
+name: string @index .
+initial_release_date: date @index .
