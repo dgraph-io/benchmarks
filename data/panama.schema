@@ -1,0 +1,5 @@
+<leak:name>:string @index(term,exact) .
+<leak:node_id>: string @index(exact) .
+<rdf:type>: uid @reverse .
+<leak:hasCountry>: uid @reverse .
+<leak:incorporation_date>: date @index .
