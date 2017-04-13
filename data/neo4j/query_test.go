@@ -13,8 +13,9 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/dgraph-io/dgraph/client"
-	"github.com/dgraph-io/dgraph/query/graph"
-	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
+	"github.com/dgraph-io/dgraph/protos/graphp"
+	//"github.com/dgraph-io/dgraph/query/graph"
+	//bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 )
 
 func getDgraphConn(ch chan *grpc.ClientConn) *grpc.ClientConn {
@@ -35,8 +36,8 @@ func putDgraphConn(ch chan *grpc.ClientConn, c *grpc.ClientConn) {
 	}
 }
 
-func getVal() *graph.Value {
-	return &graph.Value{&graph.Value_StrVal{strconv.Itoa(rand.Int())}}
+func getVal() *graphp.Value {
+	return &graphp.Value{&graphp.Value_StrVal{strconv.Itoa(rand.Int())}}
 }
 
 func BenchmarkDgraph(b *testing.B) {
@@ -46,53 +47,79 @@ func BenchmarkDgraph(b *testing.B) {
 	}{
 		{
 			"Simple", `{
-					me(id: m.06pj8) {
-						type.object.name.en
-						film.director.film  {
-							film.film.genre {
-								type.object.name.en
-							}
-							type.object.name.en
-							film.film.initial_release_date
-						}
-					}
-				}`,
+  director(id: m.06pj8) {
+    name@en
+    director.film {
+      name@en
+      initial_release_date
+      country {
+        name@en
+      }
+      starring {
+        performance.actor {
+          name@en
+        }
+        performance.character {
+          name@en
+        }
+      }
+      genre {
+        name@en
+      }
+    }
+  }
+                                }`,
 		},
 		{
 			"GetStarted1", `{
-				director(allof("type.object.name.en", "steven spielberg")) {
-					type.object.name.en
-					film.director.film (order: film.film.initial_release_date) {
-						type.object.name.en
-						film.film.initial_release_date
-					}
-				}
-			}`,
+director(func: anyofterms(name, "steven spielberg david adam martin")) {
+    name@en
+    director.film (orderasc: initial_release_date) {
+      name@en
+      initial_release_date
+      country {
+        name@en
+      }
+      starring {
+        performance.actor {
+          name@en
+        }
+        performance.character {
+          name@en
+        }
+      }
+      genre {
+        name@en
+      }
+    }
+  }
+                        }`,
 		},
 		{
 			"GetStarted2", `{
-				director(allof("type.object.name.en", "steven spielberg")) {
-						type.object.name.en
-						film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1984-08")) {
-							type.object.name.en
-							film.film.initial_release_date
-						}
-					}
-				}`,
-		}, {
+                                director(func:anyofterms(name, "steven spielberg david adam martin")) {
+                                                name@en
+                                                director.film (orderasc: initial_release_date) @filter(geq(initial_release_date, "1984-08")) {
+                                                        name@en
+                                                        initial_release_date
+                                                }
+                                        }
+                                }`,
+		},
+		{
 			"GetStarted3", `{
-					director(allof("type.object.name.en", "steven spielberg")) {
-						type.object.name.en
-						film.director.film (order: film.film.initial_release_date) @filter(geq("film.film.initial_release_date", "1990") && leq("film.film.initial_release_date", "2000")) {
-							type.object.name.en
-							film.film.initial_release_date
-						}
-					}
-				}`,
+                                        director(func:anyofterms(name, "steven spielberg david adam martin")) {
+                                                name@en
+                                                director.film (orderasc: initial_release_date) @filter(geq(initial_release_date, "1990") AND leq(initial_release_date, "2000")) {
+                                                        name@en
+                                                        initial_release_date
+                                                }
+                                        }
+                                }`,
 		},
 	}
 
-	poolSize := 8
+	poolSize := 32
 	connCh := make(chan *grpc.ClientConn, poolSize)
 	for i := 0; i < poolSize; i++ {
 		conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithInsecure())
@@ -106,7 +133,7 @@ func BenchmarkDgraph(b *testing.B) {
 	for _, q := range queries {
 		b.Run(fmt.Sprintf("%v-Query", q.name), func(b *testing.B) {
 			conn := getDgraphConn(connCh)
-			c := graph.NewDgraphClient(conn)
+			c := graphp.NewDgraphClient(conn)
 			req := client.Req{}
 			req.SetQuery(q.query)
 			b.ResetTimer()
@@ -127,7 +154,7 @@ func BenchmarkDgraph(b *testing.B) {
 		b.Run(fmt.Sprintf("%v-Query-parallel", q.name), func(b *testing.B) {
 			b.RunParallel(func(pb *testing.PB) {
 				conn := getDgraphConn(connCh)
-				c := graph.NewDgraphClient(conn)
+				c := graphp.NewDgraphClient(conn)
 				req := client.Req{}
 				req.SetQuery(q.query)
 				for pb.Next() {
@@ -143,16 +170,16 @@ func BenchmarkDgraph(b *testing.B) {
 	}
 
 	// NQuad mutation which is sent as part of the request.
-	nq := graph.NQuad{
+	nq := graphp.NQuad{
 		Subject:   "m.0h_b6x1",
-		Predicate: "type.object.name.en",
+		Predicate: "name@en",
 	}
 
 	for _, q := range queries {
 		b.Run(fmt.Sprintf("%v-QueryAndMutation", q.name), func(b *testing.B) {
 
 			conn := getDgraphConn(connCh)
-			c := graph.NewDgraphClient(conn)
+			c := graphp.NewDgraphClient(conn)
 			req := client.Req{}
 			req.SetQuery(q.query)
 			b.ResetTimer()
@@ -176,7 +203,7 @@ func BenchmarkDgraph(b *testing.B) {
 
 			b.RunParallel(func(pb *testing.PB) {
 				conn := getDgraphConn(connCh)
-				c := graph.NewDgraphClient(conn)
+				c := graphp.NewDgraphClient(conn)
 				req := client.Req{}
 				req.SetQuery(q.query)
 				for pb.Next() {
@@ -194,7 +221,7 @@ func BenchmarkDgraph(b *testing.B) {
 	}
 }
 
-func getNeoConn(ch chan bolt.Conn) bolt.Conn {
+/*func getNeoConn(ch chan bolt.Conn) bolt.Conn {
 	select {
 	case c := <-ch:
 		return c
@@ -314,7 +341,7 @@ func BenchmarkNeo(b *testing.B) {
 		})
 	}
 }
-
+*/
 func TestMain(m *testing.M) {
 	rand.Seed(time.Now().UnixNano())
 	os.Exit(m.Run())
