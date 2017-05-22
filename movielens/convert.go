@@ -21,6 +21,9 @@ var (
 	users = flag.String("rating", "ml-100k/u.user", "")
 	data  = flag.String("user", "ml-100k/u.data", "")
 	movie = flag.String("movie", "ml-100k/u.item", "")
+
+	GC = 100000
+	MC = 200000
 )
 
 func main() {
@@ -54,7 +57,7 @@ func main() {
 		g, err := strconv.ParseInt(csv[1], 10, 32)
 		x.Check(err)
 		gi := int(g)
-		str = fmt.Sprintf("<%v> <name> \"%v\" .\n", 1000000+gi, csv[0])
+		str = fmt.Sprintf("<%v> <name> \"%v\" .\n", GC+gi, csv[0])
 		w.Write([]byte(str))
 	}
 
@@ -80,7 +83,6 @@ func main() {
 		w.Write([]byte(str))
 	}
 
-	count := 9999989
 	br = bufio.NewReader(df)
 	log.Println("Reading rating file")
 	for {
@@ -93,14 +95,12 @@ func main() {
 		if len(csv) != 4 {
 			continue
 		}
-		str = fmt.Sprintf("<%v> <action.rate> <%v> .\n", csv[0], count)
+		g, err := strconv.ParseInt(csv[1], 10, 32)
+		x.Check(err)
+		gi := int(g)
+		str = fmt.Sprintf("<%v> <rated> <%v>  (rating=%v) .\n", csv[0], MC+gi, csv[2])
 		w.Write([]byte(str))
-		str = fmt.Sprintf("<%v> <movie> <%v> .\n", count, csv[1])
-		w.Write([]byte(str))
-		str = fmt.Sprintf("<%v> <rating> \"%v\"^^<xs:float> .\n", count, csv[2])
-		w.Write([]byte(str))
-		// TODO: can add timestamp
-		count++
+		// TODO: can add timestamp in facets.
 	}
 
 	br = bufio.NewReader(mf)
@@ -115,13 +115,16 @@ func main() {
 		if len(csv) != 24 {
 			continue
 		}
-		str = fmt.Sprintf("<%v> <name> \"%v\" .\n", csv[0], csv[1])
+		g, err := strconv.ParseInt(csv[0], 10, 32)
+		x.Check(err)
+		gi := int(g)
+		str = fmt.Sprintf("<%v> <name> \"%v\" .\n", MC+gi, csv[1])
 		w.Write([]byte(str))
 		for i := 5; i < 24; i++ {
 			if csv[i] == "0" {
 				continue
 			}
-			str = fmt.Sprintf("<%v> <genre> <%v> .\n", csv[0], 1000000+i-5)
+			str = fmt.Sprintf("<%v> <genre> <%v> .\n", MC+gi, GC+i-5)
 			w.Write([]byte(str))
 		}
 	}
