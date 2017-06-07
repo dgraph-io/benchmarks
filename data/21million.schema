@@ -1,6 +1,6 @@
 director.film        : uid @reverse .
 genre                : uid @reverse .
-initial_release_date : date @index .
+initial_release_date : datetime @index .
 rating               : uid @reverse .
 country              : uid @reverse .
 loc                  : geo @index .
