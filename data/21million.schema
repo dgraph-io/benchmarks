@@ -1,5 +1,6 @@
-director.film        : uid @reverse .
-genre                : uid @reverse .
+director.film        : uid @reverse @count .
+actor.film           : uid @count .
+genre                : uid @reverse @count .
 initial_release_date : datetime @index .
 rating               : uid @reverse .
 country              : uid @reverse .
