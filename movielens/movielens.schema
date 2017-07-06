@@ -1,3 +1,4 @@
 name: string @index(term, exact) .
-rated: uid @reverse .
+rated: uid @reverse @count .
 genre:uid @reverse .
+
