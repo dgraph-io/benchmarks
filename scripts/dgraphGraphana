@@ -62,20 +62,20 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "go_memstats_heap_idle_bytes + go_memstats_heap_inuse_bytes + go_memstats_stack_inuse_bytes - go_memstats_heap_released_bytes{instance=~'$Instance'}",
+              "expr": "dgraph_memory_inuse_bytes+dgraph_heap_idle_bytes{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "",
+              "metric": "dgraph_heap_idle_bytes",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "",
+              "expr": "dgraph_proc_memory_bytes{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "lhMapSize",
+              "metric": "dgraph_proc_memory_bytes",
               "refId": "B",
-              "step": 21
+              "step": 2
             }
           ],
           "timeFrom": null,
@@ -146,19 +146,19 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(bytes_read{instance=~'$Instance'}[1m])",
+              "expr": "rate(dgraph_read_bytes_total{instance=~'$Instance'}[1m])",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "Bytes Read",
-              "metric": "bytes_read",
+              "metric": "dgraph_read_bytes_total",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "rate(posting_reads{instance=~'$Instance'}[1m])",
+              "expr": "rate(dgraph_posting_reads_total{instance=~'$Instance'}[1m])",
               "intervalFactor": 2,
               "legendFormat": "Postings Read",
-              "metric": "posting_reads",
+              "metric": "dgraph_posting_reads_total",
               "refId": "B",
               "step": 2
             }
@@ -231,11 +231,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "heapIdle{instance=~'$Instance'}",
+              "expr": "dgraph_heap_idle_bytes{instance=~'$Instance'}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "heapIdle",
+              "metric": "dgraph_heap_idle_bytes",
               "refId": "A",
               "step": 2
             }
@@ -251,7 +251,7 @@
           "x-axis": true,
           "y-axis": true,
           "y_formats": [
-            "mbytes",
+            "bytes",
             "short"
           ]
         },
@@ -308,18 +308,18 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(bytes_write{instance=~'$Instance'}[30s])",
+              "expr": "rate(dgraph_written_bytes_total{instance=~'$Instance'}[30s])",
               "intervalFactor": 2,
               "legendFormat": "Bytes Written",
-              "metric": "posting_writes",
+              "metric": "dgraph_written_bytes_total",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "rate(posting_writes{instance=~'$Instance'}[30s])",
+              "expr": "rate(dgraph_posting_writes_total{instance=~'$Instance'}[30s])",
               "intervalFactor": 2,
               "legendFormat": "Postings Written",
-              "metric": "bytes_write",
+              "metric": "dgraph_posting_writes_total",
               "refId": "B",
               "step": 2
             }
@@ -459,10 +459,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "pending_proposals{instance=~'$Instance'}",
+              "expr": "dgraph_pending_proposals_total{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "pending_proposals",
+              "metric": "dgraph_pending_proposals_total",
               "refId": "A",
               "step": 2
             },
@@ -543,16 +543,16 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(predicateStats)",
+              "expr": "sum(dgraph_predicate_stats)",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "All",
-              "metric": "predicateStats",
+              "metric": "dgraph_predicate_stats",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "sum(predicateStats{instance=~'$Instance'})",
+              "expr": "sum(dgraph_predicate_stats{instance=~'$Instance'})",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "current",
@@ -633,7 +633,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(predicateStats[3m]))",
+              "expr": "sum(rate(dgraph_predicate_stats[1m]))",
               "intervalFactor": 2,
               "legendFormat": "All",
               "metric": "",
@@ -641,7 +641,7 @@
               "step": 2
             },
             {
-              "expr": "sum(rate(predicateStats{instance=~'$Instance'}[3m]))",
+              "expr": "sum(rate(dgraph_predicate_stats{instance=~'$Instance'}[1m]))",
               "intervalFactor": 2,
               "legendFormat": "current",
               "refId": "B",
@@ -650,7 +650,7 @@
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Mutations - All Servers (3m)",
+          "title": "Mutations - All Servers (1m)",
           "tooltip": {
             "shared": true,
             "value_type": "cumulative"
@@ -715,10 +715,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "maxPlLength{instance=~'$Instance'}",
+              "expr": "dgraph_max_list_bytes{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "maxPlLength",
+              "metric": "dgraph_max_list_bytes",
               "refId": "A",
               "step": 2
             }
@@ -782,10 +782,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "serverHealth{instance=~'$Instance'}",
+              "expr": "dgraph_server_health_status{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "serverHealth",
+              "metric": "dgraph_server_health_status",
               "refId": "A",
               "step": 2
             }
@@ -867,18 +867,19 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "lcacheSize{instance=~'$Instance'}",
+              "expr": "dgraph_lcache_size_bytes{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "cacheSize",
-              "metric": "lCacheSize",
+              "metric": "dgraph_lcache_size_bytes",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "lcacheLen{instance=~'$Instance'}",
+              "expr": "dgraph_lcache_keys_total{instance=~'$Instance'}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "cacheLen",
+              "metric": "dgraph_lcache_keys_total",
               "refId": "B",
               "step": 2
             },
@@ -960,15 +961,15 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "cacheHit{instance=~'$Instance'}",
+              "expr": "dgraph_cache_hits_total{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "cacheHit",
-              "metric": "cacheHit",
+              "metric": "dgraph_cache_hits_total",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "cacheMiss{instance=~'$Instance'}",
+              "expr": "dgraph_cache_miss_total{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "cacheMiss",
               "metric": "cacheMiss",
@@ -976,7 +977,7 @@
               "step": 2
             },
             {
-              "expr": "cacheRace{instance=~'$Instance'}",
+              "expr": "dgraph_cache_race_total{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "cacheRace",
               "metric": "cacheRace",
@@ -1051,10 +1052,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(evictedPls{instance=~'$Instance'}[30s])",
+              "expr": "rate(dgraph_evicted_lists_total{instance=~'$Instance'}[30s])",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "evictedPls",
+              "metric": "dgraph_evicted_lists_total",
               "refId": "A",
               "step": 2
             },
@@ -1201,10 +1202,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "activeMutations{instance=~'$Instance'}",
+              "expr": "dgraph_active_mutations_total{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "activeMutations",
+              "metric": "dgraph_active_mutations_total",
               "refId": "A",
               "step": 2
             }
@@ -1268,10 +1269,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "pending_queries{instance=~'$Instance'}",
+              "expr": "dgraph_pending_queries_total{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "pending",
+              "metric": "dgraph_pending_queries_total",
               "refId": "A",
               "step": 2
             }
@@ -1347,7 +1348,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "predicateStats{instance=~'$Instance'}",
+              "expr": "dgraph_predicate_stats{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
               "metric": "predicateStats",
@@ -1375,7 +1376,7 @@
     }
   ],
   "time": {
-    "from": "now-5m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -1454,8 +1455,8 @@
   "annotations": {
     "list": []
   },
-  "refresh": "30s",
+  "refresh": "5s",
   "schemaVersion": 8,
-  "version": 74,
+  "version": 81,
   "links": []
 }
