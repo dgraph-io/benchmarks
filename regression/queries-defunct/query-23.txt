@@ -1,0 +1,8 @@
+{
+  caro(func: eq(name@en, "Marc Caro")) {
+    name@en
+    director.film @filter(uid_in(~director.film, 597046)){
+      name@en
+    }
+  }
+}

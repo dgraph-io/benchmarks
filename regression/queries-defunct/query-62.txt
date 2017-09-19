@@ -1,0 +1,6 @@
+{
+  director(func: eq(name@en, "Geoffrey Rush")) {
+    num_predicates: count(_predicate_)
+    my_predicates: _predicate_
+  }
+}

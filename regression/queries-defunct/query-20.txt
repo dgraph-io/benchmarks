@@ -1,0 +1,10 @@
+{
+  films(func: uid(0xcceb)) {
+    name@hi
+    actor.film {
+      performance.film {
+        name@hi
+      }
+    }
+  }
+}

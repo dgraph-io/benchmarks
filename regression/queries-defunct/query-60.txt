@@ -1,0 +1,15 @@
+{
+  var(func:allofterms(name@en, "Tim Burton")) {
+    director.film {
+      starring @groupby(performance.actor) {
+        a as count(_uid_)
+        # a is an actor UID to count value variable
+      }
+    }
+  }
+
+  byActor(func: uid(a), orderdesc: val(a)) {
+    name@en
+    val(a)
+  }
+}

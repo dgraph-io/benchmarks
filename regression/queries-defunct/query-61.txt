@@ -1,0 +1,5 @@
+{
+  director(func: eq(name@en, "Geoffrey Rush")) {
+    _predicate_
+  }
+}
