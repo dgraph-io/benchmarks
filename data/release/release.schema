@@ -1,0 +1,11 @@
+director.film        : uid @reverse .
+actor.film           : uid .
+genre                : uid @reverse @count .
+initial_release_date : datetime @index(year) .
+rating               : uid @reverse .
+country              : uid @reverse .
+loc                  : geo @index(geo) .
+name                 : string @index(exact, term, trigram) .
+starring             : uid .
+_share_hash_         : string @index(exact) .
+rated		     : uid @reverse .
