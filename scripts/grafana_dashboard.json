@@ -62,18 +62,18 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "dgraph_memory_inuse_bytes+dgraph_heap_idle_bytes{instance=~'$Instance'}",
+              "expr": "dgraph_memory_inuse_bytes+dgraph_memory_idle_bytes{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "dgraph_heap_idle_bytes",
+              "metric": "dgraph_memory_idle_bytes",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "dgraph_proc_memory_bytes{instance=~'$Instance'}",
+              "expr": "dgraph_memory_proc_bytes{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "dgraph_proc_memory_bytes",
+              "metric": "dgraph_memory_proc_bytes",
               "refId": "B",
               "step": 2
             }
