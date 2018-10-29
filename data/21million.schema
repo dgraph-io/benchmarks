@@ -10,3 +10,4 @@ starring             : uid @count .
 _share_hash_         : string @index(exact) .
 performance.character_note: string @lang .
 tagline              : string @lang .
+cut.note             : string @lang .
