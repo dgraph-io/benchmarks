@@ -8,3 +8,6 @@ loc                  : geo @index(geo) .
 name                 : string @index(hash, fulltext, trigram) @lang .
 starring             : uid @count .
 _share_hash_         : string @index(exact) .
+performance.character_note: string @lang .
+tagline              : string @lang .
+cut.note             : string @lang .
