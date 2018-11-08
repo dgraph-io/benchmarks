@@ -8,4 +8,7 @@ loc                  : geo @index(geo) .
 name                 : string @index(hash, term, trigram) @lang .
 starring             : uid .
 _share_hash_         : string @index(hash) .
+performance.character_note: string @lang .
+tagline              : string @lang .
+cut.note             : string @lang .
 rated		     : uid @reverse .
