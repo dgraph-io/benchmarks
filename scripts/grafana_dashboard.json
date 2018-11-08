@@ -867,19 +867,19 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "dgraph_lcache_size_bytes{instance=~'$Instance'}",
+              "expr": "dgraph_lru_size_bytes{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "cacheSize",
-              "metric": "dgraph_lcache_size_bytes",
+              "metric": "dgraph_lru_size_bytes",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "dgraph_lcache_keys_total{instance=~'$Instance'}",
+              "expr": "dgraph_lru_keys_total{instance=~'$Instance'}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "cacheLen",
-              "metric": "dgraph_lcache_keys_total",
+              "metric": "dgraph_lru_keys_total",
               "refId": "B",
               "step": 2
             },
@@ -961,15 +961,15 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "dgraph_cache_hits_total{instance=~'$Instance'}",
+              "expr": "dgraph_lru_hits_total{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "cacheHit",
-              "metric": "dgraph_cache_hits_total",
+              "metric": "dgraph_lru_hits_total",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "dgraph_cache_miss_total{instance=~'$Instance'}",
+              "expr": "dgraph_lru_miss_total{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "cacheMiss",
               "metric": "cacheMiss",
@@ -977,7 +977,7 @@
               "step": 2
             },
             {
-              "expr": "dgraph_cache_race_total{instance=~'$Instance'}",
+              "expr": "dgraph_lru_race_total{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "cacheRace",
               "metric": "cacheRace",
@@ -1052,10 +1052,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(dgraph_evicted_lists_total{instance=~'$Instance'}[30s])",
+              "expr": "rate(dgraph_lru_evicted_total{instance=~'$Instance'}[30s])",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "dgraph_evicted_lists_total",
+              "metric": "dgraph_lru_evicted_total",
               "refId": "A",
               "step": 2
             },
