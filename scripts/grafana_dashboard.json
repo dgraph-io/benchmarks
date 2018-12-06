@@ -782,10 +782,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "dgraph_server_health_status{instance=~'$Instance'}",
+              "expr": "dgraph_alpha_health_status{instance=~'$Instance'}",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "dgraph_server_health_status",
+              "metric": "dgraph_alpha_health_status",
               "refId": "A",
               "step": 2
             }
