@@ -231,18 +231,18 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "dgraph_heap_idle_bytes{instance=~'$Instance'}",
+              "expr": "dgraph_memory_idle_bytes{instance=~'$Instance'}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "",
-              "metric": "dgraph_heap_idle_bytes",
+              "metric": "dgraph_memory_idle_bytes",
               "refId": "A",
               "step": 2
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Heap Idle",
+          "title": "Memory Heap Idle",
           "tooltip": {
             "shared": true,
             "value_type": "cumulative"
