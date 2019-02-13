@@ -5,7 +5,7 @@ initial_release_date : datetime @index(year) .
 rating               : [uid] @reverse .
 country              : [uid] @reverse .
 loc                  : geo @index(geo) .
-name                 : string @index(hash, fulltext, trigram) @lang .
+name                 : string @index(hash, fulltext, trigram, term) @lang .
 starring             : [uid] @count .
 _share_hash_         : string @index(exact) .
 performance.character_note: string @lang .
