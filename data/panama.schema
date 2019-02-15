@@ -5,3 +5,4 @@ node_id: string @index(exact) .
 type: [uid] @reverse .
 hasCountry: [uid] @reverse .
 incorporation_date: date @index .
+
