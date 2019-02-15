@@ -1,7 +1,7 @@
-name:string @index(exact,term,trigram) .
-original_name:string @index(exact,term,trigram) .
-former_name:string @index(exact,term,trigram) .
-node_id:string @index(exact) .
-type:uid @reverse .
-hasCountry:uid @reverse .
-incorporation_date:date @index .
+name: string @index(exact,term,trigram) .
+original_name: string @index(exact,term,trigram) .
+former_name: string @index(exact,term,trigram) .
+node_id: string @index(exact) .
+type: [uid] @reverse .
+hasCountry: [uid] @reverse .
+incorporation_date: date @index .
