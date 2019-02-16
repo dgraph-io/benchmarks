@@ -5,9 +5,12 @@ initial_release_date : datetime @index(year) .
 rating               : [uid] @reverse .
 country              : [uid] @reverse .
 loc                  : geo @index(geo) .
-name                 : string @index(hash, fulltext, trigram, term) @lang .
+name                 : string @index(hash, term, trigram, fulltext) @lang .
 starring             : [uid] @count .
-_share_hash_         : string @index(exact) .
-performance.character_note: string @lang .
+_share_hash_         : string @index(hash) .
+performance.character_note : string @lang .
 tagline              : string @lang .
 cut.note             : string @lang .
+rated                : [uid] @reverse .
+email                : string @index(exact) @upsert .
+
