@@ -20,7 +20,7 @@ import (
 
 var (
 	numUser           = flag.Int("numuser", 1, "number of users hitting simultaneously")
-	numSec            = flag.Float64("numsec", 10, "number of request per user")
+	numSec            = flag.Float64("numsec", 10, "number number of seconds each user streams requests")
 	serverAddr        = flag.String("ip", ":10001", "IP addr of server")
 	countC            chan int
 	jsonP             chan float64
@@ -33,27 +33,72 @@ var (
 )
 
 var qa1 = `{
-		  debug(_xid_:`
-var qa2 = `) {
-			    type.object.name.en
-			    film.actor.film {
-				      film.performance.film {
-					        type.object.name.en
-				      }
-			    }
-		  }
-		}`
+				debug(func: uid(`
+var qa2 = `)) {
+	name@en
+	actor.film {
+		performance.film {
+			name@en
+		}
+	}
+}
+}`
+
+var qa1xl = `{
+				debug(func: uid(`
+var qa2xl = `)) {
+	name@en
+	actor.film {
+		performance.film {
+			name@en
+      starring {
+      	performance.actor {
+          name@en
+					actor.film {
+						performance.film {
+							name@en
+						}
+					}
+        }
+      }
+		}
+	}
+}
+}`
+
 var qd1 = `{
-			  debug(_xid_:`
-var qd2 = `) {
-					    type.object.name.en
-					    film.director.film  {
-							      film.film.genre {
-							        type.object.name.en
-							      }
-					    }
-			  }
-		}`
+			  debug(func: uid(`
+var qd2 = `)) {
+	name@en
+	director.film {
+		genre {
+			name@en
+		}
+	}
+}
+}`
+
+var qd1xl = `{
+			  debug(func: uid(`
+var qd2xl = `)) {
+    name@en
+    director.film {
+      genre {
+      	name@en
+      }
+      starring {
+      	performance.actor {
+          name@en
+					actor.film {
+						performance.film {
+							name@en
+						}
+					}
+        }
+      }
+    }
+  }
+}`
 
 func runUser(wg *sync.WaitGroup) {
 	var proT, parT, jsonT, totT time.Duration
@@ -64,6 +109,7 @@ func runUser(wg *sync.WaitGroup) {
 	}}
 	var dat map[string]interface{}
 	var latency map[string]interface{}
+	var extensions map[string]interface{}
 
 	tix := time.Now()
 
@@ -96,17 +142,30 @@ func runUser(wg *sync.WaitGroup) {
 				log.Fatal(err)
 			}
 
-			temp := dat["server_latency"]
-			latency = temp.(map[string]interface{})
+			var ok bool
 
-			pro, _ := time.ParseDuration(latency["processing"].(string))
+			temp := dat["extensions"]
+			extensions, ok = temp.(map[string]interface{})
+			if !ok {
+				log.Print("no 'extensions' in response data")
+				log.Fatalf("%#v", dat)
+			}
+
+			temp = extensions["server_latency"]
+			latency, ok = temp.(map[string]interface{})
+			if !ok {
+				log.Print("no 'server_latency' in extension data'")
+				log.Fatalf("%#v", extensions)
+			}
+
+			pro := time.Duration(latency["encoding_ns"].(float64)) * time.Nanosecond
 			proT += pro
-			js, _ := time.ParseDuration(latency["json"].(string))
+			js := time.Duration(latency["parsing_ns"].(float64)) * time.Nanosecond
 			jsonT += js
-			par, _ := time.ParseDuration(latency["parsing"].(string))
+			par := time.Duration(latency["processing_ns"].(float64)) * time.Nanosecond
 			parT += par
 
-			tot, _ := time.ParseDuration(latency["total"].(string))
+			tot := pro + js + par
 			totT += tot
 
 			latC <- tot.Seconds()
@@ -125,8 +184,8 @@ func main() {
 	var wg sync.WaitGroup
 	var allLat []float64
 	serverList = strings.Split(*serverAddr, ",")
-	actorfile, err := os.Open("listofactors")
-	directorfile, err1 := os.Open("listofdirectors")
+	actorfile, err := os.Open("listofactors_uid")
+	directorfile, err1 := os.Open("listofdirectors_uid")
 	if err != nil || err1 != nil {
 		return
 	}
@@ -207,7 +266,7 @@ func main() {
 	sdLat = math.Sqrt(sdLat / float64(len(allLat)-1))
 
 	fmt.Println("------------------------------------------------------------------------")
-	fmt.Println("\n NumUser :", *numUser)
+	fmt.Println("\nNumUser :", *numUser)
 	fmt.Println("Throughput (num request per second) : ", float64(totCount)/(3*(*numSec)))
 	fmt.Println("Total number of queries : ", totCount)
 	fmt.Println("Avg time (ms) : ", 1000*totTi/float64(totCount))
