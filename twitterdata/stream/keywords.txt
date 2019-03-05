@@ -1,0 +1,7 @@
+dgraph
+"dgraph labs"
+badger
+kitten
+Go
+great
+trump
