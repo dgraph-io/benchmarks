@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	cEveryNMessages = 100
+	cEveryNMessages = 1000
 
 	cTimeFormat       = "Mon Jan 02 15:04:05 -0700 2006"
 	cDgraphTimeFormat = "2006-01-02T15:04:05.999999999+10:00"
@@ -26,6 +26,33 @@ const (
 var (
 	errNotATweet = errors.New("message in the stream is not a tweet")
 )
+
+type twitterUser struct {
+	UID              string `json:"uid"`
+	UserID           string `json:"user_id"`
+	UserName         string `json:"user_name,omitempty"`
+	ScreenName       string `json:"screen_name,omitempty"`
+	Description      string `json:"description,omitempty"`
+	FriendsCount     int    `json:"friends_count,omitempty"`
+	Verified         bool   `json:"verified"`
+	ProfileBannerURL string `json:"profile_banner_url,omitempty"`
+	ProfileImageURL  string `json:"profile_image_url,omitempty"`
+	Tweet            []struct {
+		UID string `json:"uid"`
+	} `json:"tweet"`
+}
+
+type twitterTweet struct {
+	UID       string        `json:"uid"`
+	IDStr     string        `json:"id_str"`
+	CreatedAt string        `json:"created_at"`
+	Message   string        `json:"message,omitempty"`
+	URLs      []string      `json:"urls,omitempty"`
+	HashTags  []string      `json:"hashtags,omitempty"`
+	Author    twitterUser   `json:"author"`
+	Mention   []twitterUser `json:"mention,omitempty"`
+	Retweet   bool          `json:"retweet"`
+}
 
 func main() {
 	if len(os.Args) != 4 {
@@ -97,18 +124,29 @@ func processFile(path string, work chan<- string) error {
 func doWork(id int, wg *sync.WaitGroup, work <-chan string, outDir string) {
 	defer wg.Done()
 
-	fd, err := os.Create(fmt.Sprintf("%s/twitter_feed_%d.rdf", outDir, id))
+	fd, err := os.Create(fmt.Sprintf("%s/twitter_feed_pp_%d.json", outDir, id))
 	if err != nil {
 		panic(err)
 	}
 	defer fd.Close()
 
 	writer := bufio.NewWriter(fd)
+	if _, err := writer.WriteString("[\n"); err != nil {
+		panic(err)
+	}
+
 	var totalMessages, erroredMessages, notTweetMessages int
+	var noErr bool
 	for message := range work {
+		if noErr {
+			if _, err := writer.WriteString(",\n"); err != nil {
+				panic(err)
+			}
+		}
 		totalMessages++
 
 		if err := processMessage(writer, message); err != nil {
+			noErr = false
 			if err == errNotATweet {
 				notTweetMessages++
 			} else {
@@ -119,13 +157,18 @@ func doWork(id int, wg *sync.WaitGroup, work <-chan string, outDir string) {
 			continue
 		}
 
+		noErr = true
 		if totalMessages%cEveryNMessages == 0 {
 			fmt.Printf("Routine: %d, Total: %d, notTweet:%d, error: %d\n", id,
 				totalMessages, notTweetMessages, erroredMessages)
 		}
 	}
 
+	if _, err := writer.WriteString("\n]"); err != nil {
+		panic(err)
+	}
 	writer.Flush()
+
 	fmt.Printf("Routine: %d, Total: %d, notTweet:%d, error: %d\n", id,
 		totalMessages, notTweetMessages, erroredMessages)
 }
@@ -164,28 +207,8 @@ func parseMessage(message string) (*twitter.Tweet, error) {
 }
 
 func tweetToRDF(writer io.Writer, tweet *twitter.Tweet) error {
-	if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <author> _:%v .\n",
-		tweet.IDStr, tweet.User.IDStr))); err != nil {
-		return err
-	}
-
-	if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <tweet> _:%v .\n",
-		tweet.User.IDStr, tweet.IDStr))); err != nil {
-		return err
-	}
-
-	// Handle Tweet Attributes
-	t, err := time.Parse(cTimeFormat, tweet.CreatedAt)
+	createdAt, err := time.Parse(cTimeFormat, tweet.CreatedAt)
 	if err != nil {
-		return err
-	}
-	if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <created_at> \"%v\" .\n",
-		tweet.IDStr, t.Format(cDgraphTimeFormat)))); err != nil {
-		return err
-	}
-
-	if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <id_str> \"%v\" .\n",
-		tweet.IDStr, tweet.IDStr))); err != nil {
 		return err
 	}
 
@@ -195,12 +218,6 @@ func tweetToRDF(writer io.Writer, tweet *twitter.Tweet) error {
 	} else {
 		tweetText = tweet.FullText
 	}
-	if tweetText != "" {
-		if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <message> %v .\n",
-			tweet.IDStr, strconv.Quote(tweetText)))); err != nil {
-			return err
-		}
-	}
 
 	var urlEntities []twitter.URLEntity
 	if tweet.Truncated {
@@ -208,11 +225,9 @@ func tweetToRDF(writer io.Writer, tweet *twitter.Tweet) error {
 	} else {
 		urlEntities = tweet.Entities.Urls
 	}
+	expandedURLs := make([]string, len(urlEntities))
 	for _, url := range urlEntities {
-		if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <url> \"%v\" .\n",
-			tweet.IDStr, url.ExpandedURL))); err != nil {
-			return err
-		}
+		expandedURLs = append(expandedURLs, url.ExpandedURL)
 	}
 
 	var hashTags []twitter.HashtagEntity
@@ -221,28 +236,62 @@ func tweetToRDF(writer io.Writer, tweet *twitter.Tweet) error {
 	} else {
 		hashTags = tweet.Entities.Hashtags
 	}
+	hashTagTexts := make([]string, len(hashTags))
 	for _, tag := range hashTags {
-		if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <hashtags> \"%v\" .\n",
-			tweet.IDStr, tag.Text))); err != nil {
-			return err
-		}
+		hashTagTexts = append(hashTagTexts, tag.Text)
 	}
 
-	// User Attributes
-	if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <user_id> \"%v\" .\n",
-		tweet.User.IDStr, tweet.User.IDStr))); err != nil {
+	var userMentions []twitterUser
+	for _, userMention := range tweet.Entities.UserMentions {
+		userMentions = append(userMentions, twitterUser{
+			UID:        fmt.Sprintf("_:%v", userMention.IDStr),
+			UserID:     userMention.IDStr,
+			UserName:   userMention.Name,
+			ScreenName: userMention.ScreenName,
+		})
+	}
+
+	dt := twitterTweet{
+		UID:       fmt.Sprintf("_:%v", tweet.IDStr),
+		IDStr:     tweet.IDStr,
+		CreatedAt: createdAt.Format(cDgraphTimeFormat),
+		Message:   unquote(strconv.Quote(tweetText)),
+		URLs:      expandedURLs,
+		HashTags:  hashTagTexts,
+		Author: twitterUser{
+			UID:              tweet.User.IDStr,
+			UserID:           tweet.User.IDStr,
+			UserName:         unquote(strconv.Quote(tweet.User.Name)),
+			ScreenName:       tweet.User.ScreenName,
+			Description:      unquote(strconv.Quote(tweet.User.Description)),
+			FriendsCount:     tweet.User.FriendsCount,
+			Verified:         tweet.User.Verified,
+			ProfileBannerURL: tweet.User.ProfileBannerURL,
+			ProfileImageURL:  tweet.User.ProfileImageURL,
+			Tweet: []struct {
+				UID string `json:"uid"`
+			}{
+				{
+					UID: fmt.Sprintf("_:%v", tweet.User.IDStr),
+				},
+			},
+		},
+		Mention: userMentions,
+		Retweet: tweet.Retweeted,
+	}
+
+	data, err := json.Marshal(dt)
+	if err != nil {
 		return err
 	}
 
-	if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <screen_name> \"%v\" .\n",
-		tweet.User.IDStr, tweet.User.ScreenName))); err != nil {
-		return err
-	}
-
-	if _, err := writer.Write([]byte(fmt.Sprintf("_:%v <user_name> %v .\n",
-		tweet.User.IDStr, strconv.Quote(tweet.User.Name)))); err != nil {
+	if _, err := writer.Write(data); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func unquote(s string) string {
+	return s[1 : len(s)-1]
 }

@@ -1,7 +1,12 @@
 dgraph
 "dgraph labs"
 badger
-kitten
-Go
-great
-trump
+golang
+go
+gopher
+hackernews
+graph database
+janusgraph
+neo4j
+orientdb
+neptune

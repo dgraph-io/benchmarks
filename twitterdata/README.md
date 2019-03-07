@@ -1,7 +1,8 @@
 ## Twitter data in Dgraph
 This benchmark provides code to download twitter data using
 streaming APIs and output is written in json files. Then, the
-data is post-processed and converted into RDF files.
+data is post-processed and converted into live loader acceptable
+json files.
 
 ## Downloading twitter data
 ### Setup
@@ -23,9 +24,9 @@ go run stream/stream.go stream/keywords.txt 10 json
 ```
 
 ## Post Processing
-```
-mkdir rdf
-go run postprocess/pp.go 10 json rdf
+```bash
+mkdir pp
+go run postprocess/pp.go 10 json pp
 ```
 
 ## Run Live Loader
@@ -45,16 +46,22 @@ created_at: dateTime @index(day) .
 id_str: string @index(exact) .
 message: string .
 author: uid .
-url: string .
+urls: [string] .
 hashtags: [string] @index(exact) .
-retweet: uid .
+mention: uid .
+retweet: bool .
 
-user_name: string @index(exact) .
-user_id: int @index(int) .
+user_name: string @index(hash) .
+user_id: string @index(exact) .
 screen_name: string @index(term) .
+description: string .
+friends_count: int @index(int) .
+verified: bool @index(bool) .
+profile_image_url: string .
+profile_banner_url: string .
 ```
 
 ### Run
 ```bash
-dgraph live -f rdf -x xidmap --zero localhost:5080 -c 1
+dgraph live -f pp -x xidmap --zero localhost:5080 -c 1
 ```
