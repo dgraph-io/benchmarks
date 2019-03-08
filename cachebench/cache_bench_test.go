@@ -28,7 +28,7 @@ import (
 	"github.com/allegro/bigcache"
 	"github.com/cespare/xxhash"
 	"github.com/coocood/freecache"
-	"github.com/dgraph-io/dgraph/ristretto"
+	"github.com/dgraph-io/badger/ristretto"
 	"github.com/golang/groupcache/lru"
 	"github.com/pingcap/go-ycsb/pkg/generator"
 )
