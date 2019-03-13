@@ -25,6 +25,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/VictoriaMetrics/fastcache"
 	"github.com/allegro/bigcache"
 	"github.com/cespare/xxhash"
 	"github.com/coocood/freecache"
@@ -124,6 +125,43 @@ func newBigCache(keysInWindow int) *BigCache {
 	_ = cache.Reset()
 
 	return &BigCache{cache}
+}
+
+//========================================================================
+//                               FastCache
+//========================================================================
+
+type FastCache struct {
+	c *fastcache.Cache
+}
+
+func (b *FastCache) Get(key []byte) ([]byte, error) {
+	v := b.c.Get(nil, key)
+	if v == nil || len(v) == 0 {
+		return nil, errKeyNotFound
+	}
+
+	return v, nil
+}
+
+func (b *FastCache) Set(key, value []byte) error {
+	b.c.Set(key, value)
+	return nil
+}
+
+func newFastCache(keysInWindow int) *FastCache {
+	cache := fastcache.New(keysInWindow * maxKeyLength)
+
+	// Enforce full initialization of internal structures. This is taken
+	// from GetPutBenchmark.java from java caffeine. It is required in
+	// caffeine given that it keeps buffering the keys for applying the
+	// necessary changes later. This is probably unnecessary here.
+	for i := 0; i < 2*workloadSize; i++ {
+		cache.Set([]byte(strconv.Itoa(i)), []byte("data"))
+	}
+	cache.Reset()
+
+	return &FastCache{cache}
 }
 
 //========================================================================
@@ -292,31 +330,37 @@ func BenchmarkCaches(b *testing.B) {
 		pctWrites uint64
 	}{
 		{"BigCacheZipfRead", newBigCache(b.N), zipfList, 0},
+		{"FastCacheZipfRead", newFastCache(b.N), zipfList, 0},
 		{"FreeCacheZipfRead", newFreeCache(b.N), zipfList, 0},
 		{"GroupCacheZipfRead", newGroupCache(b.N), zipfList, 0},
 		{"SyncMapZipfRead", newSyncMap(), zipfList, 0},
 
 		{"BigCacheOneKeyRead", newBigCache(b.N), oneList, 0},
+		{"FastCacheOneKeyRead", newFastCache(b.N), oneList, 0},
 		{"FreeCacheOneKeyRead", newFreeCache(b.N), oneList, 0},
 		{"GroupCacheOneKeyRead", newGroupCache(b.N), oneList, 0},
 		{"SyncMapOneKeyRead", newSyncMap(), oneList, 0},
 
 		{"BigCacheZipfWrite", newBigCache(b.N), zipfList, 100},
+		{"FastCacheZipfWrite", newFastCache(b.N), zipfList, 100},
 		{"FreeCacheZipfWrite", newFreeCache(b.N), zipfList, 100},
 		{"GroupCacheZipfWrite", newGroupCache(b.N), zipfList, 100},
 		{"SyncMapZipfWrite", newSyncMap(), zipfList, 100},
 
 		{"BigCacheOneKeyWrite", newBigCache(b.N), oneList, 100},
+		{"FastCacheOneKeyWrite", newFastCache(b.N), oneList, 100},
 		{"FreeCacheOneKeyWrite", newFreeCache(b.N), oneList, 100},
 		{"GroupCacheOneKeyWrite", newGroupCache(b.N), oneList, 100},
 		{"SyncMapOneKeyWrite", newSyncMap(), oneList, 100},
 
 		{"BigCacheZipfMixed", newBigCache(b.N), zipfList, 25},
+		{"FastCacheZipfMixed", newFastCache(b.N), zipfList, 25},
 		{"FreeCacheZipfMixed", newFreeCache(b.N), zipfList, 25},
 		{"GroupCacheZipfMixed", newGroupCache(b.N), zipfList, 25},
 		{"SyncMapZipfMixed", newSyncMap(), zipfList, 25},
 
 		{"BigCacheOneKeyMixed", newBigCache(b.N), oneList, 25},
+		{"FastCacheOneKeyMixed", newFastCache(b.N), oneList, 25},
 		{"FreeCacheOneKeyMixed", newFreeCache(b.N), oneList, 25},
 		{"GroupCacheOneKeyMixed", newGroupCache(b.N), oneList, 25},
 		{"SyncMapOneKeyMixed", newSyncMap(), oneList, 25},
