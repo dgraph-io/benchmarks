@@ -259,7 +259,7 @@ func tweetToRDF(writer io.Writer, tweet *twitter.Tweet) error {
 		URLs:      expandedURLs,
 		HashTags:  hashTagTexts,
 		Author: twitterUser{
-			UID:              tweet.User.IDStr,
+			UID:              fmt.Sprintf("_:%v", tweet.User.IDStr),
 			UserID:           tweet.User.IDStr,
 			UserName:         unquote(strconv.Quote(tweet.User.Name)),
 			ScreenName:       tweet.User.ScreenName,
@@ -272,7 +272,7 @@ func tweetToRDF(writer io.Writer, tweet *twitter.Tweet) error {
 				UID string `json:"uid"`
 			}{
 				{
-					UID: fmt.Sprintf("_:%v", tweet.User.IDStr),
+					UID: fmt.Sprintf("_:%v", tweet.IDStr),
 				},
 			},
 		},
