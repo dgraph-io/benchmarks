@@ -13,4 +13,3 @@ tagline              : string @lang .
 cut.note             : string @lang .
 rated                : [uid] @reverse .
 email                : string @index(exact) @upsert .
-
