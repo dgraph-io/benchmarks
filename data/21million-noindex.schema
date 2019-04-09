@@ -12,4 +12,4 @@ performance.character_note : string @lang .
 tagline              : string @lang .
 cut.note             : string @lang .
 rated                : [uid] .
-email                : string @upsert .
+email                : string .
