@@ -11,7 +11,9 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Intermediate/Output files
-*.json
-*.rdf
+# Secret Files
+credentials.json
+json/*
+pp/*
+xids/*
 xidmap/*

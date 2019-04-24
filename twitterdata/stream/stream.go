@@ -3,70 +3,75 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
+	"flag"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
-	"strconv"
-	"sync"
 
-	"github.com/dghubble/go-twitter/twitter"
-	"github.com/dghubble/oauth1"
+	"github.com/ChimeraCoder/anaconda"
+	"github.com/dgraph-io/badger/y"
 )
 
-const (
-	cEveryNMessages = 100
-
-	cConfAccessToken       = "TWITTER_ACCESS_TOKEN"
-	cConfAccessTokenSecret = "TWITTER_ACCESS_TOKEN_SECRET"
-	cConfConsumerKey       = "TWITTER_CONSUMER_KEY"
-	cConfConsumerSecret    = "TWITTER_CONSUMER_SECRET"
+var (
+	opts progOptions
 )
+
+type twitterCreds struct {
+	AccessSecret   string `json:"access_secret"`
+	AccessToken    string `json:"access_token"`
+	ConsumerKey    string `json:"consumer_key"`
+	ConsumerSecret string `json:"consumer_secret"`
+}
+
+type progOptions struct {
+	NumWorkers        int
+	CredentialsFile   string
+	OutputPath        string
+	ReportEveryTweets int
+}
 
 func main() {
-	if len(os.Args) != 4 {
-		fmt.Println("invalid command!")
-		fmt.Println("Usage: stream.go <keywords_file> <num_workers> <output_dir>")
-		return
-	}
+	numWorkers := flag.Int("n", 4, "number of workers to run in parallel")
+	credentialsFile := flag.String("c", "credentials.json", "path to credentials file")
+	outputPath := flag.String("d", "", "folder to store the json tweets")
+	flag.Parse()
 
-	keywordsFile := os.Args[1]
-	numWorkersStr := os.Args[2]
-	outDir := os.Args[3]
-
-	numWorkers, err := strconv.Atoi(numWorkersStr)
-	if err != nil {
-		panic(err)
+	opts = progOptions{
+		NumWorkers:        *numWorkers,
+		CredentialsFile:   *credentialsFile,
+		OutputPath:        *outputPath,
+		ReportEveryTweets: 1000,
 	}
 
 	// setup twitter client
-	client := getTwitterClient()
-
-	// TODO: setup a file watcher
-	keywords, err := readKeywords(keywordsFile)
+	creds, err := readCredentials(opts.CredentialsFile)
 	if err != nil {
 		panic(err)
 	}
 
-	params := &twitter.StreamFilterParams{
-		Track:         keywords,
-		StallWarnings: twitter.Bool(true),
-	}
-	stream, err := client.Streams.Filter(params)
+	client, err := newTwitterClient(creds)
 	if err != nil {
 		panic(err)
 	}
 
-	// start worker routines
-	var wg sync.WaitGroup
-	for i := 0; i < numWorkers; i++ {
-		wg.Add(1)
-		go doWork(i, &wg, stream.Messages, outDir)
+	stream := client.PublicStreamSample(nil)
+	defer stream.Stop()
+
+	// read twitter stream
+	c := y.NewCloser(0)
+	for i := 0; i < opts.NumWorkers; i++ {
+		c.AddRunning(1)
+		go doWork(i, c, stream.C, opts.OutputPath)
 	}
 
-	wg.Wait()
+	c.Wait()
+	log.Println("Stopping stream...")
 }
 
-func doWork(id int, wg *sync.WaitGroup, work <-chan interface{}, outDir string) {
-	defer wg.Done()
+func doWork(id int, c *y.Closer, work <-chan interface{}, outDir string) {
+	defer c.Done()
 
 	fd, err := os.Create(fmt.Sprintf("%s/twitter_feed_%d.json", outDir, id))
 	if err != nil {
@@ -93,45 +98,43 @@ func doWork(id int, wg *sync.WaitGroup, work <-chan interface{}, outDir string) 
 			continue
 		}
 
-		if totalMessages%cEveryNMessages == 0 {
+		if totalMessages%opts.ReportEveryTweets == 0 {
 			fmt.Printf("Routine: %d, Total: %d, error: %d\n", id,
 				totalMessages, erroredMessages)
 		}
 	}
 }
 
-// readKeywords reads keywords from a file and passes to the Twitter Filter API
-func readKeywords(file string) ([]string, error) {
-	fd, err := os.Open(file)
+func readCredentials(path string) (*twitterCreds, error) {
+	jsn, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, err
-	}
-	defer fd.Close()
-
-	keywords := make([]string, 0)
-	scanner := bufio.NewScanner(fd)
-	for scanner.Scan() {
-		keyword := scanner.Text()
-		keywords = append(keywords, keyword)
-	}
-
-	if err := scanner.Err(); err != nil {
+		log.Printf("Unable to open twitter credentials file '%s' :: %v", path, err)
 		return nil, err
 	}
 
-	return keywords, nil
+	var creds twitterCreds
+	err = json.Unmarshal(jsn, &creds)
+	if err != nil {
+		log.Printf("Unable to parse twitter credentials file '%s' :: %v", path, err)
+		return nil, err
+	}
+
+	return &creds, nil
 }
 
-// getTwitterClient sets up a twitter client
-func getTwitterClient() *twitter.Client {
-	accessToken := os.Getenv(cConfAccessToken)
-	accessTokenSecret := os.Getenv(cConfAccessTokenSecret)
-	token := oauth1.NewToken(accessToken, accessTokenSecret)
+func newTwitterClient(creds *twitterCreds) (*anaconda.TwitterApi, error) {
+	client := anaconda.NewTwitterApiWithCredentials(
+		creds.AccessToken, creds.AccessSecret,
+		creds.ConsumerKey, creds.ConsumerSecret,
+	)
 
-	consumerKey := os.Getenv(cConfConsumerKey)
-	consumerSecret := os.Getenv(cConfConsumerSecret)
-	config := oauth1.NewConfig(consumerKey, consumerSecret)
+	if ok, err := client.VerifyCredentials(); err != nil {
+		log.Printf("error in verifying credentials :: %v", err)
+		return nil, err
+	} else if !ok {
+		log.Printf("invalid twitter credentials")
+		return nil, errors.New("invalid credentials")
+	}
 
-	httpClient := config.Client(oauth1.NoContext, token)
-	return twitter.NewClient(httpClient)
+	return client, nil
 }
