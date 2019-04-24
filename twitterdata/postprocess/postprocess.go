@@ -4,46 +4,58 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/dghubble/go-twitter/twitter"
+	"github.com/ChimeraCoder/anaconda"
+	"github.com/dgraph-io/badger"
+	bopt "github.com/dgraph-io/badger/options"
+	"github.com/dgraph-io/badger/y"
+	"github.com/dgraph-io/dgraph/x"
+	"github.com/dgraph-io/dgraph/xidmap"
 )
 
 const (
-	cEveryNMessages = 1000
-
 	cTimeFormat       = "Mon Jan 02 15:04:05 -0700 2006"
 	cDgraphTimeFormat = "2006-01-02T15:04:05.999999999+10:00"
 )
 
 var (
+	opts  progOptions
+	alloc *xidmap.XidMap
+
 	errNotATweet = errors.New("message in the stream is not a tweet")
 )
 
+type progOptions struct {
+	NumWorkers        int
+	InputPath         string
+	OutputPath        string
+	XidMapPath        string
+	ZeroHost          string
+	ReportEveryTweets int
+}
+
 type twitterUser struct {
-	UID              string `json:"uid"`
-	UserID           string `json:"user_id"`
+	UID              uint64 `json:"uid,omitempty"`
+	UserID           string `json:"user_id,omitempty"`
 	UserName         string `json:"user_name,omitempty"`
 	ScreenName       string `json:"screen_name,omitempty"`
 	Description      string `json:"description,omitempty"`
 	FriendsCount     int    `json:"friends_count,omitempty"`
-	Verified         bool   `json:"verified"`
+	Verified         bool   `json:"verified,omitempty"`
 	ProfileBannerURL string `json:"profile_banner_url,omitempty"`
 	ProfileImageURL  string `json:"profile_image_url,omitempty"`
-	Tweet            []struct {
-		UID string `json:"uid"`
-	} `json:"tweet"`
 }
 
 type twitterTweet struct {
-	UID       string        `json:"uid"`
+	UID       uint64        `json:"uid,omitempty"`
 	IDStr     string        `json:"id_str"`
 	CreatedAt string        `json:"created_at"`
 	Message   string        `json:"message,omitempty"`
@@ -55,47 +67,65 @@ type twitterTweet struct {
 }
 
 func main() {
-	if len(os.Args) != 4 {
-		fmt.Println("invalid command!")
-		fmt.Println("Usage: pp.go <num_workers> <input_dir> <output_dir>")
-		return
+	numWorkers := flag.Int("n", 4, "number of workers to run")
+	inputPath := flag.String("i", "json", "path to input data")
+	outputPath := flag.String("o", "pp", "path to output data")
+	xidMapPath := flag.String("x", "xids", "path to store xid mapping")
+	zeroHost := flag.String("z", "127.0.0.1:5080", "Dgraph zero gRPC server address")
+	flag.Parse()
+
+	opts = progOptions{
+		NumWorkers:        *numWorkers,
+		InputPath:         *inputPath,
+		OutputPath:        *outputPath,
+		XidMapPath:        *xidMapPath,
+		ZeroHost:          *zeroHost,
+		ReportEveryTweets: 1000,
 	}
 
-	numWorkersStr := os.Args[1]
-	inputDir := os.Args[2]
-	outDir := os.Args[3]
+	// setup xidmap
+	x.Check(os.MkdirAll(opts.XidMapPath, 0700))
 
-	numWorkers, err := strconv.Atoi(numWorkersStr)
-	if err != nil {
-		panic(err)
-	}
+	o := badger.DefaultOptions
+	o.Dir = opts.XidMapPath
+	o.ValueDir = opts.XidMapPath
+	o.TableLoadingMode = bopt.MemoryMap
+	o.SyncWrites = false
+	db, err := badger.Open(o)
+	x.Checkf(err, "Error while creating badger KV posting store")
+
+	connzero, err := x.SetupConnection(opts.ZeroHost, nil, false)
+	x.Checkf(err, "Unable to connect to zero, Is it running at %s?", opts.ZeroHost)
+
+	alloc = xidmap.New(connzero, db)
+	defer alloc.Flush()
+	defer db.Close()
 
 	// start workers
-	var wg sync.WaitGroup
+	c := y.NewCloser(opts.NumWorkers)
 	work := make(chan string, 10000)
-	for i := 0; i < numWorkers; i++ {
-		wg.Add(1)
-		go doWork(i, &wg, work, outDir)
+	for i := 0; i < opts.NumWorkers; i++ {
+		go doWork(i, c, work, opts.OutputPath)
 	}
 
-	err = filepath.Walk(inputDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			fmt.Println("error occurred while walking directory ::", err)
-			return err
-		}
+	if err := filepath.Walk(opts.InputPath,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				fmt.Println("error occurred while walking directory ::", err)
+				return err
+			}
 
-		if !strings.HasSuffix(path, ".json") {
-			return nil
-		}
+			if !strings.HasSuffix(path, ".json") {
+				return nil
+			}
 
-		return processFile(path, work)
-	})
-	if err != nil {
+			return processFile(path, work)
+		}); err != nil {
 		panic(err)
 	}
 
 	close(work)
-	wg.Wait()
+	c.Wait()
 }
 
 func processFile(path string, work chan<- string) error {
@@ -121,8 +151,8 @@ func processFile(path string, work chan<- string) error {
 	return nil
 }
 
-func doWork(id int, wg *sync.WaitGroup, work <-chan string, outDir string) {
-	defer wg.Done()
+func doWork(id int, c *y.Closer, work <-chan string, outDir string) {
+	defer c.Done()
 
 	fd, err := os.Create(fmt.Sprintf("%s/twitter_feed_pp_%d.json", outDir, id))
 	if err != nil {
@@ -150,7 +180,6 @@ func doWork(id int, wg *sync.WaitGroup, work <-chan string, outDir string) {
 			if err == errNotATweet {
 				notTweetMessages++
 			} else {
-				fmt.Println("error in processing message ::", err)
 				erroredMessages++
 			}
 
@@ -158,7 +187,7 @@ func doWork(id int, wg *sync.WaitGroup, work <-chan string, outDir string) {
 		}
 
 		noErr = true
-		if totalMessages%cEveryNMessages == 0 {
+		if totalMessages%opts.ReportEveryTweets == 0 {
 			fmt.Printf("Routine: %d, Total: %d, notTweet:%d, error: %d\n", id,
 				totalMessages, notTweetMessages, erroredMessages)
 		}
@@ -180,87 +209,68 @@ func processMessage(writer io.Writer, message string) error {
 	}
 
 	// produce RDF data from tweet
-	if err := tweetToRDF(writer, tweet); err != nil {
+	if err := tweetToJSON(writer, tweet); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func parseMessage(message string) (*twitter.Tweet, error) {
-	bytes := []byte(message)
-
-	// unmarshal JSON encoded token into a map for
-	var data map[string]interface{}
-	err := json.Unmarshal(bytes, &data)
-	if err != nil {
+func parseMessage(message string) (*anaconda.Tweet, error) {
+	var tweet anaconda.Tweet
+	if err := json.Unmarshal([]byte(message), &tweet); err != nil {
 		return nil, err
 	}
 
-	if _, ok := data["retweet_count"]; ok {
-		tweet := new(twitter.Tweet)
-		json.Unmarshal(bytes, tweet)
-		return tweet, nil
+	if tweet.IdStr == "" {
+		return nil, errNotATweet
 	}
 
-	return nil, errNotATweet
+	return &tweet, nil
 }
 
-func tweetToRDF(writer io.Writer, tweet *twitter.Tweet) error {
+func tweetToJSON(writer io.Writer, tweet *anaconda.Tweet) error {
 	createdAt, err := time.Parse(cTimeFormat, tweet.CreatedAt)
 	if err != nil {
 		return err
 	}
 
-	var tweetText string
-	if tweet.Truncated {
-		tweetText = tweet.ExtendedTweet.FullText
-	} else {
-		tweetText = tweet.FullText
+	expandedURLs := make([]string, len(tweet.Entities.Urls))
+	for _, url := range tweet.Entities.Urls {
+		expandedURLs = append(expandedURLs, url.Expanded_url)
 	}
 
-	var urlEntities []twitter.URLEntity
-	if tweet.Truncated {
-		urlEntities = tweet.ExtendedTweet.Entities.Urls
-	} else {
-		urlEntities = tweet.Entities.Urls
-	}
-	expandedURLs := make([]string, len(urlEntities))
-	for _, url := range urlEntities {
-		expandedURLs = append(expandedURLs, url.ExpandedURL)
-	}
-
-	var hashTags []twitter.HashtagEntity
-	if tweet.Truncated {
-		hashTags = tweet.ExtendedTweet.Entities.Hashtags
-	} else {
-		hashTags = tweet.Entities.Hashtags
-	}
-	hashTagTexts := make([]string, len(hashTags))
-	for _, tag := range hashTags {
-		hashTagTexts = append(hashTagTexts, tag.Text)
+	hashTagTexts := make([]string, 0)
+	for _, tag := range tweet.Entities.Hashtags {
+		if tag.Text != "" {
+			hashTagTexts = append(hashTagTexts, tag.Text)
+		}
 	}
 
 	var userMentions []twitterUser
-	for _, userMention := range tweet.Entities.UserMentions {
+	for _, userMention := range tweet.Entities.User_mentions {
+		if userMention.Id_str == "" {
+			return errNotATweet
+		}
+
 		userMentions = append(userMentions, twitterUser{
-			UID:        fmt.Sprintf("_:%v", userMention.IDStr),
-			UserID:     userMention.IDStr,
+			UID:        alloc.AssignUid(userMention.Id_str),
+			UserID:     userMention.Id_str,
 			UserName:   userMention.Name,
-			ScreenName: userMention.ScreenName,
+			ScreenName: userMention.Screen_name,
 		})
 	}
 
 	dt := twitterTweet{
-		UID:       fmt.Sprintf("_:%v", tweet.IDStr),
-		IDStr:     tweet.IDStr,
+		UID:       alloc.AssignUid(tweet.IdStr),
+		IDStr:     tweet.IdStr,
 		CreatedAt: createdAt.Format(cDgraphTimeFormat),
-		Message:   unquote(strconv.Quote(tweetText)),
+		Message:   unquote(strconv.Quote(tweet.FullText)),
 		URLs:      expandedURLs,
 		HashTags:  hashTagTexts,
 		Author: twitterUser{
-			UID:              fmt.Sprintf("_:%v", tweet.User.IDStr),
-			UserID:           tweet.User.IDStr,
+			UID:              alloc.AssignUid(tweet.User.IdStr),
+			UserID:           tweet.User.IdStr,
 			UserName:         unquote(strconv.Quote(tweet.User.Name)),
 			ScreenName:       tweet.User.ScreenName,
 			Description:      unquote(strconv.Quote(tweet.User.Description)),
@@ -268,13 +278,6 @@ func tweetToRDF(writer io.Writer, tweet *twitter.Tweet) error {
 			Verified:         tweet.User.Verified,
 			ProfileBannerURL: tweet.User.ProfileBannerURL,
 			ProfileImageURL:  tweet.User.ProfileImageURL,
-			Tweet: []struct {
-				UID string `json:"uid"`
-			}{
-				{
-					UID: fmt.Sprintf("_:%v", tweet.IDStr),
-				},
-			},
 		},
 		Mention: userMentions,
 		Retweet: tweet.Retweeted,
