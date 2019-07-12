@@ -7,7 +7,6 @@ country              : [uid] .
 loc                  : geo .
 name                 : string @lang .
 starring             : [uid] .
-_share_hash_         : string .
 performance.character_note : string @lang .
 tagline              : string @lang .
 cut.note             : string @lang .
