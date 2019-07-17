@@ -2,7 +2,7 @@
  type Person {
     name: string
     director.film: [Movie]
-    actor.film: [Movie]
+    actor.film: [Performance]
     editor.film: [Movie]
     producer.films_executive_produced: [Movie]
     writer.film: [Movie]
@@ -12,8 +12,8 @@
     production_designer.films_production_designed: [Movie]
     art_director.films_art_directed: [Movie]
     producer.film: [Movie]
-    person_or_entity_appearing_in_films: [Person]
-    actor.dubbing_performances: [Generic] #TODO: Need to check
+    person_or_entity_appearing_in_films: [Movie]
+    actor.dubbing_performances: [Person]
     casting_director.films_casting_directed: [Movie]
     music_contributor.film: [Movie]
     set_designer.sets_designed: [Movie]
@@ -34,7 +34,7 @@
     genre: [Genre]
     initial_release_date: string
     loc: string
-    starring: [Starring]
+    starring: [Performance]
     netflix_id: string
     traileraddict_id: string
     rottentomatoes_id: string
@@ -48,16 +48,16 @@
     story_by: [Person]
     costume_design_by: [Person]
     production_companies: [Company]
-    language: string #TODO: Need to check
+    language: [Generic] #TODO: Need to check
     art_direction_by: [Person]
     produced_by: [Person]
     music: [Person]
-    dubbing_performances: string #TODO: Need to check
+    dubbing_performances: [Generic] #TODO: Need to check
     sequel: [Movie]
     production_design_by: [Person]
     rating: [Rating]
     featured_song: [Song]
-    collections: [collections]
+    collections: [collection]
     cinematography: [Person]
     series: [Series]
     festivals: [Festival]
@@ -73,7 +73,7 @@
     estimated_budget: [Generic]
  }
 
-  type Rating {
+  type ContentRating {
     name: string
     type: [Generic]
     content_rating.minimum_unaccompanied_age: int
@@ -97,7 +97,7 @@
     type: [Generic]
 }
 
- type collections {
+ type Collection {
     name: string
     collection.films_in_collection: [Movie]
 }
@@ -115,7 +115,7 @@
     type: [Generic]
 }
 
- type Country {
+ type Location {
     name: string
     type: [Generic]
     location.featured_in_films: string #TODO: Need to check
@@ -132,7 +132,7 @@
     format.format: [Movie]
 }
 
- type Starring {
+ type Performance {
     performance.film: [Movie]
     performance.character_note: string
     performance.character: [Character]
@@ -145,9 +145,9 @@
     name: string
 }
 
- type Special_performance_type {
+ type SpecialPerformanceType {
     name: string
-    special_performance_type.performance_type: [Starring]
+    special_performance_type.performance_type: [Performance]
     personal_appearance_type.appearances: [Generic]
     type: [Generic]
     company_role_or_service.companies_performing_this_role_or_service: [Generic]
