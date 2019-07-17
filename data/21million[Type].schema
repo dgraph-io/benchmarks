@@ -1,142 +1,142 @@
 
- type actor {
+ type Person {
     name: string
-    director.film: [film]
-    actor.film: [performance]
-    editor.film: [film]
-    producer.films_executive_produced: [film]
-    writer.film: [film]
-    crewmember.films_crewed: [film]
-    cinematographer.film: [film]
-    costumer_designer.costume_design_for_film: [film]
-    production_designer.films_production_designed: [film]
-    art_director.films_art_directed: [film]
-    producer.film: [film]
-    person_or_entity_appearing_in_films: [film]
-    actor.dubbing_performances: [actor]
-    casting_director.films_casting_directed: [film]
-    music_contributor.film: [film]
-    set_designer.sets_designed: [film]
+    director.film: [Movie]
+    actor.film: [Performance]
+    editor.film: [Movie]
+    producer.films_executive_produced: [Movie]
+    writer.film: [Movie]
+    crewmember.films_crewed: [Movie]
+    cinematographer.film: [Movie]
+    costumer_designer.costume_design_for_film: [Movie]
+    production_designer.films_production_designed: [Movie]
+    art_director.films_art_directed: [Movie]
+    producer.film: [Movie]
+    person_or_entity_appearing_in_films: [Movie]
+    actor.dubbing_performances: [Person]
+    casting_director.films_casting_directed: [Movie]
+    music_contributor.film: [Movie]
+    set_designer.sets_designed: [Movie]
     type: [Generic]
-    story_contributor.story_credits: [film]
+    story_contributor.story_credits: [Movie]
 }
- type character {
+ type Character {
     name: string
-    character.portrayed_in_films: [film] #TODO: Need to check
+    character.portrayed_in_films: [Movie] #TODO: Need to check
     type: [Generic]
-    subject.films: [film]
+    subject.films: [Movie]
     character.portrayed_in_films_dubbed: [Generic] #TODO: Need to check
 }
 
- type film {
+ type Movie {
     name: string
     initial_release_date: string
     genre: [Genre]
     initial_release_date: string
     loc: string
-    starring: [performance]
+    starring: [Performance]
     netflix_id: string
     traileraddict_id: string
     rottentomatoes_id: string
     tagline: string
     metacritic_id: string
     gross_revenue: string #TODO: Need to check
-    edited_by: [actor]
+    edited_by: [Person]
     country: [Country]
-    executive_produced_by: [actor]
+    executive_produced_by: [Person]
     runtime: string #TODO: Need to check
-    story_by: [actor]
-    costume_design_by: [actor]
+    story_by: [Person]
+    costume_design_by: [Person]
     production_companies: [Company]
-    language: string #TODO: Need to check
-    art_direction_by: [actor]
-    produced_by: [actor]
-    music: [actor]
-    dubbing_performances: string #TODO: Need to check
-    sequel: [film]
-    production_design_by: [actor]
+    language: [Generic] #TODO: Need to check
+    art_direction_by: [Person]
+    produced_by: [Person]
+    music: [Person]
+    dubbing_performances: [Generic] #TODO: Need to check
+    sequel: [Movie]
+    production_design_by: [Person]
     rating: [Rating]
     featured_song: [Song]
     collections: [collection]
-    cinematography: [actor]
-    series: [series]
+    cinematography: [Person]
+    series: [Series]
     festivals: [Festival]
     other_crew: [Generic]
     distributors: [Generic]
     format: [Format]
-    written_by: [actor]
+    written_by: [Person]
     soundtrack: [Generic]
     other_companies: [Generic]
     release_date_s: [Generic]
-    set_decoration_by: [actor]
+    set_decoration_by: [Person]
     type: [Generic]
     estimated_budget: [Generic]
  }
 
-  type content_rating {
+  type Content_rating {
     name: string
     type: [Generic]
     content_rating.minimum_unaccompanied_age: int
     content_rating.country: string #TODO: Need to check
     content_rating.rating_system: string #TODO: Need to check
-    rating: [film]
+    rating: [Movie]
 }
 
- type distributor {
+ type Company {
     name: string
-    production_company.films: [film]
+    production_company.films: [Movie]
     topic_server.webref_cluster_members_type: string #TODO: Need to check
     distributor.films_distributed: string #TODO: Need to check
     type: [Generic]
 }
 
- type featured_song {
+ type Song {
     name: string
-    featured_song.featured_in_film: [film]
+    featured_song.featured_in_film: [Movie]
     featured_song.performed_by: string #TODO: Need to check
     type: [Generic]
 }
 
- type collection {
+ type Collection {
     name: string
-    collection.films_in_collection: [film]
+    collection.films_in_collection: [Movie]
 }
 
- type series {
+ type Series {
     name: string
-    series.films_in_series: [film]
+    series.films_in_series: [Movie]
     type: [Generic]
 }
 
- type festival_event {
+ type Festival {
     name: string
     festival_event.films: string #TODO: Need to check
     festival_event.festival: string #TODO: Need to check
     type: [Generic]
 }
 
- type location {
+ type Location {
     name: string
     type: [Generic]
     location.featured_in_films: string #TODO: Need to check
     subject.films: string #TODO: Need to check
 }
 
- type genre {
+ type Genre {
     name: string
 }
 
- type format {
+ type Format {
     name: string
     type: [Generic]
-    format.format: [film]
+    format.format: [Movie]
 }
 
- type performance {
-    performance.film: [film]
+ type Performance {
+    performance.film: [Movie]
     performance.character_note: string
     performance.character: [Character]
-    performance.actor: [actor]
+    performance.actor: [Person]
     performance.special_performance_type: [Special_performance_type]
     type: [Generic]
 }
@@ -145,9 +145,9 @@
     name: string
 }
 
- type special_performance_type {
+ type Special_performance_type {
     name: string
-    special_performance_type.performance_type: [performance]
+    special_performance_type.performance_type: [Performance]
     personal_appearance_type.appearances: [Generic]
     type: [Generic]
     company_role_or_service.companies_performing_this_role_or_service: [Generic]
