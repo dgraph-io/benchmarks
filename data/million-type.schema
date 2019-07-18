@@ -71,6 +71,11 @@
     set_decoration_by: [Person]
     type: [Generic]
     estimated_budget: [Generic]
+    actor.film: [Performance] 
+    #TODO Check if there's reverse and exists in Movies type indeed
+    apple_movietrailer_id
+    casting_director
+    character.portrayed_in_films #TODO Check this one too
  }
 
   type ContentRating {
