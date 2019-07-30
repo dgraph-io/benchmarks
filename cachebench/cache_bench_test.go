@@ -25,14 +25,20 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dgraph-io/ristretto"
+
 	"github.com/VictoriaMetrics/fastcache"
 	"github.com/allegro/bigcache"
 	"github.com/cespare/xxhash"
 	"github.com/coocood/freecache"
-	"github.com/dgraph-io/badger/ristretto"
 	"github.com/golang/groupcache/lru"
 	"github.com/pingcap/go-ycsb/pkg/generator"
 )
+
+type Cache interface {
+	Get(key []byte) ([]byte, error)
+	Set(key []byte, value []byte) error
+}
 
 const (
 	// based on 21million dataset, we observed a maximum key length of 77,
@@ -249,6 +255,41 @@ func newGroupCache(keysInWindow int) *GroupCache {
 }
 
 //========================================================================
+//                            Ristretto
+//========================================================================
+
+type RistrettoCache struct {
+	c *ristretto.Cache
+}
+
+func (r *RistrettoCache) Get(key []byte) ([]byte, error) {
+	v, ok := r.c.Get(key)
+	if ok {
+		return v.([]byte), nil
+	} else {
+		return nil, errKeyNotFound
+	}
+}
+
+func (r *RistrettoCache) Set(key, value []byte) error {
+	_ = r.c.Set(key, value, 0)
+	return nil
+}
+
+func newRistretto(keysInWindow int) *RistrettoCache {
+	cache, err := ristretto.NewCache(&ristretto.Config{
+		NumCounters: int64(keysInWindow * 10),
+		MaxCost:     int64(keysInWindow),
+		BufferItems: 64,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	return &RistrettoCache{cache}
+}
+
+//========================================================================
 //                              sync.Map
 //========================================================================
 
@@ -285,7 +326,7 @@ func newSyncMap() *SyncMap {
 //                         Benchmark Code
 //========================================================================
 
-func runCacheBenchmark(b *testing.B, cache ristretto.Cache, keys [][]byte, pctWrites uint64) {
+func runCacheBenchmark(b *testing.B, cache Cache, keys [][]byte, pctWrites uint64) {
 	b.ReportAllocs()
 
 	size := len(keys)
@@ -325,7 +366,7 @@ func BenchmarkCaches(b *testing.B) {
 	// 3 types of benchmark (read, write, mixed)
 	benchmarks := []struct {
 		name      string
-		cache     ristretto.Cache
+		cache     Cache
 		keys      [][]byte
 		pctWrites uint64
 	}{
@@ -333,36 +374,42 @@ func BenchmarkCaches(b *testing.B) {
 		{"FastCacheZipfRead", newFastCache(b.N), zipfList, 0},
 		{"FreeCacheZipfRead", newFreeCache(b.N), zipfList, 0},
 		{"GroupCacheZipfRead", newGroupCache(b.N), zipfList, 0},
+		{"RistrettoZipfRead", newRistretto(b.N), zipfList, 0},
 		{"SyncMapZipfRead", newSyncMap(), zipfList, 0},
 
 		{"BigCacheOneKeyRead", newBigCache(b.N), oneList, 0},
 		{"FastCacheOneKeyRead", newFastCache(b.N), oneList, 0},
 		{"FreeCacheOneKeyRead", newFreeCache(b.N), oneList, 0},
 		{"GroupCacheOneKeyRead", newGroupCache(b.N), oneList, 0},
+		{"RistrettoOneKeyRead", newRistretto(b.N), oneList, 0},
 		{"SyncMapOneKeyRead", newSyncMap(), oneList, 0},
 
 		{"BigCacheZipfWrite", newBigCache(b.N), zipfList, 100},
 		{"FastCacheZipfWrite", newFastCache(b.N), zipfList, 100},
 		{"FreeCacheZipfWrite", newFreeCache(b.N), zipfList, 100},
 		{"GroupCacheZipfWrite", newGroupCache(b.N), zipfList, 100},
+		{"RistrettoZipfWrite", newRistretto(b.N), zipfList, 100},
 		{"SyncMapZipfWrite", newSyncMap(), zipfList, 100},
 
 		{"BigCacheOneKeyWrite", newBigCache(b.N), oneList, 100},
 		{"FastCacheOneKeyWrite", newFastCache(b.N), oneList, 100},
 		{"FreeCacheOneKeyWrite", newFreeCache(b.N), oneList, 100},
 		{"GroupCacheOneKeyWrite", newGroupCache(b.N), oneList, 100},
+		{"RistrettoOneKeyWrite", newRistretto(b.N), oneList, 100},
 		{"SyncMapOneKeyWrite", newSyncMap(), oneList, 100},
 
 		{"BigCacheZipfMixed", newBigCache(b.N), zipfList, 25},
 		{"FastCacheZipfMixed", newFastCache(b.N), zipfList, 25},
 		{"FreeCacheZipfMixed", newFreeCache(b.N), zipfList, 25},
 		{"GroupCacheZipfMixed", newGroupCache(b.N), zipfList, 25},
+		{"RistrettoZipfMixed", newRistretto(b.N), zipfList, 25},
 		{"SyncMapZipfMixed", newSyncMap(), zipfList, 25},
 
 		{"BigCacheOneKeyMixed", newBigCache(b.N), oneList, 25},
 		{"FastCacheOneKeyMixed", newFastCache(b.N), oneList, 25},
 		{"FreeCacheOneKeyMixed", newFreeCache(b.N), oneList, 25},
 		{"GroupCacheOneKeyMixed", newGroupCache(b.N), oneList, 25},
+		{"RistrettoOneKeyMixed", newRistretto(b.N), oneList, 25},
 		{"SyncMapOneKeyMixed", newSyncMap(), oneList, 25},
 	}
 
