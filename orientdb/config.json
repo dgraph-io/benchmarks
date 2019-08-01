@@ -1,0 +1,49 @@
+{
+  "config": {
+    "log": "debug"
+  },
+  "source" : {
+    "file": { "path": "/home/pawan/go/src/github.com/dgraph-io/dgraph/dgraph/cmd/transform/output.json" }
+  },
+  "extractor" : {
+    "json": {}
+  },
+  "transformers" : [
+      { "merge": { "joinFieldName": "id", "lookup": "Film.id" } },
+      { "vertex": { "class": "Film"} },
+      { "edge": {
+        "class": "Starring",
+        "joinFieldName": "starring",
+        "lookup": "Film.id",
+        "unresolvedLinkAction": "CREATE"
+      } },
+      { "edge": {
+        "class": "Genre",
+        "joinFieldName": "genre",
+        "lookup": "Film.id",
+        "unresolvedLinkAction": "CREATE"
+      } },
+      { "edge": {
+        "class": "Country",
+        "joinFieldName": "country",
+        "lookup": "Film.id",
+        "unresolvedLinkAction": "CREATE"
+      } }
+  ],
+  "loader" : {
+    "orientdb": {
+      "dbURL": "plocal:/tmp/databases/db",
+      "dbUser": "admin",
+      "dbPassword": "admin",
+      "dbAutoDropIfExists": true,
+      "dbAutoCreate": true,
+      "standardElementConstraints": false,
+      "tx": false,
+      "wal": false,
+      "batchCommit": 1000,
+      "dbType": "graph",
+      "classes": [{"name": "Film", "extends":"V"}, {"name": "Genre", "extends":"E"}, {"name": "Starring", "extends":"E"}, {"name": "Country", "extends":"E"}],
+      "indexes": [{"class":"Film", "fields":["id:integer"], "type":"UNIQUE" }]
+    }
+  }
+}
