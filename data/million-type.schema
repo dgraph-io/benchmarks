@@ -116,6 +116,10 @@ type FilmCrewMember {
     crewmember.films_crewed: [Film]
 }
 
+type FilmCritic {
+    name: string
+}
+
 type FilmCut {
     name: string
     cut.film: [Film]
