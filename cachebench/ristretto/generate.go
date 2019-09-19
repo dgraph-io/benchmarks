@@ -23,7 +23,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/dgraph-io/benchmarks/cachebench/ristretto/sim"
+	"github.com/dgraph-io/ristretto/sim"
 )
 
 const (
