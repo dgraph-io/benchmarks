@@ -61,9 +61,28 @@ func NewHits(bench *Benchmark, coll *LogCollection, keys sim.Simulator) func() {
 	}
 }
 
-// HitsZipf records the hit ratio using a Zipfian distribution.
+// HitsZipf records the hit ratio using a Zipfian distribution. Note that we're
+// using NewHits because sim.NewZipfian will run infinitely. We need to stop the
+// looping at a fixed point that will give us a good enough idea of hit ratio.
 func HitsZipf(bench *Benchmark, coll *LogCollection) func() {
-	return NewHits(bench, coll, sim.NewZipfian(zipfS, zipfV, w))
+	return func() {
+		keys := sim.NewZipfian(zipfS, zipfV, w)
+		cache := bench.Create(true)
+		for i := uint64(0); i < w; i++ {
+			key, err := keys()
+			if err != nil {
+				if err == sim.ErrDone {
+					break
+				}
+				panic(err)
+			}
+			cache.Set(fmt.Sprintf("%d", key), []byte("*"))
+		}
+		cache.Close()
+		if stats := cache.Log(); stats != nil {
+			coll.Append(stats)
+		}
+	}
 }
 
 func HitsLIRS(pre string) func(*Benchmark, *LogCollection) func() {

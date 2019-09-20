@@ -1,4 +1,4 @@
-# bench
+# ristretto bench
 
 This is a comprehensive benchmarking suite for Go cache libraries. We measure
 cache performance by tracking raw throughput and hit ratios, for a variety of
@@ -6,25 +6,25 @@ access distributions / trace files.
 
 ## how to run
 
-#### 1. download trace files using git lfs
+#### 1. download trace files using git lfs (if needed)
 
 ```
-[./ristretto/bench]$ git lfs --fetch all
+[./ristretto]$ git lfs --fetch all
 ```
 
 #### 2. compile bench
 
 ```
-[./ristretto/bench]$ go build
+[./ristretto]$ go build
 ```
 
 #### 3. run bench with parameters
 
 ```
-[./ristretto/bench]$ ./bench -suite    [ all | speed | hits ] 
-                             -cache    [ all | ristretto ]
-                             -parallel [ 1... ]
-                             -path     [ output_file.csv ]
+[./ristretto]$ ./ristretto -suite    [ all | speed | hits ] 
+                           -cache    [ all | ristretto ]
+                           -parallel [ 1... ]
+                           -path     [ output_file.csv ]
 ```
 
 Note: The `parallel` flag is the goroutine multiplier to use when running the
