@@ -9,7 +9,7 @@ access distributions / trace files.
 #### 1. download trace files using git lfs (if needed)
 
 ```
-[./ristretto]$ git lfs --fetch all
+[./ristretto]$ git lfs fetch --all
 ```
 
 #### 2. compile bench
