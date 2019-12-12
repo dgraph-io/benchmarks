@@ -15,7 +15,6 @@ rated: [uid] @reverse .
 email: string @index(exact) @upsert .
 
 actor.dubbing_performances: [uid] .
-actor.film: [uid] .
 apple_movietrailer_id: string .
 art_direction_by: [uid] .
 art_director.films_art_directed: [uid] .
@@ -37,17 +36,14 @@ content_rating_system.jurisdiction: [uid] .
 content_rating_system.ratings: [uid] .
 costume_design_by: [uid] .
 costumer_designer.costume_design_for_film: [uid] .
-country: [uid] .
 crew_gig.crew_role: uid .
 crew_gig.crewmember: uid .
 crew_gig.film: [uid] .
 crewmember.films_crewed: [uid] .
 cut.film: [uid] .
-cut.note: string .
 cut.release_region: [uid] .
 cut.runtime: float .
 cut.type_of_cut: uid .
-director.film: [uid] .
 distribution_medium.films_distributed_in_this_medium: [uid] .
 distributor.films_distributed: [uid] .
 distributors: [uid] .
@@ -74,9 +70,7 @@ festivals: [uid] .
 filming: [uid] .
 format.format: [uid] .
 format: [uid] .
-genre: [uid] .
 gross_revenue: [uid] .
-initial_release_date: dateTime .
 job.films_with_this_crew_job: [uid] .
 language: [uid] .
 location.featured_in_films: [uid] .
@@ -84,13 +78,11 @@ locations: [uid] .
 metacritic_id: string .
 music: [uid] .
 music_contributor.film: [uid] .
-name: string .
 netflix_id: string .
 other_companies: [uid] .
 other_crew: [uid] .
 performance.actor: uid .
 performance.character: uid .
-performance.character_note: string .
 performance.film: [uid] .
 performance.special_performance_type: uid .
 person_or_entity_appearing_in_films: [uid] .
@@ -110,7 +102,6 @@ production_companies: [uid] .
 production_company.films: [uid] .
 production_design_by: [uid] .
 production_designer.films_production_designed: [uid] .
-rating: [uid] .
 regional_release_date.release_date: dateTime .
 regional_release_date.release_region: uid .
 release_date_s: [uid] .
@@ -126,12 +117,10 @@ song_performer.songs: [uid] .
 songs: [uid] .
 soundtrack: [uid] .
 special_performance_type.performance_type: uid .
-starring: [uid] .
 story_by: [uid] .
 story_contributor.story_credits: [uid] .
 subject.films: [uid] .
 subjects: [uid] .
-tagline: string .
 traileraddict_id: string .
 trailers: [uid] .
 writer_film: [uid] .
