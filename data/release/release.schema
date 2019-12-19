@@ -1,335 +1,448 @@
-director.film        : [uid] @reverse @count .
-actor.film           : [uid] @count .
-genre                : [uid] @reverse @count .
-initial_release_date : datetime @index(year) .
-rating               : [uid] @reverse .
-country              : [uid] @reverse .
-loc                  : geo @index(geo) .
-name                 : string @index(hash, term, trigram, fulltext) @lang .
-starring             : [uid] @count .
-performance.character_note : string @lang .
-tagline              : string @lang .
-cut.note             : string @lang .
-rated                : [uid] @reverse .
-email                : string @index(exact) @upsert .
+# Predicates with indices or special directives
+director.film: [uid] @reverse @count .
+actor.film: [uid] @count .
+genre: [uid] @reverse @count .
+initial_release_date: datetime @index(year) .
+rating: [uid] @reverse .
+country: [uid] @reverse .
+loc: geo @index(geo) .
+name: string @index(hash, term, trigram, fulltext) @lang .
+starring: [uid] @count .
+performance.character_note: string @lang .
+tagline: string @lang .
+cut.note: string @lang .
+rated: [uid] @reverse .
+email: string @index(exact) @upsert .
+
+actor.dubbing_performances: [uid] .
+apple_movietrailer_id: string .
+art_direction_by: [uid] .
+art_director.films_art_directed: [uid] .
+casting_director.films_casting_directed: [uid] .
+casting_director: [uid] .
+character.portrayed_in_films: [uid] .
+character.portrayed_in_films_dubbed: [uid] .
+cinematographer.film: [uid] .
+cinematography: [uid] .
+collection.films_in_collection: [uid] .
+collections: [uid] .
+company.films: [uid] .
+company_role_or_service.companies_performing_this_role_or_service: [uid] .
+content_rating.country: uid .
+content_rating.minimum_accompanied_age: int .
+content_rating.minimum_unaccompanied_age: int .
+content_rating.rating_system: uid .
+content_rating_system.jurisdiction: [uid] .
+content_rating_system.ratings: [uid] .
+costume_design_by: [uid] .
+costumer_designer.costume_design_for_film: [uid] .
+crew_gig.crew_role: uid .
+crew_gig.crewmember: uid .
+crew_gig.film: [uid] .
+crewmember.films_crewed: [uid] .
+cut.film: [uid] .
+cut.release_region: [uid] .
+cut.runtime: float .
+cut.type_of_cut: uid .
+distribution_medium.films_distributed_in_this_medium: [uid] .
+distributor.films_distributed: [uid] .
+distributors: [uid] .
+dubbing_performances: [uid] .
+edited_by: [uid] .
+editor.film: [uid] .
+estimated_budget: [uid] .
+executive_produced_by: [uid] .
+fandango_id: string .
+featured_locations: [uid] .
+featured_song.featured_in_film: [uid] .
+featured_song.performed_by: [uid] .
+featured_song: [uid] .
+festival.date_founded: dateTime .
+festival.focus: uid .
+festival.individual_festivals: [uid] .
+festival.location: [uid] .
+festival.sponsoring_organization: [uid] .
+festival_event.festival: [uid] .
+festival_event.films: [uid] .
+festival_focus.festivals_with_this_focus: [uid] .
+festival_sponsor.festivals_sponsored: [uid] .
+festivals: [uid] .
+filming: [uid] .
+format.format: [uid] .
+format: [uid] .
+gross_revenue: [uid] .
+job.films_with_this_crew_job: [uid] .
+language: [uid] .
+location.featured_in_films: [uid] .
+locations: [uid] .
+metacritic_id: string .
+music: [uid] .
+music_contributor.film: [uid] .
+netflix_id: string .
+other_companies: [uid] .
+other_crew: [uid] .
+performance.actor: uid .
+performance.character: uid .
+performance.film: [uid] .
+performance.special_performance_type: uid .
+person_or_entity_appearing_in_films: [uid] .
+personal_appearance.film: [uid] .
+personal_appearance.person: uid .
+personal_appearance.type_of_appearance: uid .
+personal_appearance_type.appearances: [uid] .
+personal_appearances: uid .
+post_production: [uid] .
+pre_production: [uid] .
+prequel: [uid] .
+primary_language: [uid] .
+produced_by: [uid] .
+producer.film: [uid] .
+producer.films_executive_produced: [uid] .
+production_companies: [uid] .
+production_company.films: [uid] .
+production_design_by: [uid] .
+production_designer.films_production_designed: [uid] .
+regional_release_date.release_date: dateTime .
+regional_release_date.release_region: uid .
+release_date_s: [uid] .
+rottentomatoes_id: string .
+runtime: [uid] .
+sequel: [uid] .
+series.films_in_series: [uid] .
+series: [uid] .
+set_decoration_by: [uid] .
+set_designer.sets_designed: [uid] .
+song_films: [uid] .
+song_performer.songs: [uid] .
+songs: [uid] .
+soundtrack: [uid] .
+special_performance_type.performance_type: uid .
+story_by: [uid] .
+story_contributor.story_credits: [uid] .
+subject.films: [uid] .
+subjects: [uid] .
+traileraddict_id: string .
+trailers: [uid] .
+writer_film: [uid] .
+written_by: [uid] .
 
 type Film {
-    apple_movietrailer_id: string
-    art_direction_by: [ArtDirector]
-    casting_director: [CastingDirector]
-    cinematography: [Cinematographer]
-    collections: [Collection]
-    costume_design_by: [CostumeDesigner]
-    country: [Location]
-    distributors: [Distributor]
-    dubbing_performances: [Actor]
-    edited_by: [Editor]
-    executive_produced_by: [Producer]
-    fandango_id: string
-    featured_locations: [Location]
-    featured_song: [Song]
-    festivals: [Festival]
-    format: [Format]
-    genre: [Genre]
-    initial_release_date: dateTime
-    locations: [Location]
-    metacritic_id: string
-    music: [MusicContributor]
-    name: string
-    netflix_id: string
-    personal_appearances: PersonalAppearance
-    prequel: [Film]
-    produced_by: [Producer]
-    production_companies: [ProductionCompany]
-    production_design_by: [ProductionDesigner]
-    rating: [Rating]
-    release_date_s: [RegionalReleaseDate]
-    rottentomatoes_id: string
-    sequel: [Film]
-    series: [Series]
-    set_decoration_by: [SetDecorator]
-    songs: [Song]
-    starring: [Performance]
-    story_by: [StoryContributor]
-    subjects: [Subject]
-    tagline: string
-    traileraddict_id: string
-    written_by: [Writer]
+    apple_movietrailer_id
+    art_direction_by
+    casting_director
+    cinematography
+    collections
+    costume_design_by
+    country
+    distributors
+    dubbing_performances
+    edited_by
+    executive_produced_by
+    fandango_id
+    featured_locations
+    featured_song
+    festivals
+    format
+    genre
+    initial_release_date
+    locations
+    metacritic_id
+    music
+    name
+    netflix_id
+    personal_appearances
+    prequel
+    produced_by
+    production_companies
+    production_design_by
+    rating
+    release_date_s
+    rottentomatoes_id
+    sequel
+    series
+    set_decoration_by
+    songs
+    starring
+    story_by
+    subjects
+    tagline
+    traileraddict_id
+    written_by
 
     # The objects for the following predicates are a part of the
     # Freebase data set, but not part of 21million.rdf.gz.
-    post_production: [Generic]
-    pre_production: [Generic]
-    runtime: [Generic]
-    other_crew: [Generic]
-    other_companies: [Generic]
-    primary_language: [Generic]
-    soundtrack: [Generic]
-    trailers: [Generic]
-    gross_revenue: [Generic]
-    estimated_budget: [Generic]
-    filming: [Generic]
-    language: [Generic]
+    post_production
+    pre_production
+    runtime
+    other_crew
+    other_companies
+    primary_language
+    soundtrack
+    trailers
+    gross_revenue
+    estimated_budget
+    filming
+    language
 }
 
 type Actor {
-    name: string
-    actor.film: [Film]
-    actor.dubbing_performances: [Film]
+    name
+    actor.film
+    actor.dubbing_performances
 }
 
 type ArtDirector {
-    name: string
-    art_director.films_art_directed: [Film]
+    name
+    art_director.films_art_directed
 }
 
 type CastingDirector {
-    name: string
-    casting_director.films_casting_directed: [Film]
+    name
+    casting_director.films_casting_directed
 }
 
 type Character {
-    name: string
-    character.portrayed_in_films: [Film]
-    character.portrayed_in_films_dubbed: [Film]
+    name
+    character.portrayed_in_films
+    character.portrayed_in_films_dubbed
 }
 
 type Cinematographer {
-    name: string
-    cinematographer.film: [Film]
+    name
+    cinematographer.film
 }
 
 type Collection {
-    name: string
-    collection.films_in_collection: [Film]
+    name
+    collection.films_in_collection
 }
 
 type Company {
-    name: string
-    company.films: [Film]
+    name
+    company.films
 }
 
 type CompanyRoleOrService {
-    name: string
-    company_role_or_service.companies_performing_this_role_or_service: [Company]
+    name
+    company_role_or_service.companies_performing_this_role_or_service
 }
 
 type CostumeDesigner {
-    name: string
-    costumer_designer.costume_design_for_film: [Film]
+    name
+    costumer_designer.costume_design_for_film
 }
 
 type CrewGig {
-    name: string
-    crew_gig.crew_role: Job
-    crew_gig.crewmember: CrewMember
-    crew_gig.film: [Film]
+    name
+    crew_gig.crew_role
+    crew_gig.crewmember
+    crew_gig.film
 }
 
 type CrewMember {
-    name: string
-    crewmember.films_crewed: [Film]
+    name
+    crewmember.films_crewed
 }
 
 type Critic {
-    name: string
+    name
 }
 
 type Cut {
-    name: string
-    cut.film: [Film]
-    cut.note: string
-    cut.release_region: [Location]
-    cut.runtime: float
-    cut.type_of_cut: CutType
+    name
+    cut.film
+    cut.note
+    cut.release_region
+    cut.runtime
+    cut.type_of_cut
 }
 
 type CutType {
-    name: string
+    name
 }
 
 type Director {
-    name: string
-    director.film: [Film]
+    name
+    director.film
 }
 
 type DistributionMedium {
-    name: string
-    distribution_medium.films_distributed_in_this_medium: [Film]
+    name
+    distribution_medium.films_distributed_in_this_medium
 }
 
 type Distributor {
-    name: string
-    distributor.films_distributed: [Film]
+    name
+    distributor.films_distributed
 }
 
 type Editor {
-    name: string
-    editor.film: [Film]
+    name
+    editor.film
 }
 
 type FeaturedSong {
-    name: string
-    featured_song.featured_in_film: [Film]
-    featured_song.performed_by: [MusicContributor]
+    name
+    featured_song.featured_in_film
+    featured_song.performed_by
 }
 
 type Festival {
-    name: string
-    festival.date_founded: dateTime
-    festival.focus: FestivalFocus
-    festival.individual_festivals: [FestivalEvent]
-    festival.location: [Location]
-    festival.sponsoring_organization: [FestivalSponsorship]
+    name
+    festival.date_founded
+    festival.focus
+    festival.individual_festivals
+    festival.location
+    festival.sponsoring_organization
 }
 
 type FestivalEvent {
-    name: string
-    festival_event.festival: [Festival]
-    festival_event.films: [Film]
+    name
+    festival_event.festival
+    festival_event.films
 }
 
 type FestivalFocus {
-    name: string
-    festival_focus.festivals_with_this_focus: [Festival]
+    name
+    festival_focus.festivals_with_this_focus
 }
 
 type FestivalSponsor {
-    name: string
-    festival_sponsor.festivals_sponsored: [Festival]
+    name
+    festival_sponsor.festivals_sponsored
 }
 
 type FestivalSponsorship {
-    name: string
-    festival_sponsor.festivals_sponsored: [Festival]
+    name
+    festival_sponsor.festivals_sponsored
 }
 
 type Format {
-    name: string
-    format.format: [Film]
+    name
+    format.format
 }
 
 type Genre {
-    name: string
+    name
 }
 
 type Location {
-    name: string
-    location.featured_in_films: [Film]
+    name
+    location.featured_in_films
 }
 
 type Job {
-    name: string
-    job.films_with_this_crew_job: [Film]
+    name
+    job.films_with_this_crew_job
 }
 
 type MusicContributor {
-    name: string
-    music_contributor.film: [Film]
+    name
+    music_contributor.film
 }
 
 type Producer {
-    name: string
-    producer.film: [Film]
-    producer.films_executive_produced: [Film]
+    name
+    producer.film
+    producer.films_executive_produced
 }
 
 type ProductionDesigner {
-    name: string
-    production_designer.films_production_designed: [Film]
+    name
+    production_designer.films_production_designed
 }
 
 type Rating {
-    name: string
-    content_rating.country: Location
-    content_rating.minimum_accompanied_age: int
-    content_rating.minimum_unaccompanied_age: int
-    content_rating.rating_system: RatingSystem
+    name
+    content_rating.country
+    content_rating.minimum_accompanied_age
+    content_rating.minimum_unaccompanied_age
+    content_rating.rating_system
 }
 
 type RatingSystem {
-    name: string
-    content_rating_system.ratings: [Rating]
-    content_rating_system.jurisdiction: [Location]
+    name
+    content_rating_system.ratings
+    content_rating_system.jurisdiction
 }
 
 type RegionalReleaseDate {
-    name: string
-    regional_release_date.release_date: dateTime
-    regional_release_date.release_region: Location
+    name
+    regional_release_date.release_date
+    regional_release_date.release_region
 }
 
 type Series {
-    name: string
-    series.films_in_series: [Film]
+    name
+    series.films_in_series
 }
 
 type SetDecorator {
-    name: string
-    set_designer.sets_designed: [Film]
+    name
+    set_designer.sets_designed
 }
 
 type Song {
-    name: string
-    song_films: [Film]
+    name
+    song_films
 }
 
 type SongPerformer {
-    name: string
-    song_performer.songs: [Song]
+    name
+    song_performer.songs
 }
 
 type StoryContributor {
-    name: string
-    story_contributor.story_credits: [Film]
+    name
+    story_contributor.story_credits
 }
 
 type Subject {
-    name: string
-    subject.films: [Film]
+    name
+    subject.films
 }
 
 type Writer {
-    name: string
-    writer_film: [Film]
+    name
+    writer_film
 }
 
 type Generic {
-    name: string
+    name
 }
 
 type Performance {
-    performance.actor: Actor
-    performance.character: Character
-    performance.character_note: string
-    performance.film: [Film]
-    performance.special_performance_type: SpecialPerformanceType
+    performance.actor
+    performance.character
+    performance.character_note
+    performance.film
+    performance.special_performance_type
 }
 
 type PersonalAppearance {
-    name: string
-    personal_appearance.film: [Film]
-    personal_appearance.person: PersonOrEntityAppearingInFilm
-    personal_appearance.type_of_appearance: PersonalAppearanceType
-    personal_appearance_type.appearances: [Generic]
+    name
+    personal_appearance.film
+    personal_appearance.person
+    personal_appearance.type_of_appearance
+    personal_appearance_type.appearances
 }
 
 type PersonalAppearanceType {
-    name: string
+    name
 }
 
 type PersonOrEntityAppearingInFilm {
-    name: string
-    person_or_entity_appearing_in_films: [Film]
-    personal_appearance.film: [Film]
+    name
+    person_or_entity_appearing_in_films
+    personal_appearance.film
 }
 
 type ProductionCompany {
-    name: string
-    production_company.films: [Film]
+    name
+    production_company.films
 }
 
 type SpecialPerformanceType {
-    name: string
-    special_performance_type.performance_type: Performance
+    name
+    special_performance_type.performance_type
 }
