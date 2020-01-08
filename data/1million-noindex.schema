@@ -1,0 +1,14 @@
+director.film        : [uid] .
+actor.film           : [uid] .
+genre                : [uid] .
+initial_release_date : datetime .
+rating               : [uid] .
+country              : [uid] .
+loc                  : geo .
+name                 : string @lang .
+starring             : [uid] .
+performance.character_note : string @lang .
+tagline              : string @lang .
+cut.note             : string @lang .
+rated                : [uid] .
+email                : string . 
