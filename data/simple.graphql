@@ -1,0 +1,28 @@
+type Film {
+  id: ID!
+  name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+  netflix_id: String @dgraph(pred: "netflix_id")
+  directed_by: [Director]! @dgraph(pred: "~director.film")
+  initial_release_date: DateTime
+  genre: [Genre] @dgraph(pred: "genre")
+  country: [Location] @dgraph(pred: "country")
+}
+
+type Director {
+  id: ID!
+  name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+  film: [Film]! @dgraph(pred: "director.film")
+}
+
+type Genre {
+  id: ID!
+  name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+  film: [Film]! @dgraph(pred: "~genre")
+}
+
+type Location {
+  id: ID!
+  name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+  film: [Film] @dgraph(pred: "~country")
+  featured_in_films: [Film] @dgraph(pred: "location.featured_in_films")
+}

@@ -1,0 +1,15 @@
+# Predicates with indices or special directives
+director.film: [uid] @reverse .
+actor.film: [uid] .
+genre: [uid] @reverse .
+initial_release_date: datetime @index(year) .
+rating: [uid] @reverse .
+country: [uid] @reverse .
+loc: geo @index(geo) .
+name: string @index(hash, term, trigram, fulltext) .
+starring: [uid] .
+performance.character_note: string .
+tagline: string .
+cut.note: string .
+rated: [uid] @reverse .
+email: string @index(exact) @upsert .
