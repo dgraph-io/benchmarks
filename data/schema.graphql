@@ -1,3 +1,7 @@
+#
+# This is only a reference for how the types are connected together.
+#
+
 type Film {
     apple_movietrailer_id: String
     art_direction_by: [FilmArtDirector]
