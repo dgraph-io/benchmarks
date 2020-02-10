@@ -11,18 +11,18 @@ type Film {
 type Director {
   id: ID!
   name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
-  film: [Film]! @dgraph(pred: "director.film")
+  films: [Film]! @dgraph(pred: "director.film")
 }
 
 type Genre {
   id: ID!
   name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
-  film: [Film]! @dgraph(pred: "~genre")
+  films: [Film]! @dgraph(pred: "~genre")
 }
 
 type Location {
   id: ID!
   name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
-  film: [Film] @dgraph(pred: "~country")
+  films: [Film] @dgraph(pred: "~country")
   featured_in_films: [Film] @dgraph(pred: "location.featured_in_films")
 }
