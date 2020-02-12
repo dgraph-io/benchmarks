@@ -1,322 +1,354 @@
-#
-# This is only a reference for how the types are connected together.
-#
-
 type Film {
-    apple_movietrailer_id: String
-    art_direction_by: [FilmArtDirector]
-    casting_director: [FilmCastingDirector]
-    cinematography: [FilmCinematographer]
-    collections: [FilmCollection]
-    costume_design_by: [FilmCostumeDesigner]
-    country: [FilmingLocation]
-    distributors: [FilmDistributor]
-    dubbing_performances: [FilmActor]
-    edited_by: [FilmEditor]
-    executive_produced_by: [FilmProducer]
-    fandango_id: String
-    featured_locations: [FilmingLocation]
-    featured_song: [FilmSong]
-    festivals: [FilmFestival]
-    format: [FilmFormat]
-    genre: [FilmGenre]
-    initial_release_date: DateTime
-    locations: [FilmingLocation]
-    metacritic_id: String
-    music: [FilmMusicContributor]
-    name: String
-    netflix_id: String
-    personal_appearances: PersonalFilmAppearance
-    prequel: [Film]
-    produced_by: [FilmProducer]
-    production_companies: [ProductionCompany]
-    production_design_by: [FilmProductionDesigner]
-    rating: [FilmRating]
-    release_date_s: [FilmRegionalReleaseDate]
-    rottentomatoes_id: String
-    sequel: [Film]
-    series: [FilmSeries]
-    set_decoration_by: [FilmSetDecorator]
-    songs: [FilmSong]
-    starring: [Performance]
-    story_by: [FilmStoryContributor]
-    subjects: [FilmSubject]
-    tagline: String
-    traileraddict_id: String
-    written_by: [FilmWriter]
-
-    # The objects for the following predicates are a part of the
-    # Freebase data set, but not part of 21million_rdf.gz.
-    post_production: [Generic]
-    pre_production: [Generic]
-    runtime: [Generic]
-    other_crew: [Generic]
-    other_companies: [Generic]
-    primary_language: [Generic]
-    soundtrack: [Generic]
-    trailers: [Generic]
-    gross_revenue: [Generic]
-    estimated_budget: [Generic]
-    filming: [Generic]
-    language: [Generic]
+    id: ID!
+    apple_movietrailer_id: String @dgraph(pred: "apple_movietrailer_id")
+    art_direction_by: [ArtDirector] @dgraph(pred: "art_direction_by")
+    casting_director: [CastingDirector] @dgraph(pred: "casting_director")
+    cinematography: [Cinematographer] @dgraph(pred: "cinematography")
+    collections: [Collection] @dgraph(pred: "collections")
+    costume_design_by: [CostumeDesigner] @dgraph(pred: "costume_design_by")
+    country: [Location] @dgraph(pred: "country")
+    directed_by: [Director] @dgraph(pred: "~director.film")
+    distributors: [Distributor] @dgraph(pred: "distributors")
+    dubbing_performances: [Actor] @dgraph(pred: "dubbing_performances")
+    edited_by: [Editor] @dgraph(pred: "edited_by")
+    executive_produced_by: [Producer] @dgraph(pred: "executive_produced_by")
+    fandango_id: String @dgraph(pred: "fandango_id")
+    featured_locations: [Location] @dgraph(pred: "featured_locations")
+    featured_song: [Song] @dgraph(pred: "featured_song")
+    festivals: [Festival] @dgraph(pred: "festivals")
+    format: [Format] @dgraph(pred: "format")
+    genre: [Genre] @dgraph(pred: "genre")
+    initial_release_date: DateTime @search(by: [year]) @dgraph(pred: "initial_release_date")
+    locations: [Location] @dgraph(pred: "locations")
+    metacritic_id: String @dgraph(pred: "metacritic_id")
+    music: [MusicContributor] @dgraph(pred: "music")
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    netflix_id: String @dgraph(pred: "netflix_id")
+    personal_appearances: [PersonalAppearance] @dgraph(pred: "personal_appearances")
+    prequel: [Film] @dgraph(pred: "prequel")
+    produced_by: [Producer] @dgraph(pred: "produced_by")
+    production_companies: [ProductionCompany] @dgraph(pred: "production_companies")
+    production_design_by: [ProductionDesigner] @dgraph(pred: "production_design_by")
+    rating: [Rating] @dgraph(pred: "rating")
+    release_date_s: [RegionalReleaseDate] @dgraph(pred: "release_date_s")
+    rottentomatoes_id: String @dgraph(pred: "rottentomatoes_id")
+    sequel: [Film] @dgraph(pred: "sequel")
+    series: [Series] @dgraph(pred: "series")
+    set_decoration_by: [SetDecorator] @dgraph(pred: "set_decoration_by")
+    songs: [Song] @dgraph(pred: "songs")
+    starring: [Performance] @dgraph(pred: "starring")
+    story_by: [StoryContributor] @dgraph(pred: "story_by")
+    subjects: [Subject] @dgraph(pred: "subjects")
+    tagline: String @dgraph(pred: "tagline")
+    traileraddict_id: String @dgraph(pred: "traileraddict_id")
+    written_by: [Writer] @dgraph(pred: "written_by")
 }
 
-type FilmActor {
-    name: String
-    actor_film: [Film]
-    actor_dubbing_performances: [Film]
+type Actor {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "actor.film")
+    dubbing_performances: [Film] @dgraph(pred: "actor.dubbing_performances")
 }
 
-type FilmArtDirector {
-    name: String
-    art_director_films_art_directed: [Film]
+type ArtDirector {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "art_director.films_art_directed")
 }
 
-type FilmCastingDirector {
-    name: String
-    casting_director_films_casting_directed: [Film]
+type CastingDirector {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "casting_director.films_casting_directed")
 }
 
-type FilmCharacter {
-    name: String
-    character_portrayed_in_films: [Film]
-    character_portrayed_in_films_dubbed: [Film]
+type Character {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    portrayed_in_films: [Film] @dgraph(pred: "character.portrayed_in_films")
+    portrayed_in_films_dubbed: [Film] @dgraph(pred: "character.portrayed_in_films_dubbed")
 }
 
-type FilmCinematographer {
-    name: String
-    cinematographer_film: [Film]
+type Cinematographer {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "cinematographer.film")
 }
 
-type FilmCollection {
-    name: String
-    collection_films_in_collection: [Film]
+type Collection {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "collection.films_in_collection")
 }
 
-type FilmCompany {
-    name: String
-    company_films: [Film]
+type Company {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "company.films")
 }
 
-type FilmCompanyRoleOrService {
-    name: String
-    company_role_or_service_companies_performing_this_role_or_service: [FilmCompany]
+type CompanyRoleOrService {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    companies_performing_this_role_or_service: [Company] @dgraph(pred: "company_role_or_service.companies_performing_this_role_or_service")
 }
 
-type FilmCostumeDesigner {
-    name: String
-    costumer_designer_costume_design_for_film: [Film]
+type CostumeDesigner {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    costume_design_for_film: [Film] @dgraph(pred: "costumer_designer.costume_design_for_film")
 }
 
-type FilmCrewGig {
-    name: String
-    crew_gig_crew_role: FilmJob
-    crew_gig_crewmember: FilmCrewMember
-    crew_gig_film: [Film]
+type CrewGig {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    crew_role: [Job] @dgraph(pred: "crew_gig.crew_role")
+    crewmember: [CrewMember] @dgraph(pred: "crew_gig.crewmember")
+    films: [Film] @dgraph(pred: "crew_gig.film")
 }
 
-type FilmCrewMember {
-    name: String
-    crewmember_films_crewed: [Film]
+type CrewMember {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films_crewed: [Film] @dgraph(pred: "crewmember.films_crewed")
 }
 
-type FilmCut {
-    name: String
-    cut_film: [Film]
-    cut_note: String
-    cut_release_region: [FilmingLocation] # Is this a list?
-    cut_runtime: Float
-    cut_type_of_cut: FilmCutType
+type Critic {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
 }
 
-type FilmCutType {
-    name: String
+type Cut {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "cut.film")
+    note: String @dgraph(pred: "cut.note")
+    release_region: [Location] @dgraph(pred: "cut.release_region")
+    runtime: Float @dgraph(pred: "cut.runtime")
+    type_of_cut: [CutType] @dgraph(pred: "cut.type_of_cut")
 }
 
-type FilmDirector {
-    name: String
-    director_film: [Film]
+type CutType {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
 }
 
-type FilmDistributionMedium {
-    name: String
-    distribution_medium_films_distributed_in_this_medium: [Film]
+type Director {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "director.film")
 }
 
-type FilmDistributor {
-    name: String
-    distributor_films_distributed: [Film]
+type DistributionMedium {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "distribution_medium.films_distributed_in_this_medium")
 }
 
-type FilmEditor {
-    name: String
-    editor_film: [Film]
+type Distributor {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films_distributed: [Film] @dgraph(pred: "distributor.films_distributed")
 }
 
-type FilmFeaturedSong {
-    name: String
-    featured_song_featured_in_film: [Film]
-    featured_song_performed_by: [FilmMusicContributor]
+type Editor {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    film: [Film] @dgraph(pred: "editor.film")
 }
 
-type FilmFestival {
-    name: String
-    festival_date_founded: DateTime
-    festival_focus: FilmFestivalFocus
-    festival_individual_festivals: [FilmFestivalEvent]
-    festival_location: [FilmingLocation]
-    festival_sponsoring_organization: [FilmFestivalSponsorship]
+type FeaturedSong {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    featured_in_film: [Film] @dgraph(pred: "featured_song.featured_in_film")
+    performed_by: [Film] @dgraph(pred: "featured_song.performed_by")
 }
 
-type FilmFestivalEvent {
-    name: String
-    festival_event_festival: [FilmFestival]
-    festival_event_films: [Film]
+type Festival {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    date_founded: DateTime @dgraph(pred: "festival.date_founded")
+    focus: [FestivalFocus] @dgraph(pred: "festival.focus")
+    individual_festivals: [FestivalEvent] @dgraph(pred: "festival.individual_festivals")
+    location: [Location] @dgraph(pred: "festival.location")
+    sponsoring_organization: [FestivalSponsorship] @dgraph(pred: "festival.sponsoring_organization")
 }
 
-type FilmFestivalFocus {
-    name: String
-    festival_focus_festivals_with_this_focus: [FilmFestival]
+type FestivalEvent {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    festivals: [Festival] @dgraph(pred: "festival_event.festival")
+    films: [Film] @dgraph(pred: "festival_event.films")
 }
 
-type FilmFestivalSponsor {
-    name: String
-    festival_sponsor_festivals_sponsored: [FilmFestival]
+type FestivalFocus {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    festivals: [Festival] @dgraph(pred: "festival_focus.festivals_with_this_focus")
 }
 
-type FilmFestivalSponsorship {
-    name: String
-    festival_sponsor_festivals_sponsored: [FilmFestival]
+type FestivalSponsor {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    festivals: [Festival] @dgraph(pred: "festival_sponsor.festivals_sponsored")
 }
 
-type FilmFormat {
-    name: String
-    format_format: [Film]
+type FestivalSponsorship {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    festivals: [Film] @dgraph(pred: "festival_sponsor.festivals_sponsored")
 }
 
-type FilmGenre {
-    name: String
+type Format {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    format: [Film] @dgraph(pred: "format.format")
 }
 
-type FilmingLocation {
-    name: String
-    location_featured_in_films: [Film]
+type Genre {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "~genre")
 }
 
-type FilmJob {
-    name: String
-    job_films_with_this_crew_job: [Film]
+type Location {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "~country")
+    featured_in_films: [Film] @dgraph(pred: "location.featured_in_films")
 }
 
-type FilmMusicContributor {
-    name: String
-    music_contributor_film: [Film]
+type Job {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "job.films_with_this_crew_job")
 }
 
-type FilmProducer {
-    name: String
-    producer_film: [Film]
-    producer_films_executive_produced: [Film]
+type MusicContributor {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "films")
 }
 
-type FilmProductionDesigner {
-    name: String
-    production_designer_films_production_designed: [Film]
+type Producer {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "producer.film")
+    films_executive_produced: [Film] @dgraph(pred: "producer.films_executive_produced")
 }
 
-type FilmRating {
-    name: String
-    content_rating_country: FilmingLocation
-    content_rating_minimum_accompanied_age: Int
-    content_rating_minimum_unaccompanied_age: Int
-    content_rating_rating_system: FilmRatingSystem
+type ProductionDesigner {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "production_designer.films_production_designed")
 }
 
-type FilmRatingSystem {
-    name: String
-    content_rating_system_ratings: [FilmRating]
-    content_rating_system_jurisdiction: [FilmingLocation]
+type Rating {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    country: [Location] @dgraph(pred: "content_rating.country")
+    minimum_accompanied_age: Int @dgraph(pred: "content_rating.minimum_accompanied_age")
+    minimum_unaccompanied_age: Int @dgraph(pred: "content_rating.minimum_unaccompanied_age")
+    rating_system: [RatingSystem] @dgraph(pred: "content_rating.rating_system")
+    films: [Film] @dgraph(pred: "~rating")
 }
 
-type FilmRegionalReleaseDate {
-    name: String
-    regional_release_date_release_date: DateTime
-    regional_release_date_release_region: FilmingLocation
+type RatingSystem {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    ratings: [Rating] @dgraph(pred: "content_rating_system.ratings")
+    jurisdiction: [Location] @dgraph(pred: "content_rating_system.jurisdiction")
 }
 
-type FilmSeries {
-    name: String
-    series_films_in_series: [Film]
+type RegionalReleaseDate {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    release_date: DateTime @dgraph(pred: "regional_release_date.release_date")
+    release_region: [Location] @dgraph(pred: "regional_release_date.release_region")
 }
 
-type FilmSetDecorator {
-    name: String
-    set_designer_sets_designed: [Film]
+type Series {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "series.films_in_series")
 }
 
-type FilmSong {
-    name: String
-    song_films: [Film]
+type SetDecorator {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    sets_designed: [Film] @dgraph(pred: "set_designer.sets_designed")
 }
 
-type FilmSongPerformer {
-    name: String
-    song_performer_songs: [FilmSong]
+type Song {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "song.films")
 }
 
-type FilmStoryContributor {
-    name: String
-    story_contributor_story_credits: [Film]
+type SongPerformer {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    songs: [Song] @dgraph(pred: "song_performer.songs")
 }
 
-type FilmSubject {
-    name: String
-    subject_films: [Film]
+type StoryContributor {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    story_credits: [Film] @dgraph(pred: "story_contributor.story_credits")
 }
 
-type FilmWriter {
-    name: String
-    writer_film: [Film]
+type Subject {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "subject.films")
 }
 
-type Generic {
-    name: String
+type Writer {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "writer.film")
 }
 
 type Performance {
-    performance_actor: FilmActor
-    performance_character: FilmCharacter
-    performance_character_note: String
-    performance_film: [Film]
-    performance_special_performance_type: SpecialFilmPerformanceType
-    
+    id: ID!
+    actor: [Actor] @dgraph(pred: "performance.actor")
+    character: [Character] @dgraph(pred: "performance.character")
+    character_note: String @dgraph(pred: "performance.character_note")
+    films: [Film] @dgraph(pred: "performance.film")
+    special_performance_type: [SpecialPerformanceType] @dgraph(pred: "performance.special_performance_type")
+    appearances: [PersonalAppearance] @dgraph(pred: "personal_appearance_type.appearances")
 }
 
-type PersonalFilmAppearance {
-    name: String
-    personal_appearance_film: [Film]
-    personal_appearance_person: PersonOrEntityAppearingInFilm
-    personal_appearance_type_of_appearance: PersonalFilmAppearanceType
-    personal_appearance_type_appearances: [Generic]
+type PersonalAppearance {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "personal_appearance.film")
+    person: [PersonOrEntityAppearingInFilm] @dgraph(pred: "personal_appearance.person")
+    type_of_appearance: [PersonalAppearanceType] @dgraph(pred: "personal_appearance.type_of_appearance")
+    appearances: [PersonalAppearanceType] @dgraph(pred: "personal_appearance_type.appearances")
 }
 
-type PersonalFilmAppearanceType {
-    name: String
+type PersonalAppearanceType {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
 }
 
 type PersonOrEntityAppearingInFilm {
-    name: String
-    person_or_entity_appearing_in_films: [Film]
-    personal_appearance_film: [Film]
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "person_or_entity_appearing_in_films")
+    film: [Film] @dgraph(pred: "personal_appearance.film")
 }
 
 type ProductionCompany {
-    name: String
-    production_company_films: [Film]
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    films: [Film] @dgraph(pred: "production_company.films")
 }
 
-type SpecialFilmPerformanceType {
-    name: String
-    special_performance_type_performance_type: Performance
+type SpecialPerformanceType {
+    id: ID!
+    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    performance_type: [Film] @dgraph(pred: "special_performance_type.performance_type")
 }
-
