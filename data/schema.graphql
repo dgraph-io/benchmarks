@@ -22,7 +22,7 @@ type Film {
     locations: [Location] @dgraph(pred: "locations")
     metacritic_id: String @dgraph(pred: "metacritic_id")
     music: [MusicContributor] @dgraph(pred: "music")
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     netflix_id: String @dgraph(pred: "netflix_id")
     personal_appearances: [PersonalAppearance] @dgraph(pred: "personal_appearances")
     prequel: [Film] @dgraph(pred: "prequel")
@@ -46,63 +46,63 @@ type Film {
 
 type Actor {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "actor.film")
     dubbing_performances: [Film] @dgraph(pred: "actor.dubbing_performances")
 }
 
 type ArtDirector {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "art_director.films_art_directed")
 }
 
 type CastingDirector {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "casting_director.films_casting_directed")
 }
 
 type Character {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     portrayed_in_films: [Film] @dgraph(pred: "character.portrayed_in_films")
     portrayed_in_films_dubbed: [Film] @dgraph(pred: "character.portrayed_in_films_dubbed")
 }
 
 type Cinematographer {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "cinematographer.film")
 }
 
 type Collection {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "collection.films_in_collection")
 }
 
 type Company {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "company.films")
 }
 
 type CompanyRoleOrService {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     companies_performing_this_role_or_service: [Company] @dgraph(pred: "company_role_or_service.companies_performing_this_role_or_service")
 }
 
 type CostumeDesigner {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     costume_design_for_film: [Film] @dgraph(pred: "costumer_designer.costume_design_for_film")
 }
 
 type CrewGig {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     crew_role: [Job] @dgraph(pred: "crew_gig.crew_role")
     crewmember: [CrewMember] @dgraph(pred: "crew_gig.crewmember")
     films: [Film] @dgraph(pred: "crew_gig.film")
@@ -110,18 +110,18 @@ type CrewGig {
 
 type CrewMember {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films_crewed: [Film] @dgraph(pred: "crewmember.films_crewed")
 }
 
 type Critic {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
 }
 
 type Cut {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "cut.film")
     note: String @dgraph(pred: "cut.note")
     release_region: [Location] @dgraph(pred: "cut.release_region")
@@ -131,43 +131,43 @@ type Cut {
 
 type CutType {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
 }
 
 type Director {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "director.film")
 }
 
 type DistributionMedium {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "distribution_medium.films_distributed_in_this_medium")
 }
 
 type Distributor {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films_distributed: [Film] @dgraph(pred: "distributor.films_distributed")
 }
 
 type Editor {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     film: [Film] @dgraph(pred: "editor.film")
 }
 
 type FeaturedSong {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     featured_in_film: [Film] @dgraph(pred: "featured_song.featured_in_film")
     performed_by: [Film] @dgraph(pred: "featured_song.performed_by")
 }
 
 type Festival {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     date_founded: DateTime @dgraph(pred: "festival.date_founded")
     focus: [FestivalFocus] @dgraph(pred: "festival.focus")
     individual_festivals: [FestivalEvent] @dgraph(pred: "festival.individual_festivals")
@@ -177,76 +177,76 @@ type Festival {
 
 type FestivalEvent {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     festivals: [Festival] @dgraph(pred: "festival_event.festival")
     films: [Film] @dgraph(pred: "festival_event.films")
 }
 
 type FestivalFocus {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     festivals: [Festival] @dgraph(pred: "festival_focus.festivals_with_this_focus")
 }
 
 type FestivalSponsor {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     festivals: [Festival] @dgraph(pred: "festival_sponsor.festivals_sponsored")
 }
 
 type FestivalSponsorship {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     festivals: [Film] @dgraph(pred: "festival_sponsor.festivals_sponsored")
 }
 
 type Format {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     format: [Film] @dgraph(pred: "format.format")
 }
 
 type Genre {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "~genre")
 }
 
 type Location {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "~country")
     featured_in_films: [Film] @dgraph(pred: "location.featured_in_films")
 }
 
 type Job {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "job.films_with_this_crew_job")
 }
 
 type MusicContributor {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "films")
 }
 
 type Producer {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "producer.film")
     films_executive_produced: [Film] @dgraph(pred: "producer.films_executive_produced")
 }
 
 type ProductionDesigner {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "production_designer.films_production_designed")
 }
 
 type Rating {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     country: [Location] @dgraph(pred: "content_rating.country")
     minimum_accompanied_age: Int @dgraph(pred: "content_rating.minimum_accompanied_age")
     minimum_unaccompanied_age: Int @dgraph(pred: "content_rating.minimum_unaccompanied_age")
@@ -256,57 +256,57 @@ type Rating {
 
 type RatingSystem {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     ratings: [Rating] @dgraph(pred: "content_rating_system.ratings")
     jurisdiction: [Location] @dgraph(pred: "content_rating_system.jurisdiction")
 }
 
 type RegionalReleaseDate {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     release_date: DateTime @dgraph(pred: "regional_release_date.release_date")
     release_region: [Location] @dgraph(pred: "regional_release_date.release_region")
 }
 
 type Series {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "series.films_in_series")
 }
 
 type SetDecorator {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     sets_designed: [Film] @dgraph(pred: "set_designer.sets_designed")
 }
 
 type Song {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "song.films")
 }
 
 type SongPerformer {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     songs: [Song] @dgraph(pred: "song_performer.songs")
 }
 
 type StoryContributor {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     story_credits: [Film] @dgraph(pred: "story_contributor.story_credits")
 }
 
 type Subject {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "subject.films")
 }
 
 type Writer {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "writer.film")
 }
 
@@ -322,7 +322,7 @@ type Performance {
 
 type PersonalAppearance {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "personal_appearance.film")
     person: [PersonOrEntityAppearingInFilm] @dgraph(pred: "personal_appearance.person")
     type_of_appearance: [PersonalAppearanceType] @dgraph(pred: "personal_appearance.type_of_appearance")
@@ -331,24 +331,24 @@ type PersonalAppearance {
 
 type PersonalAppearanceType {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
 }
 
 type PersonOrEntityAppearingInFilm {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "person_or_entity_appearing_in_films")
     film: [Film] @dgraph(pred: "personal_appearance.film")
 }
 
 type ProductionCompany {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     films: [Film] @dgraph(pred: "production_company.films")
 }
 
 type SpecialPerformanceType {
     id: ID!
-    name: String! @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
+    name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
     performance_type: [Film] @dgraph(pred: "special_performance_type.performance_type")
 }
