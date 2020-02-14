@@ -47,7 +47,7 @@ type Film {
 type Actor {
     id: ID!
     name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
-    films: [Film] @dgraph(pred: "actor.film")
+    performances: [Performance] @dgraph(pred: "actor.film")
     dubbing_performances: [Film] @dgraph(pred: "actor.dubbing_performances")
 }
 
