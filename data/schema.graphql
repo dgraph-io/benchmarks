@@ -197,7 +197,7 @@ type FestivalSponsor {
 type FestivalSponsorship {
     id: ID!
     name: String @search(by: [hash, term, regexp, fulltext]) @dgraph(pred: "name")
-    festivals: [Film] @dgraph(pred: "festival_sponsor.festivals_sponsored")
+    festivals: [Festival] @dgraph(pred: "festival_sponsor.festivals_sponsored")
 }
 
 type Format {
@@ -326,7 +326,7 @@ type PersonalAppearance {
     films: [Film] @dgraph(pred: "personal_appearance.film")
     person: [PersonOrEntityAppearingInFilm] @dgraph(pred: "personal_appearance.person")
     type_of_appearance: [PersonalAppearanceType] @dgraph(pred: "personal_appearance.type_of_appearance")
-    appearances: [PersonalAppearanceType] @dgraph(pred: "personal_appearance_type.appearances")
+    appearances: [PersonalAppearance] @dgraph(pred: "personal_appearance_type.appearances")
 }
 
 type PersonalAppearanceType {
