@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	file   = flag.String("file", "21million.rdf.gz", "Input RDF data file name.")
-	output = flag.String("out", "21million-new.rdf.gz", "Output RDF data file name.")
+	file        = flag.String("file", "21million.rdf.gz", "Input RDF data file name.")
+	output      = flag.String("out", "21million-new.rdf.gz", "Output RDF data file name.")
+	createPlain = flag.Bool("plain", true, `Keep language strings and create "plain_" predicates.`)
 )
 
 func removeLang(path, outputPath string) error {
@@ -45,9 +46,20 @@ func removeLang(path, outputPath string) error {
 		subject := parts[0]
 		predicate := parts[1]
 		object := parts[2]
+
 		if oneOfLanguage(predicate) {
+			if *createPlain {
+				gzWriter.Write([]byte(line))
+				gzWriter.Write([]byte("\n"))
+			}
 			if strings.HasSuffix(object, "@en") {
-				newLine := fmt.Sprintf("%s\t%s\t%s\t.\n", subject, predicate, object[0:len(object)-3])
+				var newLine string
+				pred := predicate
+				if *createPlain {
+					fmt.Printf("Creating plain pred for: %v\n", line)
+					pred = plain(predicate)
+				}
+				newLine = fmt.Sprintf("%s\t%s\t%s\t.\n", subject, pred, object[0:len(object)-3])
 				gzWriter.Write([]byte(newLine))
 			} else {
 				// Ignore non-@en predicates
@@ -74,6 +86,12 @@ func oneOfLanguage(pred string) bool {
 	default:
 		return false
 	}
+}
+
+// plain prefixes the predicate name with "plain_".
+// e.g., <name> becomes <plain_name>
+func plain(pred string) string {
+	return pred[0:1] + "plain_" + pred[1:]
 }
 
 func main() {
