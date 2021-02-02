@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"math/rand"
+	"sort"
 	"testing"
 
 	"github.com/RoaringBitmap/roaring/roaring64"
@@ -64,20 +66,33 @@ func BenchmarkFromArray(b *testing.B) {
 	}
 }
 
-// Marshal is taking 5ms.
+// Marshal bitmap is taking 3.2ms. pack is taking <1ms.
 func BenchmarkMarshal(b *testing.B) {
 	bm := newBitmap()
 	b.Logf("Running with N = %d\n", b.N)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, err := bm.ToBytes()
-		require.NoError(b, err)
-	}
+	pack := Encode(bm.ToArray(), 256)
+
+	b.Run("bitmap", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			var buf bytes.Buffer
+			buf.Grow(int(bm.GetSizeInBytes()))
+			_, err := bm.WriteTo(&buf)
+			require.NoError(b, err)
+		}
+	})
+
+	b.Run("pack", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, err := pack.Marshal()
+			require.NoError(b, err)
+		}
+	})
 }
 
 // This is taking 3.7ms for 1M entries. Doing Add does not have any significant impact on the
 // performance afterwards.
+// 1.6ms by UidPack unmarshal.
 func BenchmarkUnmarshal(b *testing.B) {
 	bm := newBitmap()
 	b.Logf("Running with N = %d\n", b.N)
@@ -85,13 +100,25 @@ func BenchmarkUnmarshal(b *testing.B) {
 	data, err := bm.ToBytes()
 	require.NoError(b, err)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		r := roaring64.New()
-		err := r.UnmarshalBinary(data)
-		require.NoError(b, err)
-		r.Add(1)
-	}
+	b.Run("bitmap", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			r := roaring64.New()
+			err := r.UnmarshalBinary(data)
+			require.NoError(b, err)
+		}
+	})
+
+	pack := Encode(bm.ToArray(), 256)
+	data, err = pack.Marshal()
+	require.NoError(b, err)
+
+	b.Run("pack", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			var p UidPack
+			err := p.Unmarshal(data)
+			require.NoError(b, err)
+		}
+	})
 }
 
 // Clone is taking ~5ms.
@@ -144,32 +171,79 @@ func BenchmarkCopyOnWrite(b *testing.B) {
 	})
 }
 
-// Runs in 200 ns/op.
+// Bitmap runs in 177 ns/op.
+// List search in 252 ns/op.
+// UidPack search is 3024 ns/op.
 func BenchmarkContains(b *testing.B) {
 	bm := roaring64.New()
-	b.Logf("Running with N = %d\n", b.N)
 
 	N := 1000000
 	max := int64(N) * 1000
 	for i := 0; i < N; i++ {
 		bm.Add(uint64(rand.Int63n(max)))
 	}
+	b.Logf("Bitmap Stats: %+v\n", bm.Stats())
+	bm.Stats()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		bm.Contains(uint64(rand.Int63n(max)))
-	}
+	b.Logf("Size per Bitmap int: %.2f\n", float64(bm.GetSizeInBytes())/float64(bm.GetCardinality()))
+	b.Run("bitmap", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			bm.Contains(uint64(rand.Int63n(max)))
+		}
+	})
+
+	l := newList()
+	b.Logf("Size of list: %d\n", len(l))
+	b.Run("list", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			uid := uint64(rand.Int63n(max))
+			_ = sort.Search(len(l), func(j int) bool {
+				return l[j] >= uid
+			})
+		}
+	})
+	pack := Encode(l, 256)
+	b.Logf("Size per UidPack int: %.2f", float64(pack.Size())/float64(len(l)))
+	b.Run("UidPack", func(b *testing.B) {
+		dec := NewDecoder(pack)
+		for i := 0; i < b.N; i++ {
+			uid := uint64(rand.Int63n(max))
+			dec.Seek(uid, SeekStart)
+		}
+	})
 }
+
+const N int = 1000000
 
 func newBitmap() *roaring64.Bitmap {
 	bm := roaring64.New()
 
-	N := 1000000
 	max := int64(N) * 1000
 	for i := 0; i < N; i++ {
 		bm.Add(uint64(rand.Int63n(max)))
 	}
 	return bm
+}
+
+func newList() []uint64 {
+	var l []uint64
+	max := int64(N) * 1000
+	for i := 0; i < N; i++ {
+		l = append(l, uint64(rand.Int63n(max)))
+	}
+	sort.Slice(l, func(i, j int) bool {
+		return l[i] < l[j]
+	})
+	out := l[:0]
+	var last uint64
+	for _, x := range l {
+		if x == last {
+			continue
+		}
+		last = x
+		out = append(out, x)
+	}
+	return out
 }
 
 // This is taking 16ms. Clone itself takes ~4ms. So, ~12ms for AND.
