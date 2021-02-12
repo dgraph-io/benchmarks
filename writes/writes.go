@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"flag"
+	"io/ioutil"
 
 	"github.com/davecgh/go-spew/spew"
-
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -19,7 +21,14 @@ func init() {
 }
 
 func main() {
-	c, err := minio.New("", &minio.Options{
+	data, err := ioutil.ReadFile("/home/karl/random") // 1gb file
+	if err != nil {
+		panic(err)
+	}
+
+	dataReader := bytes.NewReader(data)
+
+	c, err := minio.New("s3.amazonaws.com", &minio.Options{
 		Creds:  credentials.NewStaticV4(*AccessKey, *SecretKey, ""),
 		Secure: true,
 	})
@@ -27,5 +36,14 @@ func main() {
 		panic(err)
 	}
 
-	spew.Dump(c)
+	// starts uploading immediately
+	spew.Dump(
+		c.PutObject(
+			context.Background(),
+			"dgraph-backup-testing",
+			"throughput-test",
+			dataReader,
+			int64(len(data)),
+			minio.PutObjectOptions{}),
+	)
 }
