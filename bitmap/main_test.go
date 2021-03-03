@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/gob"
 	"math/rand"
 	"sort"
 	"testing"
@@ -88,6 +89,16 @@ func BenchmarkMarshal(b *testing.B) {
 			require.NoError(b, err)
 		}
 	})
+
+	b.Run("bitmap-msgpack", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			var buf bytes.Buffer
+			buf.Grow(int(bm.GetSizeInBytes()))
+			enc := gob.NewEncoder(&buf)
+			err := enc.Encode(bm)
+			require.NoError(b, err)
+		}
+	})
 }
 
 // This is taking 3.7ms for 1M entries. Doing Add does not have any significant impact on the
@@ -125,24 +136,63 @@ func BenchmarkUnmarshal(b *testing.B) {
 func BenchmarkClone(b *testing.B) {
 	bm := newBitmap()
 	b.Logf("Running with N = %d\n", b.N)
-	b.Logf("Copy on write: %v\n", bm.GetCopyOnWrite())
 
 	// So, if we set copy on write to true, then clone is cheap. But, any modifications would invoke
 	// the copy.
 	// If false, then a copy would happen during clone.
-	// bm.SetCopyOnWrite(true)
-	// b.Logf("Copy on write 2: %v\n", bm.GetCopyOnWrite())
+
+	bm.SetCopyOnWrite(false)
+
+	b.Run("cow-false", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			r := bm.Clone()
+			_ = r
+		}
+	})
+
+	bm.SetCopyOnWrite(true)
+	b.Logf("Copy on write: %v\n", bm.GetCopyOnWrite())
+
+	entry := bm.Minimum()
 
 	r := bm.Clone()
 	b.Logf("Copy on write for clone: %v\n", r.GetCopyOnWrite())
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		// Clone itself is cheap, but any modifications are not.
-		r := bm.Clone()
-		_ = r
-		// r.Add(1)
-	}
+	b.Run("no-mod", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			r := bm.Clone()
+			_ = r
+		}
+	})
+	b.Run("with-mod", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			r := bm.Clone()
+			r.Remove(entry)
+		}
+	})
+
+	data, err := bm.ToBytes()
+	require.NoError(b, err)
+
+	b.Run("unmarshal", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			r := roaring64.New()
+			err := r.UnmarshalBinary(data)
+			require.NoError(b, err)
+		}
+	})
+}
+
+func TestClone(t *testing.T) {
+	bm := newBitmap()
+	bm.SetCopyOnWrite(true)
+	t.Logf("Copy on write: %v\n", bm.GetCopyOnWrite())
+
+	entry := bm.Minimum()
+	r := bm.Clone()
+	r.Remove(entry)
+	require.False(t, r.Contains(entry))
+	require.True(t, bm.Contains(entry))
 }
 
 func BenchmarkCopyOnWrite(b *testing.B) {
