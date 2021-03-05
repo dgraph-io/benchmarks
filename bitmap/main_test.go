@@ -7,7 +7,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/RoaringBitmap/roaring/roaring64"
+	"github.com/dgraph-io/roaring"
+	"github.com/dgraph-io/roaring/roaring64"
 	"github.com/stretchr/testify/require"
 )
 
@@ -128,6 +129,47 @@ func BenchmarkUnmarshal(b *testing.B) {
 			var p UidPack
 			err := p.Unmarshal(data)
 			require.NoError(b, err)
+		}
+	})
+}
+
+func BenchmarkRoaring32(b *testing.B) {
+	bm := roaring.New()
+
+	max := int32(N) * 1000
+	for i := 0; i < N; i++ {
+		bm.Add(uint32(rand.Int31n(max)))
+	}
+
+	data, err := bm.ToBytes()
+	require.NoError(b, err)
+	b.Logf("Bitmap size: %d\n", bm.GetCardinality())
+
+	b.Run("bitmap32-marshal", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, err := bm.ToBytes()
+			require.NoError(b, err)
+		}
+	})
+	b.Run("bitmap32-unmarshal", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			r := roaring.New()
+			err := r.UnmarshalBinary(data)
+			require.NoError(b, err)
+		}
+	})
+	b.Run("bitmap32-from-buffer", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			r := roaring.New()
+			_, err := r.FromBuffer(data)
+			require.NoError(b, err)
+		}
+	})
+	b.Run("bitmap32-copy", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			out := make([]byte, len(data))
+			copy(out, data)
+			out[1] = 0xFF
 		}
 	})
 }

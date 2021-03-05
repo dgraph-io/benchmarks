@@ -26,6 +26,8 @@ github.com/dgraph-io/dgo/v200 v200.0.0-20210125093441-2ab429259580 h1:ZdOpRE98+f
 github.com/dgraph-io/dgo/v200 v200.0.0-20210125093441-2ab429259580/go.mod h1:1LUTb0AVUKsPQhajQinkz2TnpIrD2C1yFNtVgk5lW5A=
 github.com/dgraph-io/ristretto v0.0.4-0.20210122082011-bb5d392ed82d h1:eQYOG6A4td1tht0NdJB9Ls6DsXRGb2Ft6X9REU/MbbE=
 github.com/dgraph-io/ristretto v0.0.4-0.20210122082011-bb5d392ed82d/go.mod h1:tv2ec8nA7vRpSYX7/MbP52ihrUMXIHit54CQMq8npXQ=
+github.com/dgraph-io/roaring v0.5.6-0.20210305191002-fa54ba7e926a h1:jcaPBPeWTWnltLLNAOhJVG7Atw5X4lDgDXOG2w/TRCQ=
+github.com/dgraph-io/roaring v0.5.6-0.20210305191002-fa54ba7e926a/go.mod h1:aBi3k7+/LPOBRxCokcmphZZkx0C7Fvrn8HxQUDOExks=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2 h1:tdlZCpZ/P9DhczCTSixgIKmwPv6+wP5DGjqLYw5SUiA=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
 github.com/dgryski/go-groupvarint v0.0.0-20190318181831-5ce5df8ca4e1 h1:RSnSk6/ViWmqng/mNcPztSPgr6/4EVDxMmBH/a0w/6I=

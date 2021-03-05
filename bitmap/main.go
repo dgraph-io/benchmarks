@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/RoaringBitmap/roaring/roaring64"
+	"github.com/dgraph-io/roaring/roaring64"
 )
 
 func main() {
