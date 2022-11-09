@@ -1,23 +1,23 @@
-project_school: uid @reverse .
+dayOfMonth: int @index(int) .
 category: String @index(hash) .
-subcategory: String @index(hash) .
 yyyymmdd: dateTime @index(day) .
-ttmonth: int @index(int) .
-ttdayOfMonth: int @index(int) .
-schooltype: String .
+project_school: uid @reverse .
+month: int @index(int) .
 donation_donor: uid @reverse .
-title: string @index(term) .
-day: uid .
-ttyear: int @index(int) .
-grade: String @index(hash) .
-status: String @index(hash) .
-amount: float .
-is_in: uid @reverse .
-ttdayOfWeek: int @index(int) .
-donation_project: uid @reverse .
-ttweek: int @index(int) .
-geoloc: geo @index(geo) .
+schooltype: String .
 name: string @index(hash) .
+day: uid .
+grade: String @index(hash) .
+week: int @index(int) .
+year: int @index(int) .
+is_in: uid @reverse .
+amount: float .
+subcategory: String @index(hash) .
+dayOfWeek: int @index(int) .
+title: string @index(term) .
+donation_project: uid @reverse .
+geoloc: geo @index(geo) .
+status: String @index(hash) .
 type Donation {
  amount
  donation_donor
@@ -28,18 +28,18 @@ type Donor {
  is_in
 }
 type School {
+ schooltype
  is_in
  name
  geoloc
- schooltype
 }
 type TimeTreeDay {
+ 	dayOfMonth
+ 	dayOfWeek
+ 	week
  	yyyymmdd
- 	ttyear
- 	ttmonth
- 	ttdayOfMonth
- 	ttdayOfWeek
- 	ttweek
+ 	year
+ 	month
 }
 type City {
  name
@@ -49,10 +49,10 @@ type State {
  name
 }
 type Project {
- subcategory
- status
  project_school
  title
  grade
  category
+ subcategory
+ status
 }
