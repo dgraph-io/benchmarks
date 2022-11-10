@@ -6,12 +6,12 @@ month: int @index(int) .
 donation_donor: uid @reverse .
 schooltype: String .
 name: string @index(hash) .
-day: uid .
+day: uid @reverse .
 grade: String @index(hash) .
 week: int @index(int) .
 year: int @index(int) .
 is_in: uid @reverse .
-amount: float .
+amount: float @index(float) .
 subcategory: String @index(hash) .
 dayOfWeek: int @index(int) .
 title: string @index(term) .
