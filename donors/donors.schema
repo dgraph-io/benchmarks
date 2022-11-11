@@ -1,0 +1,58 @@
+dayOfMonth: int @index(int) .
+category: String @index(hash) .
+yyyymmdd: dateTime @index(day) .
+project_school: uid @reverse .
+month: int @index(int) .
+donation_donor: uid @reverse .
+schooltype: String .
+name: string @index(hash) .
+day: uid @reverse .
+grade: String @index(hash) .
+week: int @index(int) .
+year: int @index(int) .
+is_in: uid @reverse .
+amount: float @index(float) .
+subcategory: String @index(hash) .
+dayOfWeek: int @index(int) .
+title: string @index(term) .
+donation_project: uid @reverse .
+geoloc: geo @index(geo) .
+status: String @index(hash) .
+type Donation {
+ amount
+ donation_donor
+ day
+ donation_project
+}
+type Donor {
+ is_in
+}
+type School {
+ schooltype
+ is_in
+ name
+ geoloc
+}
+type TimeTreeDay {
+ 	dayOfMonth
+ 	dayOfWeek
+ 	week
+ 	yyyymmdd
+ 	year
+ 	month
+}
+type City {
+ name
+ is_in
+}
+type State {
+ name
+}
+type Project {
+ project_school
+ title
+ grade
+ category
+ subcategory
+ status
+}
