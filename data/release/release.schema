@@ -1,20 +1,5 @@
-# Predicates with indices or special directives
-director.film: [uid] @reverse @count .
-actor.film: [uid] @count .
-genre: [uid] @reverse @count .
-initial_release_date: datetime @index(year) .
-rating: [uid] @reverse .
-country: [uid] @reverse .
-loc: geo @index(geo) .
-name: string @index(hash, term, trigram, fulltext) @lang .
-starring: [uid] @count .
-performance.character_note: string @lang .
-tagline: string @lang .
-cut.note: string @lang .
-rated: [uid] @reverse .
-email: string @index(exact) @upsert .
-
 actor.dubbing_performances: [uid] .
+actor.film: [uid] @count .
 apple_movietrailer_id: string .
 art_direction_by: [uid] .
 art_director.films_art_directed: [uid] .
@@ -28,28 +13,39 @@ collection.films_in_collection: [uid] .
 collections: [uid] .
 company.films: [uid] .
 company_role_or_service.companies_performing_this_role_or_service: [uid] .
-content_rating.country: uid .
+content_rating.country: [uid] .
 content_rating.minimum_accompanied_age: int .
 content_rating.minimum_unaccompanied_age: int .
-content_rating.rating_system: uid .
+content_rating.rating_system: [uid] .
 content_rating_system.jurisdiction: [uid] .
 content_rating_system.ratings: [uid] .
 costume_design_by: [uid] .
 costumer_designer.costume_design_for_film: [uid] .
-crew_gig.crew_role: uid .
-crew_gig.crewmember: uid .
+country: [uid] @reverse .
+crew_gig.crew_role: [uid] .
+crew_gig.crewmember: [uid] .
 crew_gig.film: [uid] .
 crewmember.films_crewed: [uid] .
 cut.film: [uid] .
+cut.note: string @lang .
 cut.release_region: [uid] .
 cut.runtime: float .
-cut.type_of_cut: uid .
+cut.type_of_cut: [uid] .
+dgraph.acl.rule: [uid] .
+dgraph.drop.op: string .
+dgraph.graphql.p_query: string @index(sha256) .
+dgraph.graphql.schema: string .
+dgraph.graphql.xid: string @index(exact) @upsert .
+dgraph.rule.permission: int .
+dgraph.rule.predicate: string @index(exact) @upsert .
+director.film: [uid] @count @reverse .
 distribution_medium.films_distributed_in_this_medium: [uid] .
 distributor.films_distributed: [uid] .
 distributors: [uid] .
 dubbing_performances: [uid] .
 edited_by: [uid] .
 editor.film: [uid] .
+email: string @index(exact) @upsert .
 estimated_budget: [uid] .
 executive_produced_by: [uid] .
 fandango_id: string .
@@ -57,8 +53,8 @@ featured_locations: [uid] .
 featured_song.featured_in_film: [uid] .
 featured_song.performed_by: [uid] .
 featured_song: [uid] .
-festival.date_founded: dateTime .
-festival.focus: uid .
+festival.date_founded: datetime .
+festival.focus: [uid] .
 festival.individual_festivals: [uid] .
 festival.location: [uid] .
 festival.sponsoring_organization: [uid] .
@@ -70,27 +66,36 @@ festivals: [uid] .
 filming: [uid] .
 format.format: [uid] .
 format: [uid] .
+genre: [uid] @count @reverse .
 gross_revenue: [uid] .
+http://www.w3.org/2000/01/rdf-schema#domain: [uid] .
+http://www.w3.org/2000/01/rdf-schema#range: [uid] .
+http://www.w3.org/2002/07/owl#inverseOf: [uid] .
+initial_release_date: datetime @index(year) .
 job.films_with_this_crew_job: [uid] .
 language: [uid] .
+loc: geo @index(geo) .
 location.featured_in_films: [uid] .
 locations: [uid] .
 metacritic_id: string .
 music: [uid] .
 music_contributor.film: [uid] .
+name: string @index(hash, term, trigram, fulltext) @lang .
 netflix_id: string .
+nytimes_id: default .
 other_companies: [uid] .
 other_crew: [uid] .
-performance.actor: uid .
-performance.character: uid .
+performance.actor: [uid] .
+performance.character: [uid] .
+performance.character_note: string @lang .
 performance.film: [uid] .
-performance.special_performance_type: uid .
+performance.special_performance_type: [uid] .
 person_or_entity_appearing_in_films: [uid] .
 personal_appearance.film: [uid] .
-personal_appearance.person: uid .
-personal_appearance.type_of_appearance: uid .
+personal_appearance.person: [uid] .
+personal_appearance.type_of_appearance: [uid] .
 personal_appearance_type.appearances: [uid] .
-personal_appearances: uid .
+personal_appearances: [uid] .
 post_production: [uid] .
 pre_production: [uid] .
 prequel: [uid] .
@@ -102,8 +107,10 @@ production_companies: [uid] .
 production_company.films: [uid] .
 production_design_by: [uid] .
 production_designer.films_production_designed: [uid] .
-regional_release_date.release_date: dateTime .
-regional_release_date.release_region: uid .
+rated: [uid] @reverse .
+rating: [uid] @reverse .
+regional_release_date.release_date: datetime .
+regional_release_date.release_region: [uid] .
 release_date_s: [uid] .
 rottentomatoes_id: string .
 runtime: [uid] .
@@ -112,337 +119,294 @@ series.films_in_series: [uid] .
 series: [uid] .
 set_decoration_by: [uid] .
 set_designer.sets_designed: [uid] .
+song.films: [uid] .
 song_films: [uid] .
 song_performer.songs: [uid] .
 songs: [uid] .
 soundtrack: [uid] .
-special_performance_type.performance_type: uid .
+special_performance_type.performance_type: [uid] .
+starring: [uid] @count .
 story_by: [uid] .
 story_contributor.story_credits: [uid] .
 subject.films: [uid] .
 subjects: [uid] .
+tagline: string @lang .
+topic_server.schemastaging_corresponding_entities_type: [uid] .
+topic_server.webref_cluster_members_type: [uid] .
 traileraddict_id: string .
 trailers: [uid] .
+type.property.expected_type: [uid] .
+type.property.reverse_property: [uid] .
+type.property.schema: [uid] .
+writer.film: [uid] .
 writer_film: [uid] .
 written_by: [uid] .
-
-type Film {
-    apple_movietrailer_id
-    art_direction_by
-    casting_director
-    cinematography
-    collections
-    costume_design_by
-    country
-    distributors
-    dubbing_performances
-    edited_by
-    executive_produced_by
-    fandango_id
-    featured_locations
-    featured_song
-    festivals
-    format
-    genre
-    initial_release_date
-    locations
-    metacritic_id
-    music
-    name
-    netflix_id
-    personal_appearances
-    prequel
-    produced_by
-    production_companies
-    production_design_by
-    rating
-    release_date_s
-    rottentomatoes_id
-    sequel
-    series
-    set_decoration_by
-    songs
-    starring
-    story_by
-    subjects
-    tagline
-    traileraddict_id
-    written_by
-
-    # The objects for the following predicates are a part of the
-    # Freebase data set, but not part of 21million.rdf.gz.
-    post_production
-    pre_production
-    runtime
-    other_crew
-    other_companies
-    primary_language
-    soundtrack
-    trailers
-    gross_revenue
-    estimated_budget
-    filming
-    language
-}
-
 type Actor {
-    name
-    actor.film
-    actor.dubbing_performances
+	name
+	actor.film
+	actor.dubbing_performances
 }
-
 type ArtDirector {
-    name
-    art_director.films_art_directed
+	name
+	art_director.films_art_directed
 }
-
 type CastingDirector {
-    name
-    casting_director.films_casting_directed
+	name
+	casting_director.films_casting_directed
 }
-
 type Character {
-    name
-    character.portrayed_in_films
-    character.portrayed_in_films_dubbed
+	name
+	character.portrayed_in_films
+	character.portrayed_in_films_dubbed
 }
-
 type Cinematographer {
-    name
-    cinematographer.film
+	name
+	cinematographer.film
 }
-
 type Collection {
-    name
-    collection.films_in_collection
+	name
+	collection.films_in_collection
 }
-
 type Company {
-    name
-    company.films
+	name
+	company.films
 }
-
 type CompanyRoleOrService {
-    name
-    company_role_or_service.companies_performing_this_role_or_service
+	name
+	company_role_or_service.companies_performing_this_role_or_service
 }
-
 type CostumeDesigner {
-    name
-    costumer_designer.costume_design_for_film
+	name
+	costumer_designer.costume_design_for_film
 }
-
 type CrewGig {
-    name
-    crew_gig.crew_role
-    crew_gig.crewmember
-    crew_gig.film
+	name
+	crew_gig.crew_role
+	crew_gig.crewmember
+	crew_gig.film
 }
-
 type CrewMember {
-    name
-    crewmember.films_crewed
+	name
+	crewmember.films_crewed
 }
-
 type Critic {
-    name
+	name
 }
-
 type Cut {
-    name
-    cut.film
-    cut.note
-    cut.release_region
-    cut.runtime
-    cut.type_of_cut
+	name
+	cut.film
+	cut.note
+	cut.release_region
+	cut.runtime
+	cut.type_of_cut
 }
-
 type CutType {
-    name
+	name
 }
-
 type Director {
-    name
-    director.film
+	name
+	director.film
 }
-
 type DistributionMedium {
-    name
-    distribution_medium.films_distributed_in_this_medium
+	name
+	distribution_medium.films_distributed_in_this_medium
 }
-
 type Distributor {
-    name
-    distributor.films_distributed
+	name
+	distributor.films_distributed
 }
-
 type Editor {
-    name
-    editor.film
+	name
+	editor.film
 }
-
 type FeaturedSong {
-    name
-    featured_song.featured_in_film
-    featured_song.performed_by
+	name
+	featured_song.featured_in_film
+	featured_song.performed_by
 }
-
 type Festival {
-    name
-    festival.date_founded
-    festival.focus
-    festival.individual_festivals
-    festival.location
-    festival.sponsoring_organization
+	name
+	festival.date_founded
+	festival.focus
+	festival.individual_festivals
+	festival.location
+	festival.sponsoring_organization
 }
-
 type FestivalEvent {
-    name
-    festival_event.festival
-    festival_event.films
+	name
+	festival_event.festival
+	festival_event.films
 }
-
 type FestivalFocus {
-    name
-    festival_focus.festivals_with_this_focus
+	name
+	festival_focus.festivals_with_this_focus
 }
-
 type FestivalSponsor {
-    name
-    festival_sponsor.festivals_sponsored
+	name
+	festival_sponsor.festivals_sponsored
 }
-
 type FestivalSponsorship {
-    name
-    festival_sponsor.festivals_sponsored
+	name
+	festival_sponsor.festivals_sponsored
 }
-
+type Film {
+	apple_movietrailer_id
+	art_direction_by
+	casting_director
+	cinematography
+	collections
+	costume_design_by
+	country
+	distributors
+	dubbing_performances
+	edited_by
+	executive_produced_by
+	fandango_id
+	featured_locations
+	featured_song
+	festivals
+	format
+	genre
+	initial_release_date
+	locations
+	metacritic_id
+	music
+	name
+	netflix_id
+	personal_appearances
+	prequel
+	produced_by
+	production_companies
+	production_design_by
+	rating
+	release_date_s
+	rottentomatoes_id
+	sequel
+	series
+	set_decoration_by
+	songs
+	starring
+	story_by
+	subjects
+	tagline
+	traileraddict_id
+	written_by
+	post_production
+	pre_production
+	runtime
+	other_crew
+	other_companies
+	primary_language
+	soundtrack
+	trailers
+	gross_revenue
+	estimated_budget
+	filming
+	language
+}
 type Format {
-    name
-    format.format
+	name
+	format.format
 }
-
-type Genre {
-    name
-}
-
-type Location {
-    name
-    location.featured_in_films
-}
-
-type Job {
-    name
-    job.films_with_this_crew_job
-}
-
-type MusicContributor {
-    name
-    music_contributor.film
-}
-
-type Producer {
-    name
-    producer.film
-    producer.films_executive_produced
-}
-
-type ProductionDesigner {
-    name
-    production_designer.films_production_designed
-}
-
-type Rating {
-    name
-    content_rating.country
-    content_rating.minimum_accompanied_age
-    content_rating.minimum_unaccompanied_age
-    content_rating.rating_system
-}
-
-type RatingSystem {
-    name
-    content_rating_system.ratings
-    content_rating_system.jurisdiction
-}
-
-type RegionalReleaseDate {
-    name
-    regional_release_date.release_date
-    regional_release_date.release_region
-}
-
-type Series {
-    name
-    series.films_in_series
-}
-
-type SetDecorator {
-    name
-    set_designer.sets_designed
-}
-
-type Song {
-    name
-    song_films
-}
-
-type SongPerformer {
-    name
-    song_performer.songs
-}
-
-type StoryContributor {
-    name
-    story_contributor.story_credits
-}
-
-type Subject {
-    name
-    subject.films
-}
-
-type Writer {
-    name
-    writer_film
-}
-
 type Generic {
-    name
+	name
 }
-
+type Genre {
+	name
+}
+type Job {
+	name
+	job.films_with_this_crew_job
+}
+type Location {
+	name
+	location.featured_in_films
+}
+type MusicContributor {
+	name
+	music_contributor.film
+}
 type Performance {
-    performance.actor
-    performance.character
-    performance.character_note
-    performance.film
-    performance.special_performance_type
+	performance.actor
+	performance.character
+	performance.character_note
+	performance.film
+	performance.special_performance_type
 }
-
-type PersonalAppearance {
-    name
-    personal_appearance.film
-    personal_appearance.person
-    personal_appearance.type_of_appearance
-    personal_appearance_type.appearances
-}
-
-type PersonalAppearanceType {
-    name
-}
-
 type PersonOrEntityAppearingInFilm {
-    name
-    person_or_entity_appearing_in_films
-    personal_appearance.film
+	name
+	person_or_entity_appearing_in_films
+	personal_appearance.film
 }
-
+type PersonalAppearance {
+	name
+	personal_appearance.film
+	personal_appearance.person
+	personal_appearance.type_of_appearance
+	personal_appearance_type.appearances
+}
+type PersonalAppearanceType {
+	name
+}
+type Producer {
+	name
+	producer.film
+	producer.films_executive_produced
+}
 type ProductionCompany {
-    name
-    production_company.films
+	name
+	production_company.films
 }
-
+type ProductionDesigner {
+	name
+	production_designer.films_production_designed
+}
+type Rating {
+	name
+	content_rating.country
+	content_rating.minimum_accompanied_age
+	content_rating.minimum_unaccompanied_age
+	content_rating.rating_system
+}
+type RatingSystem {
+	name
+	content_rating_system.ratings
+	content_rating_system.jurisdiction
+}
+type RegionalReleaseDate {
+	name
+	regional_release_date.release_date
+	regional_release_date.release_region
+}
+type Series {
+	name
+	series.films_in_series
+}
+type SetDecorator {
+	name
+	set_designer.sets_designed
+}
+type Song {
+	name
+	song_films
+}
+type SongPerformer {
+	name
+	song_performer.songs
+}
 type SpecialPerformanceType {
-    name
-    special_performance_type.performance_type
+	name
+	special_performance_type.performance_type
+}
+type StoryContributor {
+	name
+	story_contributor.story_credits
+}
+type Subject {
+	name
+	subject.films
+}
+type Writer {
+	name
+	writer_film
 }
