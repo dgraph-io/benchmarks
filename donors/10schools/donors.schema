@@ -1,34 +1,52 @@
+Category.name: string .
+City.name: string @index(hash) @upsert .
+Project.status: default .
+Project.id: default .
 typecity: default .
-School.id: default .
-Donation.date: uid .
+typestate: default .
+School.projects: [uid] .
 School.geoloc: geo .
-typedonation: default .
 Donation.donor: uid .
-Donation.project: uid .
-City.state: uid .
+Project.donations: [uid] .
 Donor.id: default .
+Project.category: uid .
+School.id: default .
+typedonor: default .
+Donor.geostate: uid .
+Donor.amount: float .
+typedonation: default .
+Donation.date: uid .
+typeproject: default .
+Project.title: string @index(term) .
+City.state: uid .
+Project.grade: string @index(hash) .
+School.city: uid .
+School.type: string @index(hash) .
+typeschool: default .
+Donation.project: uid .
 State.name: string @index(hash) @upsert .
 School.name: string @index(term) .
-School.projects: [uid] .
-Project.school: uid .
-Project.id: default .
-typeschool: default .
-Category.name: string .
-typedonor: default .
-School.city: uid .
-City.name: string @index(hash) @upsert .
+typecategory: default .
 Donor.name: string @index(term) .
+Project.school: uid .
 Donor.donations: [uid] .
 Donation.amount: float .
-Project.grade: string @index(hash) .
-Project.donations: [uid] .
-School.type: string @index(hash) .
-Project.category: uid .
-Donor.geostate: uid .
-Project.title: string @index(term) .
-typestate: default .
+type School {
+ School.city
+ School.geoloc
+ typeschool
+ School.id
+ School.name
+ School.type
+ School.projects
+}
+type State {
+ State.name
+ typestate
+}
 type Category {
  Category.name
+ typecategory
 }
 type City {
  City.name
@@ -36,11 +54,11 @@ type City {
  typecity
 }
 type Donation {
- Donation.donor
- Donation.project
  Donation.amount
  typedonation
  Donation.date
+ Donation.donor
+ Donation.project
 }
 type Donor {
  Donor.id
@@ -50,22 +68,12 @@ type Donor {
  Donor.geostate
 }
 type Project {
- Project.donations
- Project.title
  Project.grade
+ typeproject
+ Project.id
+ Project.status
  Project.category
  Project.school
-}
-type School {
- School.type
- School.projects
- School.city
- School.geoloc
- typeschool
- School.id
- School.name
-}
-type State {
- State.name
- typestate
+ Project.donations
+ Project.title
 }
