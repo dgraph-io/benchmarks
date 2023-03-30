@@ -11,6 +11,7 @@ State.name: string @index(hash) @upsert .
 School.name: string @index(term) .
 School.projects: [uid] .
 Project.school: uid .
+Project.id: default .
 typeschool: default .
 Category.name: string .
 typedonor: default .
