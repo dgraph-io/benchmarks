@@ -1,0 +1,71 @@
+typecity: default .
+School.id: default .
+Donation.date: uid .
+School.geoloc: geo .
+typedonation: default .
+Donation.donor: uid .
+Donation.project: uid .
+City.state: uid .
+Donor.id: default .
+State.name: string @index(hash) @upsert .
+School.name: string @index(term) .
+Donor.amount: float .
+School.projects: [uid] .
+Project.school: uid .
+typeschool: default .
+Category.name: string .
+typedonor: default .
+School.city: uid .
+City.name: string @index(hash) @upsert .
+Donor.name: string @index(term) .
+Donor.donations: [uid] .
+Donation.amount: float .
+Project.grade: string @index(hash) .
+Project.donations: [uid] .
+School.type: string @index(hash) .
+Project.category: uid .
+Donor.geostate: uid .
+Project.title: string @index(term) .
+typestate: default .
+type Category {
+ Category.name
+}
+type City {
+ City.name
+ City.state
+ typecity
+}
+type Donation {
+ Donation.donor
+ Donation.project
+ Donation.amount
+ typedonation
+ Donation.date
+}
+type Donor {
+ Donor.id
+ Donor.name
+ Donor.donations
+ typedonor
+ Donor.geostate
+}
+type Project {
+ Project.donations
+ Project.title
+ Project.grade
+ Project.category
+ Project.school
+}
+type School {
+ School.type
+ School.projects
+ School.city
+ School.geoloc
+ typeschool
+ School.id
+ School.name
+}
+type State {
+ State.name
+ typestate
+}
