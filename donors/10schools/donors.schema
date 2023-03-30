@@ -9,7 +9,6 @@ City.state: uid .
 Donor.id: default .
 State.name: string @index(hash) @upsert .
 School.name: string @index(term) .
-Donor.amount: float .
 School.projects: [uid] .
 Project.school: uid .
 typeschool: default .
