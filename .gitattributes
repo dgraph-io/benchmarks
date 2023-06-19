@@ -1,4 +1,5 @@
 *.gz filter=lfs diff=lfs merge=lfs -text
 zip filter=lfs diff=lfs merge=lfs -text
 *.zip filter=lfs diff=lfs merge=lfs -text
+ldbc/README.md filter= diff= merge= text
 ldbc/** filter=lfs diff=lfs merge=lfs -text
