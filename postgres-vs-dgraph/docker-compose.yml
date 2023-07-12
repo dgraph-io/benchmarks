@@ -1,0 +1,24 @@
+version: "3.2"
+services:
+  zero:
+    image: dgraph/dgraph:latest
+    ports:
+      - 5080:5080
+      - 6080:6080
+    restart: on-failure
+    command: dgraph zero --my=zero:5080
+  server:
+    image: dgraph/dgraph:latest
+    ports:
+      - 8080:8080
+      - 9080:9080
+    restart: on-failure
+    command: dgraph alpha --my=server:7080 --lru_mb=2048 --zero=zero:5080
+
+  postgres:
+    image: "postgres:latest"
+    ports:
+      - "5432:5432"
+    command: -c 'config_file=/etc/postgresql/postgresql.conf'
+    volumes:
+      - ${PWD}/postgresql.conf:/etc/postgresql/postgresql.conf
