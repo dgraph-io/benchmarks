@@ -42,3 +42,4 @@ type City  {
 type State  {
 	name: String! @id
 }
+

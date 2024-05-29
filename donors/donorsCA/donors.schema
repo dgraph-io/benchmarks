@@ -1,0 +1,59 @@
+Category.name: string .
+City.name: string @index(hash) @upsert .
+City.state: uid .
+Donation.amount: float .
+Donation.donor: uid .
+Donation.project: uid .
+Donor.amount: float .
+Donor.donations: [uid] .
+Donor.name: string @index(term) .
+Project.category: uid .
+Project.donations: [uid] .
+Project.grade: string @index(hash) .
+Project.school: uid .
+Project.title: string @index(term) .
+School.city: uid .
+School.geoloc: geo .
+School.name: string @index(term) .
+School.projects: [uid] .
+School.type: string @index(hash) .
+State.name: string @index(hash) @upsert .
+
+type Category {
+	Category.name
+}
+type City {
+	City.name
+	City.state
+}
+
+type Donation {
+	Donation.amount
+	Donation.donor
+	Donation.project
+}
+type Donor {
+	Donor.amount
+	Donor.name
+	Donor.donations
+}
+
+
+type Project {
+	Project.title
+	Project.grade
+	Project.category
+	Project.school
+	Project.donations
+}
+type School {
+	School.name
+	School.type
+	School.projects
+	School.city
+	School.geoloc
+}
+
+type State {
+	State.name
+}

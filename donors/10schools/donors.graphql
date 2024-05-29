@@ -1,0 +1,39 @@
+type School {
+  id: ID!
+  name: String!  @search(by: [term])
+  type: String!  @search(by: [hash])
+  projects: [Project] @hasInverse(field: "school")
+  city: City
+  geoloc: Point
+}
+
+type Project {
+  id: ID!
+  title: String!  @search(by: [term])
+  grade: String @search(by: [hash])
+  category: Category
+  school : School @hasInverse(field: "projects")
+  donations : [Donation] @hasInverse(field: "project")
+}
+type Category {
+  id: ID!
+  name: String!
+}
+type Donation {
+  id: ID!
+  amount:Float
+  donor: Donor @hasInverse(field: "donations")
+  project: Project @hasInverse(field: "donations")
+}
+type Donor {
+  id: ID!
+  name: String!  @search(by: [term])
+  donations: [Donation] @hasInverse(field: "donor")
+}
+type City {
+  name: String! @id
+  state: State
+}
+type State {
+  name: String! @id
+}
