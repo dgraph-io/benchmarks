@@ -14,6 +14,6 @@ require (
 	github.com/dustin/gojson v0.0.0-20160307161227-2e71ec9dd5ad // indirect
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17 // indirect
 	github.com/pkg/profile v1.3.0 // indirect
-	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829 // indirect
+	github.com/prometheus/client_golang v1.11.1 // indirect
 	google.golang.org/grpc v1.56.3 // indirect
 )
