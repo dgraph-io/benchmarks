@@ -1,4 +1,8 @@
-name: string @index(term, exact) .
-rated: uid @reverse @count .
-genre:uid @reverse .
+<age>: int .
+<gender>: string .
+<genre>: [uid] @reverse .
+<name>: string @index(hash) .
+<occupation>: string .
+<rated>: [uid] @count @reverse .
+<zipcode>: string .
 
