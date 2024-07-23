@@ -332,10 +332,11 @@ func runCacheBenchmark(b *testing.B, cache Cache, keys [][]byte, pctWrites uint6
 	size := len(keys)
 	mask := size - 1
 	rc := uint64(0)
-
+	data := []byte("data")
+	
 	// initialize cache
 	for i := 0; i < size; i++ {
-		_ = cache.Set(keys[i], []byte("data"))
+		_ = cache.Set(keys[i], data)
 	}
 
 	b.ResetTimer()
@@ -345,7 +346,7 @@ func runCacheBenchmark(b *testing.B, cache Cache, keys [][]byte, pctWrites uint6
 
 		if pctWrites*mc/100 != pctWrites*(mc-1)/100 {
 			for pb.Next() {
-				_ = cache.Set(keys[index&mask], []byte("data"))
+				_ = cache.Set(keys[index&mask], data)
 				index = index + 1
 			}
 		} else {
