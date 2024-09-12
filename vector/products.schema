@@ -1,0 +1,2 @@
+Product.embedding: float32vector .
+Product.name: string @index(hash, term) @upsert .
