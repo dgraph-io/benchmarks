@@ -1,0 +1,5 @@
+phone_number: string @index(hash) .
+username: string @index(hash) .
+has_in_contacts: [uid] @reverse .
+belongs_to: uid @reverse .
+follows: [uid] @reverse .
