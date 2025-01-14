@@ -1,0 +1,12 @@
+# template file
+<_:School_[School.ID]> <dgraph.type> "School" .
+<_:School_[School.ID]> <School.id> "[School.ID]" .
+<_:School_[School.ID]> <School.name> "[School.Name]" .
+<_:School_[School.ID]> <School.type> "[School.Metro.Type]" .
+<_:School_[School.ID]> <School.geoloc> =geoloc([LNG],[LAT]) .
+<_:City_[School.City]> <dgraph.type> "City" .
+<_:City_[School.City]> <City.name> "[School.City]" .
+<_:School_[School.ID]> <School.city> <_:City_[School.City]> .
+<_:State_[School.State]> <dgraph.type> "State" .
+<_:State_[School.State]> <State.name> "[School.State]" .
+<_:City_[School.City]> <City.state> <_:State_[School.State]> .

@@ -1,0 +1,15 @@
+<_:Project_[Project.ID]> <dgraph.type> "Project" .
+<_:Project_[Project.ID]> <Project.id> "[Project.ID]" .
+<_:Project_[Project.ID]> <Project.title> "[Project.Title]" .
+<_:Project_[Project.ID]> <Project.grade> "[Project.Grade.Level.Category]" .
+<_:Category_[Project.Subject.Category.Tree,nospace]>  <Category.name> "[Project.Subject.Category.Tree]" .
+<_:Category_[Project.Subject.Category.Tree,nospace]>  <dgraph.type> "Category" .
+<_:Project_[Project.ID]> <Project.category> <_:Category_[Project.Subject.Category.Tree,nospace]> .
+# <_:Project_[Project.ID]> <Project.subcategory> <_:Category_[Project.Subject.Subcategory.Tree,nospace]> .
+# <_:Category_[Project.Subject.Subcategory.Tree,nospace]>  <Subcategory.name> "[Project.Subject.Subcategory.Tree]" .
+# <_:Category_[Project.Subject.Subcategory.Tree,nospace]>  <dgraph.type> "Subcategory" .
+# <_:Category_[Project.Subject.Subcategory.Tree,nospace]>  <Subcategory.parent> <_:Category_[Project.Subject.Category.Tree,nospace]> .
+# <_:Category_[Project.Subject.Category.Tree,nospace]>  <child> <_:Category_[Project.Subject.Subcategory.Tree,nospace]> *
+<_:Project_[Project.ID]> <Project.status> "[Project.Current.Status]" .
+<_:Project_[Project.ID]> <Project.school> <_:School_[School.ID]> .
+<_:School_[School.ID]> <School.projects>  <_:Project_[Project.ID]> *

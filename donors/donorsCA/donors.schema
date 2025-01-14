@@ -7,7 +7,7 @@ Donation.project: uid .
 Donor.amount: float .
 Donor.donations: [uid] .
 Donor.name: string @index(term) .
-Project.category: uid .
+Project.category: uid @reverse .
 Project.donations: [uid] .
 Project.grade: string @index(hash) .
 Project.school: uid .
