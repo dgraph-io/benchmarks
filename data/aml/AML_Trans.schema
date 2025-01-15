@@ -1,0 +1,37 @@
+<Account.bank>: uid .
+<Account.id>: string @index(hash) .
+<Bank.id>: string @index(hash) .
+<Transaction.amount_paid>: float  @index(float) .
+<Transaction.amount_received>: float   @index(float) .
+<Transaction.from>: uid @reverse .
+<Transaction.payment_currency>: string .
+<Transaction.payment_type>: string  @index(hash) .
+<Transaction.receiving_currency>: string .
+<Transaction.to>: uid @reverse .
+<Transaction.timestamp>: datetime @index(day) .
+<Transaction.laundering>:  bool @index(bool) .
+<Transaction.id>: string @index(hash) .
+
+<xid>: string @index(exact) @upsert .
+
+type <Bank> {
+	<Bank.id>
+}
+
+type <Account> {
+    <Account.id>
+    <Account.bank>
+}
+
+type <Transaction> {
+    <Transaction.id>
+    <Transaction.timestamp>
+    <Transaction.amount_paid>
+    <Transaction.amount_received>
+    <Transaction.from>
+    <Transaction.payment_currency>
+    <Transaction.payment_type>
+    <Transaction.receiving_currency>
+    <Transaction.to>
+    <Transaction.laundering>
+}

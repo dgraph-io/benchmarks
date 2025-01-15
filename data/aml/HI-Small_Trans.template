@@ -1,0 +1,23 @@
+# Timestamp,From Bank,Account,To Bank,Account,Amount Received,Receiving Currency,Amount Paid,Payment Currency,Payment Format,Is Laundering
+
+<_:Bank_[From Bank]> <dgraph.type> "Bank" .
+<_:Bank_[From Bank]> <Bank.id> "[From Bank]" .
+<_:Bank_[To Bank]> <dgraph.type> "Bank" .
+<_:Bank_[To Bank]> <Bank.id> "[To Bank]" .
+<_:A_[From Account]> <dgraph.type> "Account" .
+<_:A_[From Account]> <Account.id> "[From Account]" .
+<_:A_[From Account]> <Account.bank> <_:Bank_[From Bank]> .
+<_:A_[To Account]> <dgraph.type> "Account" .
+<_:A_[To Account]> <Account.id> "[To Account]" .
+<_:A_[To Account]> <Account.bank> <_:Bank_[To Bank]> .
+<_:T_[LINENUMBER]> <Transaction.id> "[Timestamp],[From Bank],[From Account]" .
+<_:T_[LINENUMBER]> <dgraph.type> "Transaction" .
+<_:T_[LINENUMBER]> <Transaction.from> <_:A_[From Account]> .
+<_:T_[LINENUMBER]> <Transaction.to> <_:A_[To Account]> .
+<_:T_[LINENUMBER]> <Transaction.timestamp> "=datetime([Timestamp],%Y/%m/%d %H:%M)" .
+<_:T_[LINENUMBER]> <Transaction.amount_received> "[Amount Received]" .
+<_:T_[LINENUMBER]> <Transaction.receiving_currency> "[Receiving Currency]" .
+<_:T_[LINENUMBER]> <Transaction.amount_paid> "[Amount Paid]" .
+<_:T_[LINENUMBER]> <Transaction.payment_currency> "[Payment Currency]" .
+<_:T_[LINENUMBER]> <Transaction.payment_type> "[Payment Format]" .
+<_:T_[LINENUMBER]> <Transaction.laundering> "[Is Laundering]" .
